@@ -4,7 +4,8 @@
   "description": "Daifugo card game simulation library",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
+    "set-github-hook": "cp github_hooks/pre-commit ./.git/hooks",
+    "test": "jest --passWithNoTests",
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
