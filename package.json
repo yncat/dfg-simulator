@@ -6,6 +6,9 @@
   "scripts": {
     "set-github-hook": "cp github_hooks/pre-commit ./.git/hooks",
     "test": "jest --passWithNoTests",
+    "lint": "prettier -c src/**/*.ts",
+    "fmt": "prettier -w src/**/*.ts",
+    "pre-commit": "npm run lint && npm run test",
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },

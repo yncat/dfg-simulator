@@ -21,7 +21,7 @@ allownonascii=$(git config --type=bool hooks.allownonascii)
 # Redirect output to stderr.
 exec 1>&2
 
-if ! npm run test ; then
+if ! npm run pre-commit ; then
     echo "Failure in test"
     exit 1
 fi
