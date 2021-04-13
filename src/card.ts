@@ -12,8 +12,23 @@ export const Mark = {
 } as const;
 export type Mark = typeof Mark[keyof typeof Mark];
 
-export type CardNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
+// type 0 = Joker
+export type CardNumber =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13;
 
 export class Card {
-  constructor(public mark: Mark, public cardNumber: CardNumber) {}
+  constructor(public mark: Mark, public cardNumber: CardNumber = 0) {}
 }
