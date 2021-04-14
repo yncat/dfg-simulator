@@ -51,6 +51,11 @@ export class Rank {
     if (position <= 0) {
       throw new RankCalculationError("position must be >0");
     }
+    if (position > numberOfPlayers) {
+      throw new RankCalculationError(
+        "position is higher than number of players"
+      );
+    }
 
     switch (numberOfPlayers) {
       case 1:

@@ -69,3 +69,33 @@ describe("rank determination", () => {
     expect(r5.getRankType()).toBe(Rank.RankType.DAIHINMIN);
   });
 });
+
+describe("rank determination errors", () => {
+  test("when number of players <=0", () => {
+    const r = new Rank.Rank();
+    expect(() => {
+      r.determine(0, 1);
+    }).toThrow("number of players must be >0");
+  });
+
+  test("when position <=0", () => {
+    const r = new Rank.Rank();
+    expect(() => {
+      r.determine(1, 0);
+    }).toThrow("position must be >0");
+  });
+
+  test("when number of players <=0", () => {
+    const r = new Rank.Rank();
+    expect(() => {
+      r.determine(0, 1);
+    }).toThrow("number of players must be >0");
+  });
+
+  test("when position is higher than number of players", () => {
+    const r = new Rank.Rank();
+    expect(() => {
+      r.determine(1, 2);
+    }).toThrow("position is higher than number of players");
+  });
+});
