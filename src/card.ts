@@ -1,6 +1,7 @@
 /*
 Daifugo cards
 */
+import * as CalcFunctions from "../src/calcFunctions";
 
 // Marks
 export const Mark = {
@@ -40,5 +41,9 @@ export class Card {
 
   public isJoker(): boolean {
     return this.mark == Mark.JOKER;
+  }
+
+  public calcStrength() {
+    return CalcFunctions.convertCardNumberIntoStrength(this.cardNumber);
   }
 }

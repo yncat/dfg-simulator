@@ -16,18 +16,17 @@ export class Hand {
   }
 
   private sort() {
-    // Sorting rules: CLUBS -> DIAMONDS -> HEARTS -> SPADES -> JOKERS
     this.cards.sort((a, b) => {
-      if (a.isSameFrom(b)) {
+      if (a.cardNumber == b.cardNumber) {
         return 0;
       }
       if (a.isJoker()) {
         return 1;
       }
-      if (a.mark == b.mark) {
-        return a.cardNumber < b.cardNumber ? -1 : 1;
+      if (b.isJoker()) {
+        return -1;
       }
-      return a.mark < b.mark ? -1 : 1;
+      return a.calcStrength() < b.calcStrength() ? -1 : 1;
     });
   }
 }
