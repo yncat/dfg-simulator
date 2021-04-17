@@ -115,7 +115,9 @@ export class discardPlanner {
 
     const strongEnough = CalcFunctions.isStrongEnough(
       this.lastDiscardPair.calcStrength(),
-      this.hand.cards[index].cardNumber,
+      CalcFunctions.convertCardNumberIntoStrength(
+        this.hand.cards[index].cardNumber
+      ),
       this.strengthInverted
     );
     return strongEnough ? CheckResult.SUCCESS : CheckResult.NOT_CHECKABLE;
