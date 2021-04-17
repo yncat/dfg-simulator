@@ -15,6 +15,10 @@ export class Hand {
     this.sort();
   }
 
+  public count(): number {
+    return this.cards.length;
+  }
+
   private sort() {
     this.cards.sort((a, b) => {
       if (a.cardNumber == b.cardNumber) {
