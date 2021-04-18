@@ -50,6 +50,9 @@ class DiscardPairImple implements DiscardPair {
   }
 
   public isKaidan(): boolean {
+    if (this.cards.length <= 1) {
+      return false;
+    }
     const strs = this.strengthsFromWeakest();
     let ok = true;
     for (let i = 0; i < strs.length - 1; i++) {
@@ -175,7 +178,7 @@ export class discardPlanner {
       CalcFunctions.convertCardNumberIntoStrength(checkingCard.cardNumber),
       this.strengthInverted
     );
-    if (!CalcFunctions.isStrongEnough) {
+    if (!strongEnough) {
       return CheckResult.NOT_CHECKABLE;
     }
 
