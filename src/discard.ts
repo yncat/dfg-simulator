@@ -90,10 +90,19 @@ export const SelectableCheckResult = {
 } as const;
 export type SelectableCheckResult = typeof SelectableCheckResult[keyof typeof SelectableCheckResult];
 
+// card select result
+export const SelectResult = {
+  SUCCESS: 0,
+  ALREADY_SELECTED: 1,
+  NOT_SELECTABLE:2,
+} as const;
+export type SelectResult = typeof SelectResult[keyof typeof SelectResult];
+
 // card deselect result
 export const DeselectResult = {
   SUCCESS: 0,
   ALREADY_DESELECTED: 1,
+  NOT_DESELECTABLE:2,
 } as const;
 export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
 
@@ -143,6 +152,30 @@ export class discardPlanner {
     return this.selected.filter((val) => {
       return val;
     }).length;
+  }
+
+  public select(index:number):SelectResult{
+    if(index<0 || index>=this.hand.count()){
+      return SelectResult.NOT_SELECTABLE;
+    }
+    if(this.selected[index]){
+      return SelectResult.ALREADY_SELECTED;
+    }
+
+    this.selected[index]=true;
+    return SelectResult.SUCCESS;
+  }
+
+  public deselect(index:number):DeselectResult{
+    if(index<0 || index>=this.hand.count()){
+      return DeselectResult.NOT_DESELECTABLE;
+    }
+    if(!this.selected[index]){
+      return DeselectResult.ALREADY_DESELECTED;
+    }
+
+    this.selected[index]=false;
+    return DeselectResult.SUCCESS;
   }
 
   private checkSingle(index: number): SelectableCheckResult {

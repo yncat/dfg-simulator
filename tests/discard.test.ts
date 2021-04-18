@@ -211,16 +211,70 @@ describe("isSelectable", () => {
   });
 });
 
-/*
-describe("CountCheckedCards", () => {
-  it("can count checked cards", () => {
+describe("select", () => {
+  it("returns SUCCESS when successfully selected a card", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+  });
+
+  it("returns ALREADY_SELECTED when the card is already selected", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+    expect(p.select(0)).toBe(Discard.SelectResult.ALREADY_SELECTED);
+  });
+
+  it("returns NOT_SELECTABLE when the index is out of range", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.select(-1)).toBe(Discard.SelectResult.NOT_SELECTABLE);
+    expect(p.select(1)).toBe(Discard.SelectResult.NOT_SELECTABLE);
+  });
+});
+
+describe("deselect", () => {
+  it("returns SUCCESS when successfully deselected a card", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+    expect(p.deselect(0)).toBe(Discard.DeselectResult.SUCCESS);
+  });
+
+  it("returns ALREADY_DESELECTED when the card is not selected", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.deselect(0)).toBe(Discard.DeselectResult.ALREADY_DESELECTED);
+  });
+
+  it("returns NOT_DESELECTABLE when the index is out of range", () => {
+    const h = new Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.deselect(-1)).toBe(Discard.DeselectResult.NOT_DESELECTABLE);
+    expect(p.deselect(1)).toBe(Discard.DeselectResult.NOT_DESELECTABLE);
+  });
+});
+
+describe("CountSelectedCards", () => {
+  it("can count selected cards", () => {
     const h = new Hand();
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.discardPlanner(h, d, false);
     h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
     expect(p.countSelectedCards()).toBe(0);
-    expect(p.isSelectable(0)).toBe(Discard.SelectableCheckResult.SELECTABLE);
-    expect(p.countCheckedCards()).toBe(1);
+    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+    expect(p.countSelectedCards()).toBe(1);
   });
 });
-*/
