@@ -19,6 +19,18 @@ export class Hand {
     return this.cards.length;
   }
 
+  public countCardsWithSpecifiedNumber(cardNumber: number) {
+    return this.cards.filter((val) => {
+      return val.cardNumber == cardNumber;
+    }).length;
+  }
+
+  public countJokers() {
+    return this.cards.filter((val) => {
+      return val.isJoker();
+    }).length;
+  }
+
   private sort() {
     this.cards.sort((a, b) => {
       if (a.cardNumber == b.cardNumber) {

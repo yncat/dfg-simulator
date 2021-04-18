@@ -48,6 +48,16 @@ describe("CheckIfPossible", () => {
     expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
   });
 
+  it("returns NOT_CHECKABLE when checking a single joker and the last discard is also a joker", () => {
+    const h = new Hand();
+    h.giveCards(new Card.Card(Card.Mark.JOKER));
+    const d = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.Mark.CLUBS, 2)
+    );
+    const p = new Discard.discardPlanner(h, d, false);
+    expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+  });
+
   it("returns NOT_CHECKABLE when checking a single card and the last discard is stronger", () => {
     const h = new Hand();
     h.giveCards(new Card.Card(Card.Mark.SPADES, 3));

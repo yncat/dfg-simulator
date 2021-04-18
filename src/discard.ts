@@ -8,8 +8,11 @@ import * as CalcFunctions from "./calcFunctions";
 // Use interface to prevent DiscardPair from being instantiated directly from outside
 export interface DiscardPair {
   cards: Card.Card[];
+  count: () => number;
+  calcCardNumber: (strengthInverted: boolean) => number;
   calcStrength: () => number;
   isNull: () => boolean;
+  isKaidan: () => boolean;
 }
 
 class DiscardPairImple implements DiscardPair {
@@ -18,8 +21,48 @@ class DiscardPairImple implements DiscardPair {
     this.cards = cards;
   }
 
+  public count(): number {
+    return this.cards.length;
+  }
+
+  public calcCardNumber(strengthInverted: boolean): number {
+    const cs = Array.from(this.cards);
+    cs.sort((a, b) => {
+      if (a.cardNumber == b.cardNumber) {
+        return 0;
+      }
+      const stronger = CalcFunctions.findStrongerCardNumber(
+        a.cardNumber,
+        b.cardNumber,
+        strengthInverted
+      );
+      return stronger == a.cardNumber ? 1 : -1;
+    });
+    return cs[0].cardNumber;
+  }
+
   public calcStrength(): number {
-    // If this pair is a kaidan, we must return the weakest one
+    return this.strengthsFromWeakest()[0];
+  }
+
+  public isNull(): boolean {
+    return this.cards.length == 0;
+  }
+
+  public isKaidan(): boolean {
+    const strs = this.strengthsFromWeakest();
+    let ok = true;
+    for (let i = 0; i < strs.length - 1; i++) {
+      if (strs[i + 1] != strs[i] + 1) {
+        ok = false;
+        break;
+      }
+    }
+
+    return ok;
+  }
+
+  private strengthsFromWeakest() {
     const strs: number[] = this.cards.map((cd: Card.Card) => {
       return CalcFunctions.convertCardNumberIntoStrength(cd.cardNumber);
     });
@@ -27,11 +70,7 @@ class DiscardPairImple implements DiscardPair {
     strs.sort((a: number, b: number) => {
       return a - b;
     });
-    return strs[0];
-  }
-
-  public isNull(): boolean {
-    return this.cards.length == 0;
+    return strs;
   }
 }
 
@@ -113,6 +152,14 @@ export class discardPlanner {
       return CheckResult.SUCCESS;
     }
 
+    // If selecting a joker and the last discard pair consists of one card only, it can be checked unless the last discard pair is also a joker.
+    if (this.hand.cards[index].isJoker() && this.lastDiscardPair.count() == 1) {
+      return this.lastDiscardPair.cards[0].isJoker()
+        ? CheckResult.NOT_CHECKABLE
+        : CheckResult.SUCCESS;
+    }
+
+    // check strength
     const strongEnough = CalcFunctions.isStrongEnough(
       this.lastDiscardPair.calcStrength(),
       CalcFunctions.convertCardNumberIntoStrength(
@@ -120,6 +167,53 @@ export class discardPlanner {
       ),
       this.strengthInverted
     );
-    return strongEnough ? CheckResult.SUCCESS : CheckResult.NOT_CHECKABLE;
+    if (!CalcFunctions.isStrongEnough) {
+      return CheckResult.NOT_CHECKABLE;
+    }
+
+    // Cannot be checked when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
+    if (this.lastDiscardPair.isKaidan()) {
+      // when in kaidan, all cards required for kaidan completion must be in the hand.
+      // TODO
+      return CheckResult.NOT_CHECKABLE;
+    } else {
+      if (this.hand.cards[index].isJoker()) {
+        // count jokers, but we are trying to check one of them, so exclude that one
+        const jokers = this.hand.countJokers() - 1;
+        // When using joker, other cards can be any card if it's stronger than the last discard
+        const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
+        const nums = CalcFunctions.enumerateStrongerCardNumbers(
+          cn,
+          this.strengthInverted
+        );
+        let found = false;
+        for (let i = 0; i < nums.length; i++) {
+          if (
+            this.hand.countCardsWithSpecifiedNumber(nums[i]) + jokers >=
+            this.lastDiscardPair.count()
+          ) {
+            found = true;
+            break;
+          } // if
+        } // for
+        if (!found) {
+          return CheckResult.NOT_CHECKABLE;
+        }
+      } else {
+        // since we are selecting a numbered card, the subsequent cards must be the same number.
+        const jokers = this.hand.countJokers();
+        if (
+          jokers +
+            this.hand.countCardsWithSpecifiedNumber(
+              this.hand.cards[index].cardNumber
+            ) <
+          this.lastDiscardPair.count()
+        ) {
+          return CheckResult.NOT_CHECKABLE;
+        } // if
+      } // joker or number
+    } // not a kaidan
+
+    return CheckResult.SUCCESS;
   }
 }
