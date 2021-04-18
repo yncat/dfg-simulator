@@ -189,8 +189,12 @@ export class discardPlanner {
       return CheckResult.NOT_CHECKABLE;
     } else {
       if (checkingCard.isJoker()) {
-        // count jokers, but we are trying to check one of them, so exclude that one
-        const jokers = this.hand.countJokers() - 1;
+        const jokers = this.hand.countJokers();
+        // if we have enough jokers, we can stop here
+        if (jokers >= this.lastDiscardPair.count()) {
+          return CheckResult.SUCCESS;
+        }
+
         // When using joker, other cards can be any card if it's stronger than the last discard
         const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
         const nums = CalcFunctions.enumerateStrongerCardNumbers(

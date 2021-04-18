@@ -114,6 +114,34 @@ describe("CheckIfPossible", () => {
         const p = new Discard.discardPlanner(h, d, false);
         expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.NOT_CHECKABLE);
       });
+
+      it("returns SUCCESS when the last discard is two-card pair and you have two jokers 01", () => {
+        const h = new Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.JOKER),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.SPADES, 4)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+      });
+
+      it("returns SUCCESS when the last discard is two-card pair and you have two jokers 02", () => {
+        const h = new Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.JOKER),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 2),
+          new Card.Card(Card.Mark.SPADES, 2)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+      });
     });
   });
 });
