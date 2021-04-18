@@ -182,19 +182,51 @@ export class discardPlanner {
       return CheckResult.NOT_CHECKABLE;
     }
 
-    // Cannot be checked when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
-    if (this.lastDiscardPair.isKaidan()) {
-      // when in kaidan, all cards required for kaidan completion must be in the hand.
-      // TODO
-      return CheckResult.NOT_CHECKABLE;
-    } else {
-      if (checkingCard.isJoker()) {
-        const jokers = this.hand.countJokers();
-        // if we have enough jokers, we can stop here
-        if (jokers >= this.lastDiscardPair.count()) {
-          return CheckResult.SUCCESS;
-        }
+    // we have to disallow selecting this card when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
+    // So we start complex checking.
+    const jokers = this.hand.countJokers();
+    // if we are selecting joker and we have enough jokers for wildcarding everything, that's OK.
+    if (checkingCard.isJoker() && jokers >= this.lastDiscardPair.count()) {
+      return CheckResult.SUCCESS;
+    }
 
+    if (this.lastDiscardPair.isKaidan()) {
+      if (checkingCard.isJoker()) {
+        // If selecting a joker, all kaidan combinations might be possible if it's stronger than the last discard pair
+        const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
+        const nums = CalcFunctions.enumerateStrongerCardNumbers(
+          cn,
+          this.strengthInverted
+        );
+        let found = false;
+        for (let i = 0; i < nums.length; i++) {
+          if (
+            this.hand.countSequencialCardsFrom(nums[i], this.strengthInverted) +
+              jokers >=
+            this.lastDiscardPair.count()
+          ) {
+            found = true;
+            break;
+          } // if
+        } // for
+        if (!found) {
+          return CheckResult.NOT_CHECKABLE;
+        } // if
+      } else {
+        // kaidan joker?
+        // we're selecting a numbered card. So we must have sequencial cards starting from the selecting card.
+        return this.hand.countSequencialCardsFrom(
+          checkingCard.cardNumber,
+          this.strengthInverted
+        ) +
+          jokers >=
+          this.lastDiscardPair.count()
+          ? CheckResult.SUCCESS
+          : CheckResult.NOT_CHECKABLE;
+      }
+    } else {
+      // kaidan?
+      if (checkingCard.isJoker()) {
         // When using joker, other cards can be any card if it's stronger than the last discard
         const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
         const nums = CalcFunctions.enumerateStrongerCardNumbers(
