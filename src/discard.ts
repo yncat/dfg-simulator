@@ -82,26 +82,26 @@ export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
   return new DiscardPairImple(cards);
 }
 
-// card check result
-export const CheckResult = {
-  SUCCESS: 0,
-  ALREADY_CHECKED: 1,
-  NOT_CHECKABLE: 2,
+// card selectable result
+export const SelectableCheckResult = {
+  SELECTABLE: 0,
+  ALREADY_SELECTED: 1,
+  NOT_SELECTABLE: 2,
 } as const;
-export type CheckResult = typeof CheckResult[keyof typeof CheckResult];
+export type SelectableCheckResult = typeof SelectableCheckResult[keyof typeof SelectableCheckResult];
 
-// card uncheck result
-export const UncheckResult = {
+// card deselect result
+export const DeselectResult = {
   SUCCESS: 0,
-  ALREADY_UNCHECKED: 1,
+  ALREADY_DESELECTED: 1,
 } as const;
-export type UncheckResult = typeof UncheckResult[keyof typeof UncheckResult];
+export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
 
 export class discardPlanner {
   private hand: Hand;
   private lastDiscardPair: DiscardPair;
   private strengthInverted: boolean;
-  private checked: boolean[];
+  private selected: boolean[];
 
   constructor(
     hand: Hand,
@@ -111,87 +111,82 @@ export class discardPlanner {
     this.hand = hand;
     this.lastDiscardPair = lastDiscardPair;
     this.strengthInverted = strengthInverted;
-    this.checked = [];
+    this.selected = [];
     for (let i = 0; i < hand.count(); i++) {
-      this.checked.push(false);
+      this.selected.push(false);
     }
   }
 
-  public checkIfPossible(index: number): CheckResult {
+  public isSelectable(index: number): SelectableCheckResult {
     // out of range?
     if (index < 0 || index >= this.hand.count()) {
-      return CheckResult.NOT_CHECKABLE;
+      return SelectableCheckResult.NOT_SELECTABLE;
     }
 
-    // already checked?
-    if (this.checked[index]) {
-      return CheckResult.ALREADY_CHECKED;
+    // already selected?
+    if (this.selected[index]) {
+      return SelectableCheckResult.ALREADY_SELECTED;
     }
 
-    const cnt = this.countCheckedCards();
-    let ret: CheckResult = CheckResult.SUCCESS;
+    const cnt = this.countSelectedCards();
+    let ret: SelectableCheckResult = SelectableCheckResult.SELECTABLE;
     if (cnt == 0) {
       ret = this.checkSingle(index);
     } else {
       // todo: checkMultiple
     }
 
-    if (ret != CheckResult.SUCCESS) {
-      return ret;
-    }
-
-    this.checked[index] = true;
-    return CheckResult.SUCCESS;
+    return ret;
   }
 
-  public countCheckedCards() {
-    return this.checked.filter((val) => {
+  public countSelectedCards() {
+    return this.selected.filter((val) => {
       return val;
     }).length;
   }
 
-  private checkSingle(index: number): CheckResult {
-    const checkingCard = this.hand.cards[index];
+  private checkSingle(index: number): SelectableCheckResult {
+    const selectingCard = this.hand.cards[index];
     if (this.lastDiscardPair.isNull()) {
-      return CheckResult.SUCCESS;
+      return SelectableCheckResult.SELECTABLE;
     }
 
-    // If selecting a joker and the last discard pair consists of one card only, it can be checked unless the last discard pair is also a joker.
-    if (checkingCard.isJoker() && this.lastDiscardPair.count() == 1) {
+    // If selecting a joker and the last discard pair consists of one card only, it can be selected unless the last discard pair is also a joker.
+    if (selectingCard.isJoker() && this.lastDiscardPair.count() == 1) {
       return this.lastDiscardPair.cards[0].isJoker()
-        ? CheckResult.NOT_CHECKABLE
-        : CheckResult.SUCCESS;
+        ? SelectableCheckResult.NOT_SELECTABLE
+        : SelectableCheckResult.SELECTABLE;
     }
 
     // Single joker can be overriden by a 3 of spades
     if (
       this.lastDiscardPair.cards[0].isJoker() &&
-      checkingCard.mark == Card.Mark.SPADES &&
-      checkingCard.cardNumber == 3
+      selectingCard.mark == Card.Mark.SPADES &&
+      selectingCard.cardNumber == 3
     ) {
-      return CheckResult.SUCCESS;
+      return SelectableCheckResult.SELECTABLE;
     }
 
     // check strength
     const strongEnough = CalcFunctions.isStrongEnough(
       this.lastDiscardPair.calcStrength(),
-      CalcFunctions.convertCardNumberIntoStrength(checkingCard.cardNumber),
+      CalcFunctions.convertCardNumberIntoStrength(selectingCard.cardNumber),
       this.strengthInverted
     );
     if (!strongEnough) {
-      return CheckResult.NOT_CHECKABLE;
+      return SelectableCheckResult.NOT_SELECTABLE;
     }
 
     // we have to disallow selecting this card when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
     // So we start complex checking.
     const jokers = this.hand.countJokers();
     // if we are selecting joker and we have enough jokers for wildcarding everything, that's OK.
-    if (checkingCard.isJoker() && jokers >= this.lastDiscardPair.count()) {
-      return CheckResult.SUCCESS;
+    if (selectingCard.isJoker() && jokers >= this.lastDiscardPair.count()) {
+      return SelectableCheckResult.SELECTABLE;
     }
 
     if (this.lastDiscardPair.isKaidan()) {
-      if (checkingCard.isJoker()) {
+      if (selectingCard.isJoker()) {
         // If selecting a joker, all kaidan combinations might be possible if it's stronger than the last discard pair
         const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
         const nums = CalcFunctions.enumerateStrongerCardNumbers(
@@ -210,23 +205,23 @@ export class discardPlanner {
           } // if
         } // for
         if (!found) {
-          return CheckResult.NOT_CHECKABLE;
+          return SelectableCheckResult.NOT_SELECTABLE;
         } // if
       } else {
         // kaidan joker?
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
         return this.hand.countSequencialCardsFrom(
-          checkingCard.cardNumber,
+          selectingCard.cardNumber,
           this.strengthInverted
         ) +
           jokers >=
           this.lastDiscardPair.count()
-          ? CheckResult.SUCCESS
-          : CheckResult.NOT_CHECKABLE;
+          ? SelectableCheckResult.SELECTABLE
+          : SelectableCheckResult.NOT_SELECTABLE;
       }
     } else {
       // kaidan?
-      if (checkingCard.isJoker()) {
+      if (selectingCard.isJoker()) {
         // When using joker, other cards can be any card if it's stronger than the last discard
         const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
         const nums = CalcFunctions.enumerateStrongerCardNumbers(
@@ -244,21 +239,21 @@ export class discardPlanner {
           } // if
         } // for
         if (!found) {
-          return CheckResult.NOT_CHECKABLE;
+          return SelectableCheckResult.NOT_SELECTABLE;
         }
       } else {
         // since we are selecting a numbered card, the subsequent cards must be the same number.
         const jokers = this.hand.countJokers();
         if (
           jokers +
-            this.hand.countCardsWithSpecifiedNumber(checkingCard.cardNumber) <
+            this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) <
           this.lastDiscardPair.count()
         ) {
-          return CheckResult.NOT_CHECKABLE;
+          return SelectableCheckResult.NOT_SELECTABLE;
         } // if
       } // joker or number
     } // not a kaidan
 
-    return CheckResult.SUCCESS;
+    return SelectableCheckResult.SELECTABLE;
   }
 }
