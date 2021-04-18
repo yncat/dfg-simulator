@@ -214,7 +214,7 @@ export class discardPlanner {
         } // if
       } else {
         // kaidan joker?
-        // we're selecting a numbered card. So we must have sequencial cards starting from the selecting card.
+        // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
         return this.hand.countSequencialCardsFrom(
           checkingCard.cardNumber,
           this.strengthInverted

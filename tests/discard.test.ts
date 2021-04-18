@@ -170,6 +170,24 @@ describe("CheckIfPossible", () => {
         const p = new Discard.discardPlanner(h, d, false);
         expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
       });
+
+      it("returns SUCCESS when the last discard is a kaidan and you have stronger kaidan cards", () => {
+        const h = new Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.SPADES,4),
+          new Card.Card(Card.Mark.SPADES,5),
+          new Card.Card(Card.Mark.SPADES,6),
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.SPADES, 5),
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+        expect(p.checkIfPossible(1)).toBe(Discard.CheckResult.SUCCESS);
+        expect(p.checkIfPossible(2)).toBe(Discard.CheckResult.SUCCESS);
+      });
     });
   });
 });
