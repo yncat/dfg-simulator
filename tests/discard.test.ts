@@ -38,6 +38,17 @@ describe("CheckIfPossible", () => {
     expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
   });
 
+  it("returns SUCCESS when checking a 3 of spades and the last discard is a joker", () => {
+    const h = new Hand();
+    h.giveCards(new Card.Card(Card.Mark.SPADES,3));
+    const d = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.Mark.JOKER)
+    );
+    const p = new Discard.discardPlanner(h, d, false);
+    expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+  });
+
+
   it("returns SUCCESS when checking a single joker and the last discard is an weaker card", () => {
     const h = new Hand();
     h.giveCards(new Card.Card(Card.Mark.JOKER));

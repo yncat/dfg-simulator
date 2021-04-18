@@ -148,23 +148,31 @@ export class discardPlanner {
   }
 
   private checkSingle(index: number): CheckResult {
+    const checkingCard = this.hand.cards[index];
     if (this.lastDiscardPair.isNull()) {
       return CheckResult.SUCCESS;
     }
 
     // If selecting a joker and the last discard pair consists of one card only, it can be checked unless the last discard pair is also a joker.
-    if (this.hand.cards[index].isJoker() && this.lastDiscardPair.count() == 1) {
+    if (checkingCard.isJoker() && this.lastDiscardPair.count() == 1) {
       return this.lastDiscardPair.cards[0].isJoker()
         ? CheckResult.NOT_CHECKABLE
         : CheckResult.SUCCESS;
     }
 
+    // Single joker can be overriden by a 3 of spades
+    if (
+      this.lastDiscardPair.cards[0].isJoker() &&
+      checkingCard.mark == Card.Mark.SPADES &&
+      checkingCard.cardNumber == 3
+    ) {
+      return CheckResult.SUCCESS;
+    }
+
     // check strength
     const strongEnough = CalcFunctions.isStrongEnough(
       this.lastDiscardPair.calcStrength(),
-      CalcFunctions.convertCardNumberIntoStrength(
-        this.hand.cards[index].cardNumber
-      ),
+      CalcFunctions.convertCardNumberIntoStrength(checkingCard.cardNumber),
       this.strengthInverted
     );
     if (!CalcFunctions.isStrongEnough) {
@@ -177,7 +185,7 @@ export class discardPlanner {
       // TODO
       return CheckResult.NOT_CHECKABLE;
     } else {
-      if (this.hand.cards[index].isJoker()) {
+      if (checkingCard.isJoker()) {
         // count jokers, but we are trying to check one of them, so exclude that one
         const jokers = this.hand.countJokers() - 1;
         // When using joker, other cards can be any card if it's stronger than the last discard
@@ -204,9 +212,7 @@ export class discardPlanner {
         const jokers = this.hand.countJokers();
         if (
           jokers +
-            this.hand.countCardsWithSpecifiedNumber(
-              this.hand.cards[index].cardNumber
-            ) <
+            this.hand.countCardsWithSpecifiedNumber(checkingCard.cardNumber) <
           this.lastDiscardPair.count()
         ) {
           return CheckResult.NOT_CHECKABLE;
