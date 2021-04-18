@@ -97,10 +97,24 @@ describe("CheckIfPossible", () => {
           new Card.Card(Card.Mark.SPADES,6)
         );
         const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES,4),
           new Card.Card(Card.Mark.SPADES,4)
         );
         const p = new Discard.discardPlanner(h, d, false);
         expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.SUCCESS);
+      });
+
+      it("returns NOT_CHECKABLE when the last discard is two-card pair and you have one of the checking stronger cards only", ()=>{
+        const h = new Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.SPADES,6),
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES,4),
+          new Card.Card(Card.Mark.SPADES,4)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.checkIfPossible(0)).toBe(Discard.CheckResult.NOT_CHECKABLE);
       });
     });
   });
