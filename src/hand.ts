@@ -36,6 +36,7 @@ export class Hand {
     cardNumber: number,
     strengthInverted: boolean
   ) {
+    // TODO: move this to discard planner
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
     let ret = 0;
