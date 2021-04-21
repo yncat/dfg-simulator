@@ -59,3 +59,15 @@ export function convertCardNumberIntoStrength(n: number): number {
 export function convertStrengthIntoCardNumber(n: number): number {
   return n == 16 ? 0 : n == 14 ? 1 : n == 15 ? 2 : n;
 }
+
+export function calcStrongerCardNumber(
+  cardNumber: number,
+  inverted: boolean
+): number | null {
+  let str = convertCardNumberIntoStrength(cardNumber);
+  str = inverted ? str - 1 : str + 1;
+  if (str == 2 || str == 16) {
+    return null;
+  }
+  return convertStrengthIntoCardNumber(str);
+}
