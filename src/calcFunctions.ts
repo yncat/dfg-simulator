@@ -71,3 +71,15 @@ export function calcStrongerCardNumber(
   }
   return convertStrengthIntoCardNumber(str);
 }
+
+export function calcWeakerCardNumber(
+  cardNumber: number,
+  inverted: boolean
+): number | null {
+  let str = convertCardNumberIntoStrength(cardNumber);
+  str = inverted ? str + 1 : str - 1;
+  if (str == 2 || str == 16) {
+    return null;
+  }
+  return convertStrengthIntoCardNumber(str);
+}
