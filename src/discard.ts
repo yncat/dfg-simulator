@@ -246,7 +246,10 @@ export class discardPlanner {
         // search for starting point of the sequence
         let start = selectingCard.cardNumber;
         while (true) {
-          const tmp = CalcFunctions.calcWeakerCardNumber(start,this.strengthInverted);
+          const tmp = CalcFunctions.calcWeakerCardNumber(
+            start,
+            this.strengthInverted
+          );
           if (tmp === null) {
             break;
           }
@@ -257,7 +260,10 @@ export class discardPlanner {
         }
         // if we have jokers, we can make go further down
         for (let i = 0; i < this.hand.countJokers(); i++) {
-          const tmp = CalcFunctions.calcWeakerCardNumber(start,this.strengthInverted);
+          const tmp = CalcFunctions.calcWeakerCardNumber(
+            start,
+            this.strengthInverted
+          );
           if (tmp === null) {
             break;
           }
@@ -271,7 +277,9 @@ export class discardPlanner {
         if (clip === null) {
           throw Error("unexpected.");
         }
-        if (start <= this.lastDiscardPair.calcCardNumber(this.strengthInverted)) {
+        if (
+          start <= this.lastDiscardPair.calcCardNumber(this.strengthInverted)
+        ) {
           start = clip;
         }
 
