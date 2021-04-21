@@ -243,8 +243,40 @@ export class discardPlanner {
       } else {
         // kaidan joker?
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
+        // search for starting point of the sequence
+        let start = selectingCard.cardNumber;
+        while (true) {
+          const tmp = CalcFunctions.calcWeakerCardNumber(start,this.strengthInverted);
+          if (tmp === null) {
+            break;
+          }
+          if (this.hand.countCardsWithSpecifiedNumber(tmp) == 0) {
+            break;
+          }
+          start = tmp;
+        }
+        // if we have jokers, we can make go further down
+        for (let i = 0; i < this.hand.countJokers(); i++) {
+          const tmp = CalcFunctions.calcWeakerCardNumber(start,this.strengthInverted);
+          if (tmp === null) {
+            break;
+          }
+          start = tmp;
+        }
+        // Clip the value to the last discard + 1 strength
+        const clip = CalcFunctions.calcStrongerCardNumber(
+          this.lastDiscardPair.calcCardNumber(this.strengthInverted),
+          this.strengthInverted
+        );
+        if (clip === null) {
+          throw Error("unexpected.");
+        }
+        if (start <= this.lastDiscardPair.calcCardNumber(this.strengthInverted)) {
+          start = clip;
+        }
+
         return this.hand.countSequencialCardsFrom(
-          selectingCard.cardNumber,
+          start,
           this.strengthInverted
         ) +
           jokers >=

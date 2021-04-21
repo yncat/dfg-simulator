@@ -198,14 +198,12 @@ describe("isSelectable", () => {
         expect(p.isSelectable(0)).toBe(
           Discard.SelectableCheckResult.SELECTABLE
         );
-        /*
         expect(p.isSelectable(1)).toBe(
           Discard.SelectableCheckResult.SELECTABLE
         );
         expect(p.isSelectable(2)).toBe(
           Discard.SelectableCheckResult.SELECTABLE
         );
-        */
       });
     });
   });
