@@ -205,6 +205,54 @@ describe("isSelectable", () => {
           Discard.SelectableCheckResult.SELECTABLE
         );
       });
+
+      it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards including a joker", () => {
+        const h = new Hand.Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.SPADES, 5),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.SPADES, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.isSelectable(0)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+      });
+
+      it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards including a joker in the middle of the kaidan", () => {
+        const h = new Hand.Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.JOKER),
+          new Card.Card(Card.Mark.SPADES, 6)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.SPADES, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        expect(p.isSelectable(0)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+      });
     });
   });
 });
