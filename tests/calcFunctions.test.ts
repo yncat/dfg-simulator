@@ -145,3 +145,13 @@ describe.each([
     expect(CalcFunctions.calcWeakerCardNumber(a, b)).toBe(e);
   });
 });
+
+describe.each([
+  [1, 1, [1]],
+  [1, 2, [1, 2]],
+  [2, 1, [1, 2]],
+])("enumerateNumbersBetween(a=%i, b=%i)", (a, b, e) => {
+  it("returns ${e}", () => {
+    expect(CalcFunctions.enumerateNumbersBetween(a, b)).toStrictEqual(e);
+  });
+});

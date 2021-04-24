@@ -213,25 +213,25 @@ export class discardPlanner {
     // we have to disallow selecting this card when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
     // So we start complex checking.
     const jokers = this.hand.countJokers();
+    const lastDiscardPairCardNumber = this.lastDiscardPair.calcCardNumber(
+      this.strengthInverted
+    );
+    const lastDiscardPairCount = this.lastDiscardPair.count();
     // if we are selecting joker and we have enough jokers for wildcarding everything, that's OK.
-    if (selectingCard.isJoker() && jokers >= this.lastDiscardPair.count()) {
+    if (selectingCard.isJoker() && jokers >= lastDiscardPairCount) {
       return SelectableCheckResult.SELECTABLE;
     }
 
     if (this.lastDiscardPair.isKaidan()) {
       if (selectingCard.isJoker()) {
         // If selecting a joker, all kaidan combinations might be possible if it's stronger than the last discard pair
-        const cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
         const nums = CalcFunctions.enumerateStrongerCardNumbers(
-          cn,
+          lastDiscardPairCardNumber,
           this.strengthInverted
         );
         let found = false;
         for (let i = 0; i < nums.length; i++) {
-          if (
-            this.countSequencialCardsFrom(nums[i]) + jokers >=
-            this.lastDiscardPair.count()
-          ) {
+          if (this.countSequencialCardsFrom(nums[i]) >= lastDiscardPairCount) {
             found = true;
             break;
           } // if
@@ -240,7 +240,6 @@ export class discardPlanner {
           return SelectableCheckResult.NOT_SELECTABLE;
         } // if
       } else {
-        // kaidan joker?
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
         // search for starting point of the sequence
         let start = selectingCard.cardNumber;
@@ -258,32 +257,45 @@ export class discardPlanner {
           start = tmp;
         }
         // if we have jokers, we can make go further down
-        for (let i = 0; i < this.hand.countJokers(); i++) {
+        // we still want to store the starting point without jokers, so calculate it using a different variable.
+        let jokerStart = start;
+        for (let i = 0; i < jokers; i++) {
           const tmp = CalcFunctions.calcWeakerCardNumber(
-            start,
+            jokerStart,
             this.strengthInverted
           );
           if (tmp === null) {
             break;
           }
-          start = tmp;
+          jokerStart = tmp;
         }
         // Clip the value to the last discard + 1 strength
         const clip = CalcFunctions.calcStrongerCardNumber(
-          this.lastDiscardPair.calcCardNumber(this.strengthInverted),
+          lastDiscardPairCardNumber,
           this.strengthInverted
         );
         if (clip === null) {
-          throw Error("unexpected.");
-        }
-        if (
-          start <= this.lastDiscardPair.calcCardNumber(this.strengthInverted)
-        ) {
-          start = clip;
+          throw Error("unexpected clip value.");
         }
 
-        return this.countSequencialCardsFrom(start) + jokers >=
-          this.lastDiscardPair.count()
+        if (start <= lastDiscardPairCardNumber) {
+          start = clip;
+        }
+        if (jokerStart <= lastDiscardPairCardNumber) {
+          jokerStart = clip;
+        }
+
+        // Check for pairs between jokerStart and start
+        let found = false;
+        const nums = CalcFunctions.enumerateNumbersBetween(start, jokerStart);
+        for (let i = 0; i < nums.length; i++) {
+          if (this.countSequencialCardsFrom(nums[i]) >= lastDiscardPairCount) {
+            found = true;
+            break;
+          }
+        }
+
+        return found
           ? SelectableCheckResult.SELECTABLE
           : SelectableCheckResult.NOT_SELECTABLE;
       }
@@ -328,8 +340,10 @@ export class discardPlanner {
   public countSequencialCardsFrom(cardNumber: number) {
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
+    // This function considers jokers in the hand. When one of the required cards is not found, it tries to substitute a joker instead.
     let ret = 0;
     let str = CalcFunctions.convertCardNumberIntoStrength(cardNumber);
+    let jokers = this.hand.countJokers();
     while (true) {
       if (str == 2 || str == 16) {
         break;
@@ -339,11 +353,36 @@ export class discardPlanner {
           CalcFunctions.convertStrengthIntoCardNumber(str)
         ) == 0
       ) {
-        break;
+        if (jokers == 0) {
+          break;
+        }
+        jokers--; // substituted a joker
       }
       ret++;
       str = this.strengthInverted ? str - 1 : str + 1;
     }
     return ret;
+  }
+
+  public findKaidanStartingPoint(cardNumber: number) {
+    // Find the starting point of kaidan which can include the given card number.
+    // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
+    let jokers = this.hand.countJokers();
+    let start = cardNumber;
+    let cn: number | null = start;
+    while (true) {
+      if (this.hand.countCardsWithSpecifiedNumber(cn) == 0) {
+        if (jokers == 0) {
+          break;
+        }
+        jokers--; // Joker substituted.
+      }
+      start = cn;
+      cn = CalcFunctions.calcWeakerCardNumber(start, this.strengthInverted);
+      if (cn === null) {
+        break;
+      }
+    }
+    return start;
   }
 }

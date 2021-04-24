@@ -83,3 +83,16 @@ export function calcWeakerCardNumber(
   }
   return convertStrengthIntoCardNumber(str);
 }
+
+export function enumerateNumbersBetween(a: number, b: number): number[] {
+  if (a == b) {
+    return [a];
+  }
+  const lower = a < b ? a : b;
+  const higher = a > b ? a : b;
+  const ret: number[] = [];
+  for (let i = lower; i <= higher; i++) {
+    ret.push(i);
+  }
+  return ret;
+}
