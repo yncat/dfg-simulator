@@ -242,33 +242,7 @@ export class discardPlanner {
       } else {
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
         // search for starting point of the sequence
-        let start = selectingCard.cardNumber;
-        while (true) {
-          const tmp = CalcFunctions.calcWeakerCardNumber(
-            start,
-            this.strengthInverted
-          );
-          if (tmp === null) {
-            break;
-          }
-          if (this.hand.countCardsWithSpecifiedNumber(tmp) == 0) {
-            break;
-          }
-          start = tmp;
-        }
-        // if we have jokers, we can make go further down
-        // we still want to store the starting point without jokers, so calculate it using a different variable.
-        let jokerStart = start;
-        for (let i = 0; i < jokers; i++) {
-          const tmp = CalcFunctions.calcWeakerCardNumber(
-            jokerStart,
-            this.strengthInverted
-          );
-          if (tmp === null) {
-            break;
-          }
-          jokerStart = tmp;
-        }
+        let s = this.findKaidanStartingPoint(selectingCard.cardNumber);
         // Clip the value to the last discard + 1 strength
         const clip = CalcFunctions.calcStrongerCardNumber(
           lastDiscardPairCardNumber,
@@ -277,22 +251,12 @@ export class discardPlanner {
         if (clip === null) {
           throw Error("unexpected clip value.");
         }
-
-        if (start <= lastDiscardPairCardNumber) {
-          start = clip;
+        if (s <= lastDiscardPairCardNumber) {
+          s = clip;
         }
-        if (jokerStart <= lastDiscardPairCardNumber) {
-          jokerStart = clip;
-        }
-
-        // Check for pairs between jokerStart and start
         let found = false;
-        const nums = CalcFunctions.enumerateNumbersBetween(start, jokerStart);
-        for (let i = 0; i < nums.length; i++) {
-          if (this.countSequencialCardsFrom(nums[i]) >= lastDiscardPairCount) {
-            found = true;
-            break;
-          }
+        if (this.countSequencialCardsFrom(s) >= lastDiscardPairCount) {
+          found = true;
         }
 
         return found
