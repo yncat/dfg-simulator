@@ -344,6 +344,22 @@ describe("CountSelectedCards", () => {
   });
 });
 
+describe("CountSelectedJokers", () => {
+  it("can count selected jokers", () => {
+    const h = new Hand.Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    h.giveCards(
+      new Card.Card(Card.Mark.JOKER),
+      new Card.Card(Card.Mark.JOKER),
+      new Card.Card(Card.Mark.JOKER)
+    );
+    p.select(0);
+    p.select(1);
+    expect(p["countSelectedJokers"]()).toBe(2);
+  });
+});
+
 describe("countSequencialCardsFrom", () => {
   it("can count sequencial cards", () => {
     const h1 = new Hand.Hand();

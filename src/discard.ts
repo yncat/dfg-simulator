@@ -154,6 +154,12 @@ export class discardPlanner {
     }).length;
   }
 
+  private countSelectedJokers() {
+    return this.enumerateSelectedCards().filter((v) => {
+      return v.isJoker();
+    }).length;
+  }
+
   public enumerateSelectedCards() {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
@@ -327,6 +333,8 @@ export class discardPlanner {
       return SelectableCheckResult.NOT_SELECTABLE;
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
+      const jokers = this.hand.countJokers();
+      const selectedJokers = this.countSelectedJokers();
       return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
         ? SelectableCheckResult.SELECTABLE
         : SelectableCheckResult.NOT_SELECTABLE;
