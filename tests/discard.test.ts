@@ -254,6 +254,25 @@ describe("isSelectable", () => {
         //        );
       });
     });
+
+    describe("checking the second card", () => {
+      it("returns SELECTABLE when the last discard is two-card pair and selecting the same numberd cards from the previously selected one", () => {
+        const h = new Hand.Hand();
+        h.giveCards(
+          new Card.Card(Card.Mark.HEARTS, 5),
+          new Card.Card(Card.Mark.DIAMONDS, 5)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.CLUBS, 4)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(0);
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+      });
+    });
   });
 });
 
@@ -420,5 +439,34 @@ describe("findKaidanStartingPoint", () => {
     expect(p1.findKaidanStartingPoint(9)).toBe(8);
     expect(p1.findKaidanStartingPoint(10)).toBe(8);
     expect(p1.findKaidanStartingPoint(11)).toBe(8);
+  });
+});
+
+describe("enumerateSelectedCards", () => {
+  it("can enumerate selected cards", () => {
+    const c1 = new Card.Card(Card.Mark.SPADES, 8);
+    const c2 = new Card.Card(Card.Mark.SPADES, 9);
+    const c3 = new Card.Card(Card.Mark.SPADES, 10);
+    const c4 = new Card.Card(Card.Mark.SPADES, 11);
+    const h1 = new Hand.Hand();
+    h1.giveCards(c1, c2, c3, c4);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(0);
+    p1.select(1);
+    const want = [c1, c2];
+    expect(p1.enumerateSelectedCards()).toStrictEqual(want);
+  });
+});
+
+describe("isSameNumberFromPreviouslySelected", () => {
+  it("can detect whether selecting card has same card number from the previously selected cards", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCards(new Card.Card(Card.Mark.SPADES, 8));
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(0);
+    expect(p1["isSameNumberFromPreviouslySelected"](8)).toBeTruthy();
+    expect(p1["isSameNumberFromPreviouslySelected"](9)).toBeFalsy();
   });
 });

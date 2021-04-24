@@ -142,7 +142,7 @@ export class discardPlanner {
     if (cnt == 0) {
       ret = this.checkSingle(index);
     } else {
-      // todo: checkMultiple
+      this.checkMultiple(index);
     }
 
     return ret;
@@ -152,6 +152,12 @@ export class discardPlanner {
     return this.selected.filter((val) => {
       return val;
     }).length;
+  }
+
+  public enumerateSelectedCards() {
+    return this.hand.cards.filter((v, i) => {
+      return this.selected[i];
+    });
   }
 
   public select(index: number): SelectResult {
@@ -299,6 +305,39 @@ export class discardPlanner {
     } // not a kaidan
 
     return SelectableCheckResult.SELECTABLE;
+  }
+
+  private checkMultiple(index: number) {
+    // Most of the conditions are already checked when the first card is selected. So, we can minimize checks here.
+    const lastDiscardCount = this.lastDiscardPair.count();
+    const selectingCard = this.hand.cards[index];
+    const selectedCount = this.countSelectedCards();
+    // Number of cards must not exceed the last discard pair
+    if (lastDiscardCount == selectedCount) {
+      return SelectableCheckResult.NOT_SELECTABLE;
+    }
+
+    // Jokers can wildcard everything.
+    if (selectingCard.isJoker()) {
+      return SelectableCheckResult.SELECTABLE;
+    }
+
+    if (this.lastDiscardPair.isKaidan()) {
+      // TODO
+      return SelectableCheckResult.NOT_SELECTABLE;
+    } else {
+      // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
+      return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
+        ? SelectableCheckResult.SELECTABLE
+        : SelectableCheckResult.NOT_SELECTABLE;
+    }
+    return SelectableCheckResult.NOT_SELECTABLE;
+  }
+
+  private isSameNumberFromPreviouslySelected(cardNumber: number) {
+    // This is a private method and should be called only when selecting cards consist of cards with same card number.
+    const cards = this.enumerateSelectedCards();
+    return cards[0].cardNumber == cardNumber;
   }
 
   public countSequencialCardsFrom(cardNumber: number) {
