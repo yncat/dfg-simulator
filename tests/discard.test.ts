@@ -243,15 +243,15 @@ describe("isSelectable", () => {
           new Card.Card(Card.Mark.SPADES, 5)
         );
         const p = new Discard.discardPlanner(h, d, false);
-        //        expect(p.isSelectable(0)).toBe(
-        //          Discard.SelectableCheckResult.SELECTABLE
-        //        );
+        expect(p.isSelectable(0)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
         expect(p.isSelectable(1)).toBe(
           Discard.SelectableCheckResult.SELECTABLE
         );
-        //        expect(p.isSelectable(2)).toBe(
-        //          Discard.SelectableCheckResult.SELECTABLE
-        //        );
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
       });
     });
 
