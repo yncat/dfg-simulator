@@ -362,9 +362,9 @@ describe("countSequencialCardsFrom", () => {
     );
     const d3 = Discard.CreateDiscardPairForTest();
     const p3 = new Discard.discardPlanner(h3, d3, false);
-    expect(p1.countSequencialCardsFrom(4)).toBe(0);
-    expect(p2.countSequencialCardsFrom(4)).toBe(1);
-    expect(p3.countSequencialCardsFrom(4)).toBe(3);
+    expect(p1["countSequencialCardsFrom"](4)).toBe(0);
+    expect(p2["countSequencialCardsFrom"](4)).toBe(1);
+    expect(p3["countSequencialCardsFrom"](4)).toBe(3);
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
@@ -388,9 +388,9 @@ describe("countSequencialCardsFrom", () => {
     );
     const d3 = Discard.CreateDiscardPairForTest();
     const p3 = new Discard.discardPlanner(h3, d3, true);
-    expect(p1.countSequencialCardsFrom(4)).toBe(0);
-    expect(p2.countSequencialCardsFrom(4)).toBe(2);
-    expect(p3.countSequencialCardsFrom(6)).toBe(3);
+    expect(p1["countSequencialCardsFrom"](4)).toBe(0);
+    expect(p2["countSequencialCardsFrom"](4)).toBe(2);
+    expect(p3["countSequencialCardsFrom"](6)).toBe(3);
   });
 
   it("can count sequencial cards by substituting jokers", () => {
@@ -403,8 +403,8 @@ describe("countSequencialCardsFrom", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1.countSequencialCardsFrom(4)).toBe(2); // 2 jokers substituted
-    expect(p1.countSequencialCardsFrom(8)).toBe(4); // 8, joker, joker, 11
+    expect(p1["countSequencialCardsFrom"](4)).toBe(2); // 2 jokers substituted
+    expect(p1["countSequencialCardsFrom"](8)).toBe(4); // 8, joker, joker, 11
   });
 });
 

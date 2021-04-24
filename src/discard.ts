@@ -340,7 +340,7 @@ export class discardPlanner {
     return cards[0].cardNumber == cardNumber;
   }
 
-  public countSequencialCardsFrom(cardNumber: number) {
+  private countSequencialCardsFrom(cardNumber: number) {
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
     // This function considers jokers in the hand. When one of the required cards is not found, it tries to substitute a joker instead.
