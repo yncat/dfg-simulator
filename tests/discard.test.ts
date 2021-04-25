@@ -272,6 +272,27 @@ describe("isSelectable", () => {
           Discard.SelectableCheckResult.SELECTABLE
         );
       });
+
+      it("returns SELECTABLE when the last discard is two-card pair, selecting a joker and trying to select stronger numbered card", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.DIAMONDS, 5),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.CLUBS, 4)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(2);
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(0)).toBe(
+          Discard.SelectableCheckResult.NOT_SELECTABLE
+        );
+      });
     });
   });
 });

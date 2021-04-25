@@ -16,6 +16,11 @@ export class Hand {
     this.sort();
   }
 
+  public giveCardsWithoutSorting(...cards: Card.Card[]) {
+    // specifically for tests
+    this.cards = this.cards.concat(cards);
+  }
+
   public count(): number {
     return this.cards.length;
   }

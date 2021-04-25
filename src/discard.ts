@@ -142,7 +142,7 @@ export class discardPlanner {
     if (cnt == 0) {
       ret = this.checkSingle(index);
     } else {
-      this.checkMultiple(index);
+      ret = this.checkMultiple(index);
     }
 
     return ret;
