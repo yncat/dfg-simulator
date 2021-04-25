@@ -160,6 +160,17 @@ export class discardPlanner {
     }).length;
   }
 
+  private onlyJokersSelected() {
+    const cards = this.enumerateSelectedCards();
+    if (cards.length == 0) {
+      return false;
+    }
+    const cards2 = cards.filter((v) => {
+      return v.isJoker();
+    });
+    return cards.length == cards2.length;
+  }
+
   public enumerateSelectedCards() {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
@@ -333,8 +344,24 @@ export class discardPlanner {
       return SelectableCheckResult.NOT_SELECTABLE;
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
+      // But previously selected cards might be jokers only.
       const jokers = this.hand.countJokers();
-      const selectedJokers = this.countSelectedJokers();
+      if (this.onlyJokersSelected()) {
+        const ok =
+          CalcFunctions.isStrongEnough(
+            this.lastDiscardPair.calcStrength(),
+            CalcFunctions.convertCardNumberIntoStrength(
+              selectingCard.cardNumber
+            ),
+            this.strengthInverted
+          ) &&
+          jokers +
+            this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) >=
+            this.lastDiscardPair.count();
+        return ok
+          ? SelectableCheckResult.SELECTABLE
+          : SelectableCheckResult.NOT_SELECTABLE;
+      }
       return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
         ? SelectableCheckResult.SELECTABLE
         : SelectableCheckResult.NOT_SELECTABLE;
@@ -344,7 +371,12 @@ export class discardPlanner {
 
   private isSameNumberFromPreviouslySelected(cardNumber: number) {
     // This is a private method and should be called only when selecting cards consist of cards with same card number.
-    const cards = this.enumerateSelectedCards();
+    const cards = this.enumerateSelectedCards().filter((v) => {
+      return !v.isJoker();
+    });
+    if (cards.length == 0) {
+      return false;
+    }
     return cards[0].cardNumber == cardNumber;
   }
 

@@ -485,4 +485,43 @@ describe("isSameNumberFromPreviouslySelected", () => {
     expect(p1["isSameNumberFromPreviouslySelected"](8)).toBeTruthy();
     expect(p1["isSameNumberFromPreviouslySelected"](9)).toBeFalsy();
   });
+
+  it("can exclude jokers", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCards(
+      new Card.Card(Card.Mark.SPADES, 8),
+      new Card.Card(Card.Mark.JOKER)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(0);
+    p1.select(1);
+    expect(p1["isSameNumberFromPreviouslySelected"](8)).toBeTruthy();
+    expect(p1["isSameNumberFromPreviouslySelected"](9)).toBeFalsy();
+  });
+});
+
+describe("onlyJokersSelected", () => {
+  it("can detect whether the selection only consists of jokers", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCards(
+      new Card.Card(Card.Mark.SPADES, 8),
+      new Card.Card(Card.Mark.JOKER)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(0);
+    expect(p1["onlyJokersSelected"]()).toBeFalsy();
+    p1.select(1);
+    expect(p1["onlyJokersSelected"]()).toBeFalsy();
+    p1.deselect(0);
+    expect(p1["onlyJokersSelected"]()).toBeTruthy();
+  });
+
+  it("returns false when the selection is empty", () => {
+    const h1 = new Hand.Hand();
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    expect(p1["onlyJokersSelected"]()).toBeFalsy();
+  });
 });
