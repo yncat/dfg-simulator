@@ -546,3 +546,45 @@ describe("onlyJokersSelected", () => {
     expect(p1["onlyJokersSelected"]()).toBeFalsy();
   });
 });
+
+describe("countKaidanStepsFrom", () => {
+  it("can count number of kaidan steps from the start and target card numbers", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCardsWithoutSorting(
+      new Card.Card(Card.Mark.SPADES, 8),
+      new Card.Card(Card.Mark.SPADES, 9),
+      new Card.Card(Card.Mark.SPADES, 10),
+      new Card.Card(Card.Mark.SPADES, 11)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    expect(p1["countKaidanStepsFrom"](8, 11)).toBe(4);
+  });
+
+  it("returns null when start and target are not directly connected by kaidan", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCardsWithoutSorting(
+      new Card.Card(Card.Mark.SPADES, 8),
+      new Card.Card(Card.Mark.SPADES, 9),
+      new Card.Card(Card.Mark.SPADES, 10),
+      new Card.Card(Card.Mark.SPADES, 11)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    expect(p1["countKaidanStepsFrom"](7, 11)).toBe(null);
+  });
+
+  it("can substitute jokers", () => {
+    const h1 = new Hand.Hand();
+    h1.giveCardsWithoutSorting(
+      new Card.Card(Card.Mark.SPADES, 8),
+      new Card.Card(Card.Mark.SPADES, 9),
+      new Card.Card(Card.Mark.SPADES, 10),
+      new Card.Card(Card.Mark.SPADES, 11),
+      new Card.Card(Card.Mark.JOKER)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    expect(p1["countKaidanStepsFrom"](7, 11)).toBe(5);
+  });
+});

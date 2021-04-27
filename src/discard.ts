@@ -428,4 +428,37 @@ export class discardPlanner {
     }
     return start;
   }
+
+  private countKaidanStepsFrom(
+    startCardNumber: number,
+    targetCardNumber: number
+  ) {
+    // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns the kaidan steps (4 to 6 = 3).
+    // If start and target cannot be connected by kaidan, returns null.
+    // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
+    let jokers = this.hand.countJokers();
+    let start = startCardNumber;
+    let cn: number | null = start;
+    let connected = false;
+    let count = 0;
+    while (true) {
+      if (this.hand.countCardsWithSpecifiedNumber(cn) == 0) {
+        if (jokers == 0) {
+          break;
+        }
+        jokers--; // Joker substituted.
+      }
+      count++;
+      if (cn == targetCardNumber) {
+        connected = true;
+        break;
+      }
+      start = cn;
+      cn = CalcFunctions.calcStrongerCardNumber(start, this.strengthInverted);
+      if (cn === null) {
+        break;
+      }
+    }
+    return connected ? count : null;
+  }
 }
