@@ -456,10 +456,10 @@ describe("findKaidanStartingPoint", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1.findKaidanStartingPoint(8)).toBe(8);
-    expect(p1.findKaidanStartingPoint(9)).toBe(8);
-    expect(p1.findKaidanStartingPoint(10)).toBe(8);
-    expect(p1.findKaidanStartingPoint(11)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](8)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](9)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](10)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](11)).toBe(8);
   });
 
   it("can find the starting point when jokers are included", () => {
@@ -472,10 +472,10 @@ describe("findKaidanStartingPoint", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1.findKaidanStartingPoint(8)).toBe(7); // Joker is wildcarded as 7
-    expect(p1.findKaidanStartingPoint(9)).toBe(8);
-    expect(p1.findKaidanStartingPoint(10)).toBe(8);
-    expect(p1.findKaidanStartingPoint(11)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](8)).toBe(7); // Joker is wildcarded as 7
+    expect(p1["findKaidanStartingPoint"](9)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](10)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](11)).toBe(8);
   });
 });
 
@@ -492,7 +492,7 @@ describe("enumerateSelectedCards", () => {
     p1.select(0);
     p1.select(1);
     const want = [c1, c2];
-    expect(p1.enumerateSelectedCards()).toStrictEqual(want);
+    expect(p1["enumerateSelectedCards"]()).toStrictEqual(want);
   });
 });
 

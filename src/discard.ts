@@ -171,12 +171,6 @@ export class discardPlanner {
     return cards.length == cards2.length;
   }
 
-  public enumerateSelectedCards() {
-    return this.hand.cards.filter((v, i) => {
-      return this.selected[i];
-    });
-  }
-
   public select(index: number): SelectResult {
     if (index < 0 || index >= this.hand.count()) {
       return SelectResult.NOT_SELECTABLE;
@@ -199,6 +193,12 @@ export class discardPlanner {
 
     this.selected[index] = false;
     return DeselectResult.SUCCESS;
+  }
+
+  private enumerateSelectedCards() {
+    return this.hand.cards.filter((v, i) => {
+      return this.selected[i];
+    });
   }
 
   private checkSingle(index: number): SelectableCheckResult {
@@ -407,7 +407,7 @@ export class discardPlanner {
     return ret;
   }
 
-  public findKaidanStartingPoint(cardNumber: number) {
+  private findKaidanStartingPoint(cardNumber: number) {
     // Find the starting point of kaidan which can include the given card number.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
     let jokers = this.hand.countJokers();
