@@ -88,3 +88,21 @@ describe("hasSameNumberedCards", () => {
     expect(e["hasSameNumberedCards"]()).toBeFalsy();
   });
 });
+
+describe("calcKaidanRange", () => {
+  it("returns the weakest and strongest card numbers in the kaidan", () => {
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(
+      d,
+      false,
+      new Card.Card(Card.Mark.SPADES, 6),
+      new Card.Card(Card.Mark.DIAMONDS, 7),
+      new Card.Card(Card.Mark.HEARTS, 8)
+    );
+    const want = {
+      weakestCardNumber: 6,
+      strongestCardNumber: 8,
+    };
+    expect(e["calcKaidanRange"]()).toStrictEqual(want);
+  });
+});

@@ -4,6 +4,7 @@ Discard plan builder / checker
 import * as Card from "./card";
 import { Hand } from "./hand";
 import * as CalcFunctions from "./calcFunctions";
+import { sortAndDeduplicateDiagnostics } from "typescript";
 
 // Use interface to prevent DiscardPair from being instantiated directly from outside
 export interface DiscardPair {
@@ -521,6 +522,11 @@ export class discardPlanner {
   }
 }
 
+type KaidanRange = {
+  weakestCardNumber: number;
+  strongestCardNumber: number;
+};
+
 export class DiscardPairEnumerator {
   private selectedCards: Card.Card[];
   private lastDiscardPair: DiscardPair;
@@ -587,5 +593,28 @@ export class DiscardPairEnumerator {
         return v.cardNumber == n;
       }).length > 1
     );
+  }
+
+  private calcKaidanRange() {
+    // get the weakest an strongest card number in a kaidan.
+    // This function does not consider jokers.
+    const cds = this.selectedCards.filter((v) => {
+      return !v.isJoker();
+    });
+    cds.sort((a, b) => {
+      return a.cardNumber == b.cardNumber
+        ? 0
+        : CalcFunctions.isStrongEnough(
+            CalcFunctions.convertCardNumberIntoStrength(a.cardNumber),
+            CalcFunctions.convertCardNumberIntoStrength(b.cardNumber),
+            this.strengthInverted
+          )
+        ? -1
+        : 1;
+    });
+    return {
+      weakestCardNumber: cds[0].cardNumber,
+      strongestCardNumber: cds[cds.length - 1].cardNumber,
+    };
   }
 }
