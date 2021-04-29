@@ -2,7 +2,6 @@
 Player's hand
 */
 import * as Card from "./card";
-import * as CalcFunctions from "./calcFunctions";
 
 export class Hand {
   cards: Card.Card[];
@@ -11,12 +10,12 @@ export class Hand {
     this.cards = [];
   }
 
-  public giveCards(...cards: Card.Card[]) {
+  public giveCards(...cards: Card.Card[]): void {
     this.cards = this.cards.concat(cards);
     this.sort();
   }
 
-  public giveCardsWithoutSorting(...cards: Card.Card[]) {
+  public giveCardsWithoutSorting(...cards: Card.Card[]): void {
     // specifically for tests
     this.cards = this.cards.concat(cards);
   }
@@ -25,13 +24,13 @@ export class Hand {
     return this.cards.length;
   }
 
-  public countCardsWithSpecifiedNumber(cardNumber: number) {
+  public countCardsWithSpecifiedNumber(cardNumber: number): number {
     return this.cards.filter((val) => {
       return val.cardNumber == cardNumber;
     }).length;
   }
 
-  public countJokers() {
+  public countJokers(): number {
     return this.cards.filter((val) => {
       return val.isJoker();
     }).length;

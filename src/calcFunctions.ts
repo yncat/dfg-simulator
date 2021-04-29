@@ -30,7 +30,7 @@ export function findStrongerCardNumber(
 export function enumerateStrongerCardNumbers(
   cardNumber: number,
   inverted: boolean
-) {
+): number[] {
   const st = convertCardNumberIntoStrength(cardNumber);
   const ret: number[] = [];
   let i = st;
@@ -46,7 +46,7 @@ export function enumerateStrongerCardNumbers(
   });
 }
 
-export function isStrengthInverted(jBack: boolean, kakumei: boolean) {
+export function isStrengthInverted(jBack: boolean, kakumei: boolean): boolean {
   return jBack !== kakumei;
 }
 

@@ -761,7 +761,6 @@ describe("createDiscardPair", () => {
     const p = new Discard.discardPlanner(h, d, false);
     p.select(0);
     p.select(1);
-    const np = p.createDiscardPair();
     expect(p.countSelectedCards()).toBe(2);
   });
 });

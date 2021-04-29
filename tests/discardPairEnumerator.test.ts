@@ -1,6 +1,5 @@
 import * as Card from "../src/card";
 import * as Discard from "../src/discard";
-import * as Hand from "../src/hand";
 
 describe("enumerate", () => {
   it("returns blank array when nothing is selected", () => {
@@ -184,7 +183,7 @@ describe("WildcardCombination", () => {
         false,
         2
       );
-      let nc = c.yieldNextCombination();
+      const nc = c.yieldNextCombination();
       expect(nc).toBeNull();
     });
   });

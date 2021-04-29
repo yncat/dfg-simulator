@@ -4,7 +4,6 @@ Discard plan builder / checker
 import * as Card from "./card";
 import { Hand } from "./hand";
 import * as CalcFunctions from "./calcFunctions";
-import { sortAndDeduplicateDiagnostics } from "typescript";
 
 // Use interface to prevent DiscardPair from being instantiated directly from outside
 export interface DiscardPair {
@@ -149,7 +148,7 @@ export class discardPlanner {
     return ret;
   }
 
-  public countSelectedCards() {
+  public countSelectedCards(): number {
     return this.selected.filter((val) => {
       return val;
     }).length;
@@ -521,11 +520,6 @@ export class discardPlanner {
     return cards[0];
   }
 }
-
-type KaidanRange = {
-  weakestCardNumber: number;
-  strongestCardNumber: number;
-};
 
 export class DiscardPairEnumerator {
   private selectedCards: Card.Card[];

@@ -1,4 +1,3 @@
-import { getJSDocReadonlyTag } from "typescript";
 import * as Rank from "../src/rank";
 
 describe("Rank", () => {

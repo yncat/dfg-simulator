@@ -27,7 +27,7 @@ export class Rank {
     this.rankType = RankType.UNDETERMINED;
   }
 
-  public getRankType() {
+  public getRankType(): RankType {
     return this.rankType;
   }
 

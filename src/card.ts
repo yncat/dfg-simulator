@@ -43,11 +43,11 @@ export class Card {
     return this.mark == Mark.JOKER;
   }
 
-  public calcStrength() {
+  public calcStrength(): number {
     return CalcFunctions.convertCardNumberIntoStrength(this.cardNumber);
   }
 
-  public copy() {
+  public copy(): Card {
     return new Card(this.mark, this.cardNumber);
   }
 }
