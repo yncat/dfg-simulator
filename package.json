@@ -8,6 +8,7 @@
     "test": "jest --passWithNoTests",
     "lint": "prettier -c tests/**/*.ts src/**/*.ts",
     "fmt": "prettier -w src/**/*.ts tests/**/*.ts",
+    "lint": "eslint . --ext ts",
     "pre-commit": "npm run test && npm run lint",
     "build": "tsc",
     "prepublishOnly": "npm run build"
@@ -32,5 +33,10 @@
     "ts-jest": "^26.5.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.25.0"
   }
 }
