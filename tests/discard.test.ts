@@ -293,6 +293,48 @@ describe("isSelectable", () => {
           Discard.SelectableCheckResult.NOT_SELECTABLE
         );
       });
+
+      it("returns SELECTABLE when the last discard is three-card kaidan, selecting a joker and trying to select stronger numbered card", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.DIAMONDS, 5),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.CLUBS, 4),
+          new Card.Card(Card.Mark.HEARTS, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(2);
+        expect(p.isSelectable(0)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+      });
+
+      it("returns NOT_SELECTABLE when the last discard is three-card kaidan, selecting a joker and trying to select stronger but not sequenced numbered card", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.DIAMONDS, 5),
+          new Card.Card(Card.Mark.HEARTS, 10),
+          new Card.Card(Card.Mark.JOKER)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.CLUBS, 4),
+          new Card.Card(Card.Mark.HEARTS, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(3);
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.NOT_SELECTABLE
+        );
+      });
     });
   });
 });

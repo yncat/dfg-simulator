@@ -325,7 +325,6 @@ export class discardPlanner {
   }
 
   private checkMultiple(index: number) {
-    // Most of the conditions are already checked when the first card is selected. So, we can minimize checks here.
     const lastDiscardCount = this.lastDiscardPair.count();
     const selectingCard = this.hand.cards[index];
     const selectedCount = this.countSelectedCards();
@@ -340,7 +339,31 @@ export class discardPlanner {
     }
 
     if (this.lastDiscardPair.isKaidan()) {
-      // TODO
+      if (this.onlyJokersSelected()) {
+        // We have to search for possible caidan combinations in this case.
+        let cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
+        let found = false;
+        while (true) {
+          const stronger = CalcFunctions.calcStrongerCardNumber(
+            cn,
+            this.strengthInverted
+          );
+          if (stronger === null) {
+            break;
+          }
+          if (
+            this.countSequencialCardsFrom(stronger) >= lastDiscardCount &&
+            this.isConnectedByKaidan(stronger, selectingCard.cardNumber)
+          ) {
+            found = true;
+            break;
+          }
+          cn = stronger;
+        }
+        return found
+          ? SelectableCheckResult.SELECTABLE
+          : SelectableCheckResult.NOT_SELECTABLE;
+      } // only joker?
       return SelectableCheckResult.NOT_SELECTABLE;
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
@@ -362,6 +385,7 @@ export class discardPlanner {
           ? SelectableCheckResult.SELECTABLE
           : SelectableCheckResult.NOT_SELECTABLE;
       }
+      // numbered cards are previously selected, so simply check if the currently selecting one's card number matches.
       return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
         ? SelectableCheckResult.SELECTABLE
         : SelectableCheckResult.NOT_SELECTABLE;
@@ -429,7 +453,10 @@ export class discardPlanner {
     return start;
   }
 
-  private isConnectedByKaidan(startCardNumber:number,targetCardNumber:number){
+  private isConnectedByKaidan(
+    startCardNumber: number,
+    targetCardNumber: number
+  ) {
     // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
     // If start and target aren't connected by kaidan, returns false.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
@@ -444,8 +471,8 @@ export class discardPlanner {
         }
         jokers--; // Joker substituted.
       }
-      if(cn==targetCardNumber){
-        connected=true;
+      if (cn == targetCardNumber) {
+        connected = true;
         break;
       }
       start = cn;
