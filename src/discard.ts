@@ -429,18 +429,14 @@ export class discardPlanner {
     return start;
   }
 
-  private countKaidanStepsFrom(
-    startCardNumber: number,
-    targetCardNumber: number
-  ) {
-    // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns the kaidan steps (4 to 6 = 3).
-    // If start and target cannot be connected by kaidan, returns null.
+  private isConnectedByKaidan(startCardNumber:number,targetCardNumber:number){
+    // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
+    // If start and target aren't connected by kaidan, returns false.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
     let jokers = this.hand.countJokers();
     let start = startCardNumber;
     let cn: number | null = start;
     let connected = false;
-    let count = 0;
     while (true) {
       if (this.hand.countCardsWithSpecifiedNumber(cn) == 0) {
         if (jokers == 0) {
@@ -448,9 +444,8 @@ export class discardPlanner {
         }
         jokers--; // Joker substituted.
       }
-      count++;
-      if (cn == targetCardNumber) {
-        connected = true;
+      if(cn==targetCardNumber){
+        connected=true;
         break;
       }
       start = cn;
@@ -459,6 +454,6 @@ export class discardPlanner {
         break;
       }
     }
-    return connected ? count : null;
+    return connected;
   }
 }

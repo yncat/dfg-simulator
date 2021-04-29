@@ -547,8 +547,8 @@ describe("onlyJokersSelected", () => {
   });
 });
 
-describe("countKaidanStepsFrom", () => {
-  it("can count number of kaidan steps from the start and target card numbers", () => {
+describe("isConnectedByKaidan", () => {
+  it("returns true when the specified two cards are connected by kaidan", () => {
     const h1 = new Hand.Hand();
     h1.giveCardsWithoutSorting(
       new Card.Card(Card.Mark.SPADES, 8),
@@ -558,10 +558,10 @@ describe("countKaidanStepsFrom", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1["countKaidanStepsFrom"](8, 11)).toBe(4);
+    expect(p1["isConnectedByKaidan"](8, 11)).toBe(true);
   });
 
-  it("returns null when start and target are not directly connected by kaidan", () => {
+  it("returns false when start and target are not directly connected by kaidan", () => {
     const h1 = new Hand.Hand();
     h1.giveCardsWithoutSorting(
       new Card.Card(Card.Mark.SPADES, 8),
@@ -571,7 +571,7 @@ describe("countKaidanStepsFrom", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1["countKaidanStepsFrom"](7, 11)).toBe(null);
+    expect(p1["isConnectedByKaidan"](7, 11)).toBe(false);
   });
 
   it("can substitute jokers", () => {
@@ -585,6 +585,6 @@ describe("countKaidanStepsFrom", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(p1["countKaidanStepsFrom"](7, 11)).toBe(5);
+    expect(p1["isConnectedByKaidan"](7, 11)).toBe(true);
   });
 });
