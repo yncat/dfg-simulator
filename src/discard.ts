@@ -548,7 +548,13 @@ export class DiscardPairEnumerator {
     }
 
     // If the selection doesn't include any jokers, simply return everything as a pair, assuming that the combination is valid (should be checked at DiscardPlanner).
-    if (this.countJokers() == 0) {
+    const jokers = this.countJokers();
+    if (jokers == 0) {
+      return [new DiscardPairImple(this.selectedCards)];
+    }
+
+    // When the selection only consists of jokers, they cannot be used as wildcards, so simply return as a bunch of jokers.
+    if(jokers==this.selectedCards.length){
       return [new DiscardPairImple(this.selectedCards)];
     }
 
@@ -567,6 +573,9 @@ export class DiscardPairEnumerator {
       return [new DiscardPairImple(cds)];
     }
     // There may be multiple solutions, so we need to check and enumerate each of them.
+    const range = this.calcKaidanRange();
+    const jokers = this.countJokers();
+    // TODO
 
     return [];
   }

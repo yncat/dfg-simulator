@@ -22,6 +22,18 @@ describe("enumerate", () => {
     });
   });
 
+  describe("with jokers only", () => {
+    it("returns DiscardPair of the given jokers", () => {
+      const c = new Card.Card(Card.Mark.JOKER);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false, c, c, c);
+      const dps = e.enumerate();
+      expect(dps.length).toBe(1);
+      const dp = dps[0];
+      expect(dp["cards"]).toStrictEqual([c, c, c]);
+    });
+  });
+
   describe("with same numbered pair with jokers", () => {
     it("returns DiscardPair of the given cards, wildcarding jokers correctly", () => {
       const c1 = new Card.Card(Card.Mark.HEARTS, 7);
