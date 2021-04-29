@@ -42,4 +42,11 @@ describe("Card", () => {
     expect(c1.isJoker()).toBeTruthy();
     expect(c2.isJoker()).toBeFalsy();
   });
+
+  it("Can get a copy", () => {
+    const c1 = new Card.Card(Card.Mark.SPADES, 3);
+    const c2 = c1.copy();
+    expect(c1.mark).toBe(c2.mark);
+    expect(c1.cardNumber).toBe(c2.cardNumber);
+  });
 });
