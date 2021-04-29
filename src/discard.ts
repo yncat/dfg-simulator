@@ -154,6 +154,10 @@ export class discardPlanner {
     }).length;
   }
 
+  public createDiscardPair():DiscardPair{
+    return new DiscardPairImple(this.enumerateSelectedCards());
+  }
+
   private countSelectedJokers() {
     return this.enumerateSelectedCards().filter((v) => {
       return v.isJoker();

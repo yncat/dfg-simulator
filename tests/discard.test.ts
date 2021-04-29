@@ -409,9 +409,7 @@ describe("isSelectable", () => {
         new Card.Card(Card.Mark.SPADES, 2)
       );
       const p = new Discard.discardPlanner(h, d, true);
-      expect(p.isSelectable(0)).toBe(
-        Discard.SelectableCheckResult.SELECTABLE
-      );
+      expect(p.isSelectable(0)).toBe(Discard.SelectableCheckResult.SELECTABLE);
     });
   });
 });
@@ -748,5 +746,22 @@ describe("findWeakestSelectedCard", () => {
     }).toThrow(
       "tried to find the weakest selected card, but nothing could be found"
     );
+  });
+});
+
+describe("createDiscardPair", () => {
+  it("returns new discard pair", () => {
+    const h = new Hand.Hand();
+    h.giveCards(
+      new Card.Card(Card.Mark.SPADES, 5),
+      new Card.Card(Card.Mark.SPADES, 5),
+      new Card.Card(Card.Mark.SPADES, 5)
+    );
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.discardPlanner(h, d, false);
+    p.select(0);
+    p.select(1);
+    const np = p.createDiscardPair();
+    expect(p.countSelectedCards()).toBe(2);
   });
 });
