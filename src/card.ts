@@ -46,4 +46,8 @@ export class Card {
   public calcStrength() {
     return CalcFunctions.convertCardNumberIntoStrength(this.cardNumber);
   }
+
+  public copy() {
+    return new Card(this.mark, this.cardNumber);
+  }
 }

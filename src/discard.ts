@@ -154,7 +154,7 @@ export class discardPlanner {
     }).length;
   }
 
-  public createDiscardPair():DiscardPair{
+  public createDiscardPair(): DiscardPair {
     return new DiscardPairImple(this.enumerateSelectedCards());
   }
 
@@ -518,5 +518,65 @@ export class discardPlanner {
       );
     }
     return cards[0];
+  }
+}
+
+export class DiscardPairEnumerator {
+  private selectedCards: Card.Card[];
+  constructor(...selectedCards: Card.Card[]) {
+    this.selectedCards = selectedCards;
+  }
+
+  public enumerate(): DiscardPair[] {
+    // Obviously blank if no cards are selected
+    if (this.selectedCards.length == 0) {
+      return [];
+    }
+
+    // If the selection doesn't include any jokers, simply return everything as a pair, assuming that the combination is valid (should be checked at DiscardPlanner).
+    if (this.countJokers() == 0) {
+      return [new DiscardPairImple(this.selectedCards)];
+    }
+
+    return this.findJokerCombinations();
+  }
+
+  private findJokerCombinations() {
+    // if there is at least one duplicate numbered card, jokers can only be used as that number.
+    if (this.hasSameNumberedCards()) {
+      const cds = this.filterJokers();
+      // Just for symplicity, use the first element as joker's wildcard target.
+      const wc = cds[0];
+      for (let i = 0; i < this.countJokers(); i++) {
+        cds.push(wc.copy());
+      }
+      return [new DiscardPairImple(cds)];
+    }
+    // TODO
+    return [];
+  }
+
+  private countJokers() {
+    return this.selectedCards.filter((val) => {
+      return val.isJoker();
+    }).length;
+  }
+
+  private filterJokers() {
+    return this.selectedCards.filter((v) => {
+      return !v.isJoker();
+    });
+  }
+
+  private hasSameNumberedCards() {
+    const cds = this.selectedCards.filter((v) => {
+      return !v.isJoker();
+    });
+    const n = cds[0].cardNumber;
+    return (
+      cds.filter((v) => {
+        return v.cardNumber == n;
+      }).length > 1
+    );
   }
 }
