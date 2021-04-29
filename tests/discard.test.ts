@@ -335,6 +335,48 @@ describe("isSelectable", () => {
           Discard.SelectableCheckResult.NOT_SELECTABLE
         );
       });
+
+      it("returns SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and trying to select sequenced numbered cards", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.DIAMONDS, 5),
+          new Card.Card(Card.Mark.HEARTS, 6)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.CLUBS, 4),
+          new Card.Card(Card.Mark.HEARTS, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(0);
+        expect(p.isSelectable(1)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
+        );
+      });
+
+      it("returns NOT_SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and trying to select stronger but not sequenced numbered cards", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.DIAMONDS, 5),
+          new Card.Card(Card.Mark.HEARTS, 6),
+          new Card.Card(Card.Mark.CLUBS, 8),
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.CLUBS, 4),
+          new Card.Card(Card.Mark.HEARTS, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(0);
+        expect(p.isSelectable(3)).toBe(
+          Discard.SelectableCheckResult.NOT_SELECTABLE
+        );
+      });
     });
   });
 });
@@ -666,8 +708,10 @@ describe("findWeakestSelectedCard", () => {
     const h1 = new Hand.Hand();
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.discardPlanner(h1, d1, false);
-    expect(()=>{
-      p1["findWeakestSelectedCard"]()
-    }).toThrow("tried to find the weakest selected card, but nothing could be found");
+    expect(() => {
+      p1["findWeakestSelectedCard"]();
+    }).toThrow(
+      "tried to find the weakest selected card, but nothing could be found"
+    );
   });
 });
