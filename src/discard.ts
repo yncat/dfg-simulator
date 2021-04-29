@@ -523,7 +523,15 @@ export class discardPlanner {
 
 export class DiscardPairEnumerator {
   private selectedCards: Card.Card[];
-  constructor(...selectedCards: Card.Card[]) {
+  private lastDiscardPair: DiscardPair;
+  private strengthInverted: boolean;
+  constructor(
+    lastDiscardPair: DiscardPair,
+    strengthInverted: boolean,
+    ...selectedCards: Card.Card[]
+  ) {
+    this.lastDiscardPair = lastDiscardPair;
+    this.strengthInverted = strengthInverted;
     this.selectedCards = selectedCards;
   }
 
@@ -552,7 +560,8 @@ export class DiscardPairEnumerator {
       }
       return [new DiscardPairImple(cds)];
     }
-    // TODO
+    // There may be multiple solutions, so we need to check and enumerate each of them.
+
     return [];
   }
 

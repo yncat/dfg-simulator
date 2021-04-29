@@ -3,10 +3,18 @@ import * as Discard from "../src/discard";
 import * as Hand from "../src/hand";
 
 describe("enumerate", () => {
+  it("returns blank array when nothing is selected", () => {
+    const d = Discard.CreateDiscardPairForTest();
+    expect(
+      new Discard.DiscardPairEnumerator(d, false).enumerate()
+    ).toStrictEqual([]);
+  });
+
   describe("with same numbered pair", () => {
     it("returns DiscardPair of the given cards", () => {
       const c = new Card.Card(Card.Mark.HEARTS, 7);
-      const e = new Discard.DiscardPairEnumerator(c, c, c);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false, c, c, c);
       const dps = e.enumerate();
       expect(dps.length).toBe(1);
       const dp = dps[0];
@@ -18,7 +26,8 @@ describe("enumerate", () => {
     it("returns DiscardPair of the given cards, wildcarding jokers correctly", () => {
       const c1 = new Card.Card(Card.Mark.HEARTS, 7);
       const c2 = new Card.Card(Card.Mark.JOKER);
-      const e = new Discard.DiscardPairEnumerator(c1, c1, c2);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false, c1, c1, c2);
       const dps = e.enumerate();
       expect(dps.length).toBe(1);
       const dp = dps[0];
@@ -29,7 +38,10 @@ describe("enumerate", () => {
 
 describe("countJokers", () => {
   it("can count jokers", () => {
+    const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(
+      d,
+      false,
       new Card.Card(Card.Mark.SPADES, 7),
       new Card.Card(Card.Mark.JOKER),
       new Card.Card(Card.Mark.JOKER)
@@ -41,7 +53,10 @@ describe("countJokers", () => {
 describe("filterJokers", () => {
   it("can filter jokers", () => {
     const c = new Card.Card(Card.Mark.SPADES, 7);
+    const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(
+      d,
+      false,
       c,
       new Card.Card(Card.Mark.JOKER),
       new Card.Card(Card.Mark.JOKER)
@@ -52,7 +67,10 @@ describe("filterJokers", () => {
 
 describe("hasSameNumberedCards", () => {
   it("returns true when there is at least one pair of same numbered cards", () => {
+    const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(
+      d,
+      false,
       new Card.Card(Card.Mark.SPADES, 6),
       new Card.Card(Card.Mark.DIAMONDS, 6)
     );
@@ -60,7 +78,10 @@ describe("hasSameNumberedCards", () => {
   });
 
   it("returns false when there is no same numbered cards", () => {
+    const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(
+      d,
+      false,
       new Card.Card(Card.Mark.SPADES, 6),
       new Card.Card(Card.Mark.DIAMONDS, 2)
     );
