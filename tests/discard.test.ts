@@ -661,4 +661,13 @@ describe("findWeakestSelectedCard", () => {
     p1.select(4);
     expect(p1["findWeakestSelectedCard"]()).toBe(c2);
   });
+
+  it("throws an error when nothing could be retrieved", () => {
+    const h1 = new Hand.Hand();
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    expect(()=>{
+      p1["findWeakestSelectedCard"]()
+    }).toThrow("tried to find the weakest selected card, but nothing could be found");
+  });
 });
