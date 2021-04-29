@@ -364,7 +364,7 @@ describe("isSelectable", () => {
           new Card.Card(Card.Mark.SPADES, 4),
           new Card.Card(Card.Mark.DIAMONDS, 5),
           new Card.Card(Card.Mark.HEARTS, 6),
-          new Card.Card(Card.Mark.CLUBS, 8),
+          new Card.Card(Card.Mark.CLUBS, 8)
         );
         const d = Discard.CreateDiscardPairForTest(
           new Card.Card(Card.Mark.SPADES, 3),
@@ -375,6 +375,26 @@ describe("isSelectable", () => {
         p.select(0);
         expect(p.isSelectable(3)).toBe(
           Discard.SelectableCheckResult.NOT_SELECTABLE
+        );
+      });
+
+      it("returns SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and joker, and trying to select not sequenced numbered card which can be sequenced by using the joker", () => {
+        const h = new Hand.Hand();
+        h.giveCardsWithoutSorting(
+          new Card.Card(Card.Mark.SPADES, 4),
+          new Card.Card(Card.Mark.JOKER),
+          new Card.Card(Card.Mark.HEARTS, 6)
+        );
+        const d = Discard.CreateDiscardPairForTest(
+          new Card.Card(Card.Mark.SPADES, 3),
+          new Card.Card(Card.Mark.CLUBS, 4),
+          new Card.Card(Card.Mark.HEARTS, 5)
+        );
+        const p = new Discard.discardPlanner(h, d, false);
+        p.select(0);
+        p.select(1);
+        expect(p.isSelectable(2)).toBe(
+          Discard.SelectableCheckResult.SELECTABLE
         );
       });
     });

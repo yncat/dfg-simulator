@@ -363,12 +363,14 @@ export class discardPlanner {
         return found
           ? SelectableCheckResult.SELECTABLE
           : SelectableCheckResult.NOT_SELECTABLE;
-      }else{
+      } else {
         // we have at least 1 numbered card in the previous selection
         const wc = this.findWeakestSelectedCard();
         // OK if the selecting card is connected by kaidan with the previous selection.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
-        return this.isConnectedByKaidan(wc.cardNumber,selectingCard.cardNumber)?SelectableCheckResult.SELECTABLE:SelectableCheckResult.NOT_SELECTABLE;
+        return this.isConnectedByKaidan(wc.cardNumber, selectingCard.cardNumber)
+          ? SelectableCheckResult.SELECTABLE
+          : SelectableCheckResult.NOT_SELECTABLE;
       }
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
@@ -506,8 +508,10 @@ export class discardPlanner {
         ? -1
         : 1;
     });
-    if(cards.length==0){
-      throw new Error("tried to find the weakest selected card, but nothing could be found")
+    if (cards.length == 0) {
+      throw new Error(
+        "tried to find the weakest selected card, but nothing could be found"
+      );
     }
     return cards[0];
   }
