@@ -399,6 +399,21 @@ describe("isSelectable", () => {
       });
     });
   });
+
+  describe("when strength is inverted", () => {
+    // just testing that strength invert is correctly passed. Main logic tests are all above.
+    it("returns SELECTABLE when checking a single card and the last discard is weaker", () => {
+      const h = new Hand.Hand();
+      h.giveCards(new Card.Card(Card.Mark.SPADES, 3));
+      const d = Discard.CreateDiscardPairForTest(
+        new Card.Card(Card.Mark.SPADES, 2)
+      );
+      const p = new Discard.discardPlanner(h, d, true);
+      expect(p.isSelectable(0)).toBe(
+        Discard.SelectableCheckResult.SELECTABLE
+      );
+    });
+  });
 });
 
 describe("select", () => {
