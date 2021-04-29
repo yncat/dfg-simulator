@@ -642,6 +642,15 @@ export class DiscardPairEnumerator {
       dps.push(new DiscardPairImple(wcds.concat(cds).concat(scds)));
     }
 
+    // If the selection has 1 numbered card, jokers are also usable as that number, so we add the combination here.
+    if (cds.length == 1) {
+      const cps: Card.Card[] = [];
+      for (let i = 0; i < jokers; i++) {
+        cps.push(cds[0].copy());
+      }
+      dps.push(new DiscardPairImple(cds.concat(cps)));
+    }
+
     return dps;
   }
 

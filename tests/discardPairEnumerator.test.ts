@@ -58,10 +58,11 @@ describe("enumerate", () => {
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false, h7, joker, joker);
       const dps = e.enumerate();
-      expect(dps.length).toBe(3);
+      expect(dps.length).toBe(4);
       expect(dps[0]["cards"]).toStrictEqual([h5, h6, h7]);
       expect(dps[1]["cards"]).toStrictEqual([h6, h7, h8]);
       expect(dps[2]["cards"]).toStrictEqual([h7, h8, h9]);
+      expect(dps[3]["cards"]).toStrictEqual([h7, h7, h7]);
     });
   });
 });
