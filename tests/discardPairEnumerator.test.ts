@@ -118,3 +118,35 @@ describe("calcKaidanRange", () => {
     expect(e["calcKaidanRange"]()).toStrictEqual(want);
   });
 });
+
+describe("WildcardCombination", () => {
+  describe("yieldNextCombination", () => {
+    it("returns next available combination", () => {
+      const c = Discard.createWildcardCombinationForTest([5, 6], [8, 9], false);
+      let nc = c.yieldNextCombination();
+      expect(nc).not.toBeNull();
+      nc = nc!; // bypass null check
+      expect(nc.weakerCardNumbers).toStrictEqual([6]);
+      expect(nc.strongerCardNumbers).toStrictEqual([8, 9, 10]);
+    });
+
+    it("returns next available combination when strength is inverted", () => {
+      const c = Discard.createWildcardCombinationForTest([9, 8], [6, 5], true);
+      let nc = c.yieldNextCombination();
+      expect(nc).not.toBeNull();
+      nc = nc!; // bypass null check
+      expect(nc.weakerCardNumbers).toStrictEqual([8]);
+      expect(nc.strongerCardNumbers).toStrictEqual([6, 5, 4]);
+    });
+
+    it("returns null when no more combination could be yielded", () => {
+      const c = Discard.createWildcardCombinationForTest(
+        [10, 11],
+        [1, 2],
+        false
+      );
+      let nc = c.yieldNextCombination();
+      expect(nc).toBeNull();
+    });
+  });
+});

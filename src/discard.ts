@@ -554,7 +554,7 @@ export class DiscardPairEnumerator {
     }
 
     // When the selection only consists of jokers, they cannot be used as wildcards, so simply return as a bunch of jokers.
-    if(jokers==this.selectedCards.length){
+    if (jokers == this.selectedCards.length) {
       return [new DiscardPairImple(this.selectedCards)];
     }
 
@@ -575,8 +575,53 @@ export class DiscardPairEnumerator {
     // There may be multiple solutions, so we need to check and enumerate each of them.
     const range = this.calcKaidanRange();
     const jokers = this.countJokers();
-    // TODO
+    // Since the combination is a kaidan, jokers cannot be used as wildcards of same number.
+    // First, we place all jokers to the weaker direction.
+    // If there's no place left, use stronger direction instead.
+    let weakerOffset = range.weakestCardNumber;
+    let strongerOffset = range.strongestCardNumber;
+    const weakerLst: number[] = [];
+    const strongerLst: number[] = [];
+    for (let i = 0; i < jokers; i++) {
+      const w = CalcFunctions.calcWeakerCardNumber(
+        weakerOffset,
+        this.strengthInverted
+      );
+      if (w === null) {
+        const s = CalcFunctions.calcStrongerCardNumber(
+          strongerOffset,
+          this.strengthInverted
+        );
+        if (s === null) {
+          throw new Error(
+            "unexpected overflow at findJokerCombinations. maybe too many jokers?"
+          );
+        }
+        strongerLst.push(s);
+        strongerOffset = s;
+        break;
+      }
+      weakerLst.push(w);
+      weakerOffset = w;
+    }
+    weakerLst.reverse(); // weakest element should be first
+    let com = new WildcardCombination(
+      weakerLst,
+      strongerLst,
+      this.strengthInverted
+    );
+    // start creating list of wildcard combinations.
+    const coms: WildcardCombination[] = [];
+    while (true) {
+      coms.push(com);
+      const nextcom = com.yieldNextCombination();
+      if (nextcom === null) {
+        break;
+      }
+      com = nextcom;
+    }
 
+    // TODO
     return [];
   }
 
@@ -626,4 +671,51 @@ export class DiscardPairEnumerator {
       strongestCardNumber: cds[cds.length - 1].cardNumber,
     };
   }
+}
+
+class WildcardCombination {
+  weakerCardNumbers: number[];
+  strongerCardNumbers: number[];
+  strengthInverted: boolean;
+  constructor(
+    weakerCardNumbers: number[],
+    strongerCardNumbers: number[],
+    strengthInverted: boolean
+  ) {
+    this.weakerCardNumbers = weakerCardNumbers;
+    this.strongerCardNumbers = strongerCardNumbers;
+    this.strengthInverted = strengthInverted;
+  }
+  public yieldNextCombination(): WildcardCombination | null {
+    // Move one element of weaker to stronger and returns the new combination.
+    // When no more combination can be yielded, returns null.
+    if (this.weakerCardNumbers.length == 0) {
+      return null; // no weaker cards
+    }
+    const s = CalcFunctions.calcStrongerCardNumber(
+      this.strongerCardNumbers[this.strongerCardNumbers.length - 1],
+      this.strengthInverted
+    );
+    if (s === null) {
+      return null; // no more space
+    }
+    const weakercp = [...this.weakerCardNumbers];
+    const strongercp = [...this.strongerCardNumbers];
+    weakercp.shift();
+    strongercp.push(s);
+    return new WildcardCombination(weakercp, strongercp, this.strengthInverted);
+  }
+}
+
+// DO NOT USE EXCEPT TESTING PURPOSES.
+export function createWildcardCombinationForTest(
+  weakerCardNumbers: number[],
+  strongerCardNumbers: number[],
+  strengthInverted: boolean
+): WildcardCombination {
+  return new WildcardCombination(
+    weakerCardNumbers,
+    strongerCardNumbers,
+    strengthInverted
+  );
 }
