@@ -8,6 +8,8 @@ The goal is to create a library that can simulate Daifugo card game. Connect to 
 - test
 - set-github-hook
 - fmt
+- lint
+- fmt-lint
 - pre-commit
 
 ## Documentation
