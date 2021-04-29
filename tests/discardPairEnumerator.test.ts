@@ -46,6 +46,24 @@ describe("enumerate", () => {
       expect(dp["cards"]).toStrictEqual([c1, c1, c1]);
     });
   });
+
+  describe("with one numbered card and two jokers", () => {
+    it("returns DiscardPair instances for possible wildcard patterns", () => {
+      const h5 = new Card.Card(Card.Mark.HEARTS, 5);
+      const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+      const h7 = new Card.Card(Card.Mark.HEARTS, 7);
+      const h8 = new Card.Card(Card.Mark.HEARTS, 8);
+      const h9 = new Card.Card(Card.Mark.HEARTS, 9);
+      const joker = new Card.Card(Card.Mark.JOKER);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false, h7, joker, joker);
+      const dps = e.enumerate();
+      expect(dps.length).toBe(3);
+      expect(dps[0]["cards"]).toStrictEqual([h5, h6, h7]);
+      expect(dps[1]["cards"]).toStrictEqual([h6, h7, h8]);
+      expect(dps[2]["cards"]).toStrictEqual([h7, h8, h9]);
+    });
+  });
 });
 
 describe("countJokers", () => {
@@ -122,7 +140,12 @@ describe("calcKaidanRange", () => {
 describe("WildcardCombination", () => {
   describe("yieldNextCombination", () => {
     it("returns next available combination", () => {
-      const c = Discard.createWildcardCombinationForTest([5, 6], [8, 9], false);
+      const c = Discard.createWildcardCombinationForTest(
+        [5, 6],
+        [8, 9],
+        false,
+        8
+      );
       let nc = c.yieldNextCombination();
       expect(nc).not.toBeNull();
       nc = nc!; // bypass null check
@@ -130,8 +153,22 @@ describe("WildcardCombination", () => {
       expect(nc.strongerCardNumbers).toStrictEqual([8, 9, 10]);
     });
 
+    it("returns next available combination when strongerCardNumbers is empty", () => {
+      const c = Discard.createWildcardCombinationForTest([5, 6], [], false, 8);
+      let nc = c.yieldNextCombination();
+      expect(nc).not.toBeNull();
+      nc = nc!; // bypass null check
+      expect(nc.weakerCardNumbers).toStrictEqual([6]);
+      expect(nc.strongerCardNumbers).toStrictEqual([8]);
+    });
+
     it("returns next available combination when strength is inverted", () => {
-      const c = Discard.createWildcardCombinationForTest([9, 8], [6, 5], true);
+      const c = Discard.createWildcardCombinationForTest(
+        [9, 8],
+        [6, 5],
+        true,
+        4
+      );
       let nc = c.yieldNextCombination();
       expect(nc).not.toBeNull();
       nc = nc!; // bypass null check
@@ -143,7 +180,8 @@ describe("WildcardCombination", () => {
       const c = Discard.createWildcardCombinationForTest(
         [10, 11],
         [1, 2],
-        false
+        false,
+        2
       );
       let nc = c.yieldNextCombination();
       expect(nc).toBeNull();

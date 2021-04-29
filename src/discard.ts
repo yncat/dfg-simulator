@@ -605,10 +605,16 @@ export class DiscardPairEnumerator {
       weakerOffset = w;
     }
     weakerLst.reverse(); // weakest element should be first
+    const ofs = CalcFunctions.calcStrongerCardNumber(
+      strongerOffset,
+      this.strengthInverted
+    );
+    strongerOffset = ofs === null ? strongerOffset : ofs;
     let com = new WildcardCombination(
       weakerLst,
       strongerLst,
-      this.strengthInverted
+      this.strengthInverted,
+      strongerOffset
     );
     // start creating list of wildcard combinations.
     const coms: WildcardCombination[] = [];
@@ -621,8 +627,22 @@ export class DiscardPairEnumerator {
       com = nextcom;
     }
 
-    // TODO
-    return [];
+    // convert to DiscardPair.
+    // For wildcards, use one of the marks in the current selection.
+    const cds = this.filterJokers();
+    const mark = cds[0].mark;
+    const dps: DiscardPair[] = [];
+    for (let i = 0; i < coms.length; i++) {
+      const wcds = coms[i].weakerCardNumbers.map((v) => {
+        return new Card.Card(mark, v);
+      });
+      const scds = coms[i].strongerCardNumbers.map((v) => {
+        return new Card.Card(mark, v);
+      });
+      dps.push(new DiscardPairImple(wcds.concat(cds).concat(scds)));
+    }
+
+    return dps;
   }
 
   private countJokers() {
@@ -677,14 +697,18 @@ class WildcardCombination {
   weakerCardNumbers: number[];
   strongerCardNumbers: number[];
   strengthInverted: boolean;
+  strongerStartingPoint: number;
   constructor(
     weakerCardNumbers: number[],
     strongerCardNumbers: number[],
-    strengthInverted: boolean
+    strengthInverted: boolean,
+    strongerStartingPoint: number
   ) {
+    // strongerStartingPoint determines the starting of stronger wildcard when strongerCardNumbers is empty.
     this.weakerCardNumbers = weakerCardNumbers;
     this.strongerCardNumbers = strongerCardNumbers;
     this.strengthInverted = strengthInverted;
+    this.strongerStartingPoint = strongerStartingPoint;
   }
   public yieldNextCombination(): WildcardCombination | null {
     // Move one element of weaker to stronger and returns the new combination.
@@ -692,10 +716,13 @@ class WildcardCombination {
     if (this.weakerCardNumbers.length == 0) {
       return null; // no weaker cards
     }
-    const s = CalcFunctions.calcStrongerCardNumber(
-      this.strongerCardNumbers[this.strongerCardNumbers.length - 1],
-      this.strengthInverted
-    );
+    const s =
+      this.strongerCardNumbers.length == 0
+        ? this.strongerStartingPoint
+        : CalcFunctions.calcStrongerCardNumber(
+            this.strongerCardNumbers[this.strongerCardNumbers.length - 1],
+            this.strengthInverted
+          );
     if (s === null) {
       return null; // no more space
     }
@@ -703,7 +730,12 @@ class WildcardCombination {
     const strongercp = [...this.strongerCardNumbers];
     weakercp.shift();
     strongercp.push(s);
-    return new WildcardCombination(weakercp, strongercp, this.strengthInverted);
+    return new WildcardCombination(
+      weakercp,
+      strongercp,
+      this.strengthInverted,
+      this.strongerStartingPoint
+    );
   }
 }
 
@@ -711,11 +743,13 @@ class WildcardCombination {
 export function createWildcardCombinationForTest(
   weakerCardNumbers: number[],
   strongerCardNumbers: number[],
-  strengthInverted: boolean
+  strengthInverted: boolean,
+  strongerStartingPoint: number
 ): WildcardCombination {
   return new WildcardCombination(
     weakerCardNumbers,
     strongerCardNumbers,
-    strengthInverted
+    strengthInverted,
+    strongerStartingPoint
   );
 }
