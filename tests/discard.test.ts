@@ -630,3 +630,35 @@ describe("isConnectedByKaidan", () => {
     expect(p1["isConnectedByKaidan"](7, 11)).toBe(true);
   });
 });
+
+describe("findWeakestSelectedCard", () => {
+  it("returns the weakest card in the current selection", () => {
+    const c1 = new Card.Card(Card.Mark.SPADES, 8);
+    const c2 = new Card.Card(Card.Mark.SPADES, 9);
+    const c3 = new Card.Card(Card.Mark.SPADES, 10);
+    const c4 = new Card.Card(Card.Mark.SPADES, 10);
+    const h1 = new Hand.Hand();
+    h1.giveCardsWithoutSorting(c1, c2, c3, c4);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(1);
+    p1.select(2);
+    expect(p1["findWeakestSelectedCard"]()).toBe(c2);
+  });
+
+  it("can exclude jokers", () => {
+    const c1 = new Card.Card(Card.Mark.SPADES, 8);
+    const c2 = new Card.Card(Card.Mark.SPADES, 9);
+    const c3 = new Card.Card(Card.Mark.SPADES, 10);
+    const c4 = new Card.Card(Card.Mark.SPADES, 10);
+    const c5 = new Card.Card(Card.Mark.JOKER);
+    const h1 = new Hand.Hand();
+    h1.giveCardsWithoutSorting(c1, c2, c3, c4, c5);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.discardPlanner(h1, d1, false);
+    p1.select(1);
+    p1.select(2);
+    p1.select(4);
+    expect(p1["findWeakestSelectedCard"]()).toBe(c2);
+  });
+});

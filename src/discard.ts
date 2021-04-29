@@ -483,4 +483,24 @@ export class discardPlanner {
     }
     return connected;
   }
+
+  private findWeakestSelectedCard(): Card.Card | null {
+    // Excluding jokers, returns the weakest card from the current selection.
+    // returns null when the selection is empty or jokers only.
+    const cards = this.enumerateSelectedCards().filter((v) => {
+      return !v.isJoker();
+    });
+    cards.sort((a, b) => {
+      return a.cardNumber == b.cardNumber
+        ? 0
+        : CalcFunctions.isStrongEnough(
+            CalcFunctions.convertCardNumberIntoStrength(a.cardNumber),
+            CalcFunctions.convertCardNumberIntoStrength(b.cardNumber),
+            this.strengthInverted
+          )
+        ? -1
+        : 1;
+    });
+    return cards.length == 0 ? null : cards[0];
+  }
 }
