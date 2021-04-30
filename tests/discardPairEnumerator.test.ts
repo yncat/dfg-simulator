@@ -188,3 +188,64 @@ describe("WildcardCombination", () => {
     });
   });
 });
+
+describe("prune", () => {
+  it("returns all pairs if the last discard pair is empty", () => {
+    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
+    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+      Discard.CreateDiscardPairForTest(h6, h6),
+    ];
+    expect(e["prune"](ds, d)).toStrictEqual(ds);
+  });
+
+  it("can prune pairs which do not satisfy cards count", () => {
+    const h4 = new Card.Card(Card.Mark.HEARTS, 4);
+    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
+    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const d = Discard.CreateDiscardPairForTest(h4, h4);
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+      Discard.CreateDiscardPairForTest(h6),
+    ];
+    const dsw: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+    ];
+    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+  });
+
+  it("can prune pairs which do not match standard or kaidan condition", () => {
+    const h4 = new Card.Card(Card.Mark.HEARTS, 4);
+    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
+    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const d = Discard.CreateDiscardPairForTest(h4, h4);
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+      Discard.CreateDiscardPairForTest(h5, h6),
+    ];
+    const dsw: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+    ];
+    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+  });
+
+  it("can prune pairs which is not stronger", () => {
+    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
+    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const d = Discard.CreateDiscardPairForTest(h5, h5);
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h6, h6),
+      Discard.CreateDiscardPairForTest(h5, h5),
+    ];
+    const dsw: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h6, h6),
+    ];
+    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+  });
+});

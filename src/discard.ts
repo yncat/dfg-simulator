@@ -544,15 +544,21 @@ export class DiscardPairEnumerator {
     // If the selection doesn't include any jokers, simply return everything as a pair, assuming that the combination is valid (should be checked at DiscardPlanner).
     const jokers = this.countJokers();
     if (jokers == 0) {
-      return [new DiscardPairImple(this.selectedCards)];
+      return this.prune(
+        [new DiscardPairImple(this.selectedCards)],
+        this.lastDiscardPair
+      );
     }
 
     // When the selection only consists of jokers, they cannot be used as wildcards, so simply return as a bunch of jokers.
     if (jokers == this.selectedCards.length) {
-      return [new DiscardPairImple(this.selectedCards)];
+      return this.prune(
+        [new DiscardPairImple(this.selectedCards)],
+        this.lastDiscardPair
+      );
     }
 
-    return this.findJokerCombinations();
+    return this.prune(this.findJokerCombinations(), this.lastDiscardPair);
   }
 
   private findJokerCombinations() {
@@ -646,6 +652,34 @@ export class DiscardPairEnumerator {
     }
 
     return dps;
+  }
+
+  private prune(pairs: DiscardPair[], lastPair: DiscardPair) {
+    // Prunes discard pairs that are not playable after the given last pair.
+    return lastPair.isNull()
+      ? pairs
+      : pairs.filter((v) => {
+          return this.IsPlayable(v, lastPair);
+        });
+  }
+
+  private IsPlayable(pair: DiscardPair, lastPair: DiscardPair) {
+    if (pair.count() != lastPair.count()) {
+      return false;
+    }
+    if (pair.isKaidan() != lastPair.isKaidan()) {
+      return false;
+    }
+    if (
+      !CalcFunctions.isStrongEnough(
+        lastPair.calcStrength(),
+        pair.calcStrength(),
+        this.strengthInverted
+      )
+    ) {
+      return false;
+    }
+    return true;
   }
 
   private countJokers() {
