@@ -155,3 +155,15 @@ describe.each([
     expect(CalcFunctions.enumerateNumbersBetween(a, b)).toStrictEqual(e);
   });
 });
+
+describe.each([
+  [1, 1],
+  [6, 1],
+  [7, 2],
+  [12, 2],
+  [13, 3],
+])("calcRequiredDecks when %i players will join", (a, e) => {
+  it("returns ${e}", () => {
+    expect(CalcFunctions.calcRequiredDecks(a)).toBe(e);
+  });
+});

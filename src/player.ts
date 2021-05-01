@@ -26,5 +26,12 @@ function randomHex(size: number) {
 }
 
 export class Player {
-  constructor(public hand: Hand, public rank: Rank) {}
+  public readonly hand: Hand;
+  public readonly rank: Rank;
+  public readonly identifier: string;
+  constructor(identifier: string) {
+    this.identifier = identifier;
+    this.hand = new Hand();
+    this.rank = new Rank();
+  }
 }
