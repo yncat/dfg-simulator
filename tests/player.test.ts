@@ -10,4 +10,3 @@ describe("generateUniqueIdentifiers", () => {
     expect(ids[1]).not.toBe(ids[2]);
   });
 });
-

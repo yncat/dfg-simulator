@@ -6,7 +6,7 @@ describe.each([
   [true, false, true],
   [true, true, false],
 ])("isStrengthInverted(jBack=%p, kakumei=%p)", (a, b, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.isStrengthInverted(a, b)).toBe(e);
   });
 });
@@ -17,7 +17,7 @@ describe.each([
   [3, 4, true, 3],
   [3, 2, true, 3],
 ])("findStrongerCardNumber(a:%i,b:%i,inverted:%p)", (a, b, c, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.findStrongerCardNumber(a, b, c)).toBe(e);
   });
 });
@@ -31,7 +31,7 @@ describe.each([
   [4, 4, true, false],
   [4, 3, true, true],
 ])("is strong enough? (last=%i, new=%i, inverted=%p)", (a, b, c, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.isStrongEnough(a, b, c)).toBe(e);
   });
 });
@@ -52,7 +52,7 @@ describe.each([
   [12, 12],
   [13, 13],
 ])("convertCardNumberToStrength (%i)", (a, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.convertCardNumberIntoStrength(a)).toBe(e);
   });
 });
@@ -73,7 +73,7 @@ describe.each([
   [12, 12],
   [13, 13],
 ])("convertCardNumberToStrength (%i)", (a, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.convertCardNumberIntoStrength(a)).toBe(e);
   });
 });
@@ -107,7 +107,7 @@ describe.each([
   [1, true, 13],
   [2, true, 1],
 ])("calcStrongerCardNumber (%i, inverted %p)", (a, b, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.calcStrongerCardNumber(a, b)).toBe(e);
   });
 });
@@ -141,7 +141,7 @@ describe.each([
   [1, true, 2],
   [2, true, null],
 ])("calcWeakerCardNumber (%i, inverted %p)", (a, b, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.calcWeakerCardNumber(a, b)).toBe(e);
   });
 });
@@ -151,7 +151,7 @@ describe.each([
   [1, 2, [1, 2]],
   [2, 1, [1, 2]],
 ])("enumerateNumbersBetween(a=%i, b=%i)", (a, b, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.enumerateNumbersBetween(a, b)).toStrictEqual(e);
   });
 });
@@ -163,7 +163,7 @@ describe.each([
   [12, 2],
   [13, 3],
 ])("calcRequiredDecks when %i players will join", (a, e) => {
-  it("returns ${e}", () => {
+  it("returns " + e, () => {
     expect(CalcFunctions.calcRequiredDecks(a)).toBe(e);
   });
 });
