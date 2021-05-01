@@ -39,4 +39,9 @@ export class Deck {
     }
     this.cards = out;
   }
+
+  public draw(): Card.Card | null {
+    const c = this.cards.pop();
+    return c instanceof Card.Card ? c : null;
+  }
 }

@@ -10,13 +10,7 @@ export class Hand {
     this.cards = [];
   }
 
-  public giveCards(...cards: Card.Card[]): void {
-    this.cards = this.cards.concat(cards);
-    this.sort();
-  }
-
-  public giveCardsWithoutSorting(...cards: Card.Card[]): void {
-    // specifically for tests
+  public give(...cards: Card.Card[]): void {
     this.cards = this.cards.concat(cards);
   }
 
@@ -36,7 +30,7 @@ export class Hand {
     }).length;
   }
 
-  private sort() {
+  public sort(): void {
     this.cards.sort((a, b) => {
       if (a.cardNumber == b.cardNumber) {
         return 0;

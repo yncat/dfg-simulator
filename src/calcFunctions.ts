@@ -97,6 +97,6 @@ export function enumerateNumbersBetween(a: number, b: number): number[] {
   return ret;
 }
 
-export function calcRequiredDecks(numberOfPlayers: number): number {
+export function calcRequiredDeckCount(numberOfPlayers: number): number {
   return Math.ceil(numberOfPlayers / 6);
 }

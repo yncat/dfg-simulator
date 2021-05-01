@@ -162,8 +162,8 @@ describe.each([
   [7, 2],
   [12, 2],
   [13, 3],
-])("calcRequiredDecks when %i players will join", (a, e) => {
+])("calcRequiredDeckCount when %i players will join", (a, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.calcRequiredDecks(a)).toBe(e);
+    expect(CalcFunctions.calcRequiredDeckCount(a)).toBe(e);
   });
 });
