@@ -25,7 +25,17 @@ function randomHex(size: number) {
   return s.join("");
 }
 
-export class Player {
+export interface Player{
+  readonly hand: Hand;
+  readonly rank: Rank;
+  readonly identifier: string;
+}
+
+export function createPlayer(identifier:string):Player{
+  return new PlayerImple(identifier);
+}
+
+export class PlayerImple implements Player {
   public readonly hand: Hand;
   public readonly rank: Rank;
   public readonly identifier: string;
