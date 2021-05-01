@@ -20,8 +20,8 @@ export function createGame(players: Player.Player[]): Game {
 
 function identifiersValid(players: Player.Player[]) {
   let found = false;
-  for (let i = 0; i < players.length-1; i++) {
-    for (let j = i+1; j < players.length; j++) {
+  for (let i = 0; i < players.length - 1; i++) {
+    for (let j = i + 1; j < players.length; j++) {
       if (players[i].identifier == players[j].identifier) {
         found = true;
         break;

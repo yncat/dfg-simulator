@@ -25,13 +25,13 @@ function randomHex(size: number) {
   return s.join("");
 }
 
-export interface Player{
+export interface Player {
   readonly hand: Hand;
   readonly rank: Rank;
   readonly identifier: string;
 }
 
-export function createPlayer(identifier:string):Player{
+export function createPlayer(identifier: string): Player {
   return new PlayerImple(identifier);
 }
 
