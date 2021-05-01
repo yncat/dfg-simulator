@@ -15,7 +15,9 @@ export type StartInfo = {
 
 export class GameInitializationError extends Error {}
 
-export interface Game {}
+export interface Game {
+  readonly startInfo: StartInfo;
+}
 
 export function createGame(players: Player.Player[]): Game {
   if (!identifiersValid(players)) {
@@ -43,7 +45,7 @@ function identifiersValid(players: Player.Player[]) {
 
 class GameImple implements Game {
   private players: Player.Player[];
-  private startInfo: StartInfo;
+  public readonly startInfo: StartInfo;
   constructor(players: Player.Player[]) {
     this.players = players;
     this.startInfo = this.prepair();

@@ -11,6 +11,9 @@ describe("createGame", () => {
     expect(p1.hand.count()).not.toBe(0);
     expect(p2.hand.count()).not.toBe(0);
     expect(p3.hand.count()).not.toBe(0);
+    expect(g.startInfo.deckCount).toBe(1);
+    expect(g.startInfo.playerCount).toBe(3);
+    expect(g.startInfo.handCounts).toStrictEqual([18, 18, 18]);
   });
 
   it("throws an error when player identifiers are not unique", () => {

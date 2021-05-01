@@ -40,7 +40,7 @@ export class Deck {
     this.cards = out;
   }
 
-  public count():number{
+  public count(): number {
     return this.cards.length;
   }
 
