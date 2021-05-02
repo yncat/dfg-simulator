@@ -95,20 +95,20 @@ export const SelectabilityCheckResult = {
 export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
 
 // card select result
-export const SelectResult = {
+export const CardSelectResult = {
   SUCCESS: 0,
   ALREADY_SELECTED: 1,
   NOT_SELECTABLE: 2,
 } as const;
-export type SelectResult = typeof SelectResult[keyof typeof SelectResult];
+export type CardSelectResult = typeof CardSelectResult[keyof typeof CardSelectResult];
 
 // card deselect result
-export const DeselectResult = {
+export const CardDeselectResult = {
   SUCCESS: 0,
   ALREADY_DESELECTED: 1,
   NOT_DESELECTABLE: 2,
 } as const;
-export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
+export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
 
 export class DiscardPlanner {
   private hand: Hand;
@@ -186,28 +186,28 @@ export class DiscardPlanner {
     return cards.length == cards2.length;
   }
 
-  public select(index: number): SelectResult {
+  public select(index: number): CardSelectResult {
     if (index < 0 || index >= this.hand.count()) {
-      return SelectResult.NOT_SELECTABLE;
+      return CardSelectResult.NOT_SELECTABLE;
     }
     if (this.selected[index]) {
-      return SelectResult.ALREADY_SELECTED;
+      return CardSelectResult.ALREADY_SELECTED;
     }
 
     this.selected[index] = true;
-    return SelectResult.SUCCESS;
+    return CardSelectResult.SUCCESS;
   }
 
-  public deselect(index: number): DeselectResult {
+  public deselect(index: number): CardDeselectResult {
     if (index < 0 || index >= this.hand.count()) {
-      return DeselectResult.NOT_DESELECTABLE;
+      return CardDeselectResult.NOT_DESELECTABLE;
     }
     if (!this.selected[index]) {
-      return DeselectResult.ALREADY_DESELECTED;
+      return CardDeselectResult.ALREADY_DESELECTED;
     }
 
     this.selected[index] = false;
-    return DeselectResult.SUCCESS;
+    return CardDeselectResult.SUCCESS;
   }
 
   private enumerateSelectedCards() {

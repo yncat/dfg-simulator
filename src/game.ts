@@ -172,20 +172,20 @@ export const SelectabilityCheckResult = {
 export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
 
 // card select result
-export const SelectResult = {
+export const CardSelectResult = {
   SUCCESS: 0,
   ALREADY_SELECTED: 1,
   NOT_SELECTABLE: 2,
 } as const;
-export type SelectResult = typeof SelectResult[keyof typeof SelectResult];
+export type CardSelectResult = typeof CardSelectResult[keyof typeof CardSelectResult];
 
 // card deselect result
-export const DeselectResult = {
+export const CardDeselectResult = {
   SUCCESS: 0,
   ALREADY_DESELECTED: 1,
   NOT_DESELECTABLE: 2,
 } as const;
-export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
+export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;

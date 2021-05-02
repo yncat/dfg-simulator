@@ -452,7 +452,7 @@ describe("select", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when the card is already selected", () => {
@@ -460,8 +460,8 @@ describe("select", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
-    expect(p.select(0)).toBe(Discard.SelectResult.ALREADY_SELECTED);
+    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(p.select(0)).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when the index is out of range", () => {
@@ -469,8 +469,8 @@ describe("select", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.select(-1)).toBe(Discard.SelectResult.NOT_SELECTABLE);
-    expect(p.select(1)).toBe(Discard.SelectResult.NOT_SELECTABLE);
+    expect(p.select(-1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
+    expect(p.select(1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
   });
 });
 
@@ -480,8 +480,8 @@ describe("deselect", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
-    expect(p.deselect(0)).toBe(Discard.DeselectResult.SUCCESS);
+    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(p.deselect(0)).toBe(Discard.CardDeselectResult.SUCCESS);
   });
 
   it("returns ALREADY_DESELECTED when the card is not selected", () => {
@@ -489,7 +489,7 @@ describe("deselect", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.deselect(0)).toBe(Discard.DeselectResult.ALREADY_DESELECTED);
+    expect(p.deselect(0)).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
   });
 
   it("returns NOT_DESELECTABLE when the index is out of range", () => {
@@ -497,8 +497,8 @@ describe("deselect", () => {
     const d = Discard.CreateDiscardPairForTest();
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
-    expect(p.deselect(-1)).toBe(Discard.DeselectResult.NOT_DESELECTABLE);
-    expect(p.deselect(1)).toBe(Discard.DeselectResult.NOT_DESELECTABLE);
+    expect(p.deselect(-1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
+    expect(p.deselect(1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
   });
 });
 
@@ -509,7 +509,7 @@ describe("CountSelectedCards", () => {
     const p = new Discard.DiscardPlanner(h, d, false);
     h.give(new Card.Card(Card.Mark.SPADES, 3));
     expect(p.countSelectedCards()).toBe(0);
-    expect(p.select(0)).toBe(Discard.SelectResult.SUCCESS);
+    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
     expect(p.countSelectedCards()).toBe(1);
   });
 });
