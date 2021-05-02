@@ -150,6 +150,7 @@ export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
   checkCardSelectability: (index: number) => SelectabilityCheckResult;
+  isCardSelected: (index: number) => boolean;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -208,6 +209,10 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.convertSelectabilityCheckResult(
       this.discardPlanner.checkSelectability(index)
     );
+  }
+
+  public isCardSelected(index: number): boolean {
+    return this.discardPlanner.isSelected(index);
   }
 
   private convertSelectabilityCheckResult(

@@ -101,3 +101,20 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     expect(ret).toBe(Game.SelectabilityCheckResult.NOT_SELECTABLE);
   });
 });
+
+describe("ActivePlayerControl.isCardSelected", () => {
+  it("returns what DiscardPlanner.isSelected returned", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const isSelected = jest
+      .spyOn(dp, "isSelected")
+      .mockImplementation((index) => {
+        return true;
+      });
+    const ret = ctrl.isCardSelected(0);
+    expect(isSelected).toHaveBeenCalled();
+    expect(ret).toBeTruthy();
+  });
+});
