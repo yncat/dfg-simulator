@@ -151,6 +151,8 @@ export interface ActivePlayerControl {
   enumerateHand: () => Card.Card[];
   checkCardSelectability: (index: number) => SelectabilityCheckResult;
   isCardSelected: (index: number) => boolean;
+  selectCard: (index: number) => CardSelectResult;
+  deselectCard: (index: number) => CardDeselectResult;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -215,6 +217,14 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPlanner.isSelected(index);
   }
 
+  public selectCard(index: number): CardSelectResult {
+    return this.convertCardSelectResult(this.discardPlanner.select(index));
+  }
+
+  public deselectCard(index: number): CardDeselectResult {
+    return this.convertCardDeselectResult(this.discardPlanner.deselect(index));
+  }
+
   private convertSelectabilityCheckResult(
     ret: Discard.SelectabilityCheckResult
   ): SelectabilityCheckResult {
@@ -223,5 +233,21 @@ class ActivePlayerControlImple implements ActivePlayerControl {
       : ret == Discard.SelectabilityCheckResult.ALREADY_SELECTED
       ? SelectabilityCheckResult.ALREADY_SELECTED
       : SelectabilityCheckResult.NOT_SELECTABLE;
+  }
+
+  private convertCardSelectResult(ret: Discard.CardSelectResult) {
+    return ret == Discard.CardSelectResult.SUCCESS
+      ? CardSelectResult.SUCCESS
+      : ret == Discard.CardSelectResult.ALREADY_SELECTED
+      ? CardSelectResult.ALREADY_SELECTED
+      : CardSelectResult.NOT_SELECTABLE;
+  }
+
+  private convertCardDeselectResult(ret: Discard.CardSelectResult) {
+    return ret == Discard.CardDeselectResult.SUCCESS
+      ? CardDeselectResult.SUCCESS
+      : ret == Discard.CardDeselectResult.ALREADY_DESELECTED
+      ? CardDeselectResult.ALREADY_DESELECTED
+      : CardDeselectResult.NOT_DESELECTABLE;
   }
 }

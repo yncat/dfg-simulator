@@ -118,3 +118,85 @@ describe("ActivePlayerControl.isCardSelected", () => {
     expect(ret).toBeTruthy();
   });
 });
+
+describe("ActivePlayerControlImple.selectCard", () => {
+  it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const select = jest.spyOn(dp, "select").mockImplementation((index) => {
+      return Discard.CardSelectResult.SUCCESS;
+    });
+    const ret = ctrl.selectCard(0);
+    expect(select).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardSelectResult.SUCCESS);
+  });
+
+  it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const select = jest.spyOn(dp, "select").mockImplementation((index) => {
+      return Discard.CardSelectResult.ALREADY_SELECTED;
+    });
+    const ret = ctrl.selectCard(0);
+    expect(select).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardSelectResult.ALREADY_SELECTED);
+  });
+
+  it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const select = jest.spyOn(dp, "select").mockImplementation((index) => {
+      return Discard.CardSelectResult.NOT_SELECTABLE;
+    });
+    const ret = ctrl.selectCard(0);
+    expect(select).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardSelectResult.NOT_SELECTABLE);
+  });
+});
+
+describe("ActivePlayerControlImple.deselectCard", () => {
+  it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
+      return Discard.CardDeselectResult.SUCCESS;
+    });
+    const ret = ctrl.deselectCard(0);
+    expect(deselect).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardDeselectResult.SUCCESS);
+  });
+
+  it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
+      return Discard.CardDeselectResult.ALREADY_DESELECTED;
+    });
+    const ret = ctrl.deselectCard(0);
+    expect(deselect).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardDeselectResult.ALREADY_DESELECTED);
+  });
+
+  it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
+      return Discard.CardDeselectResult.NOT_DESELECTABLE;
+    });
+    const ret = ctrl.deselectCard(0);
+    expect(deselect).toHaveBeenCalled();
+    expect(ret).toBe(Game.CardDeselectResult.NOT_DESELECTABLE);
+  });
+});
