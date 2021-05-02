@@ -149,6 +149,7 @@ class GameImple implements Game {
 export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
+  cardIsSelectable: (index: number) => SelectableCheckResult;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -159,6 +160,31 @@ export function createActivePlayerControlForTest(
 ): ActivePlayerControl {
   return new ActivePlayerControlImple(playerIdentifier, hand, discardPlanner);
 }
+
+// Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
+// card selectable result
+export const SelectableCheckResult = {
+  SELECTABLE: 0,
+  ALREADY_SELECTED: 1,
+  NOT_SELECTABLE: 2,
+} as const;
+export type SelectableCheckResult = typeof SelectableCheckResult[keyof typeof SelectableCheckResult];
+
+// card select result
+export const SelectResult = {
+  SUCCESS: 0,
+  ALREADY_SELECTED: 1,
+  NOT_SELECTABLE: 2,
+} as const;
+export type SelectResult = typeof SelectResult[keyof typeof SelectResult];
+
+// card deselect result
+export const DeselectResult = {
+  SUCCESS: 0,
+  ALREADY_DESELECTED: 1,
+  NOT_DESELECTABLE: 2,
+} as const;
+export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
@@ -176,5 +202,21 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public enumerateHand(): Card.Card[] {
     return this.hand.cards;
+  }
+
+  public cardIsSelectable(index: number): SelectableCheckResult {
+    return this.convertSelectableCheckResult(
+      this.discardPlanner.isSelectable(index)
+    );
+  }
+
+  private convertSelectableCheckResult(
+    ret: Discard.SelectableCheckResult
+  ): SelectableCheckResult {
+    return ret == Discard.SelectableCheckResult.SELECTABLE
+      ? SelectableCheckResult.SELECTABLE
+      : ret == Discard.SelectableCheckResult.ALREADY_SELECTED
+      ? SelectableCheckResult.ALREADY_SELECTED
+      : SelectableCheckResult.NOT_SELECTABLE;
   }
 }
