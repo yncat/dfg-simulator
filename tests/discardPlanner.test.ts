@@ -408,6 +408,34 @@ describe("isSelectable", () => {
   });
 });
 
+describe("isSelected", () => {
+  it("returns true when the card at specified index is selected", () => {
+    const h = new Hand.Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.DiscardPlanner(h, d, false);
+    h.give(new Card.Card(Card.Mark.SPADES, 3));
+    p.select(0);
+    expect(p.isSelected(0)).toBeTruthy();
+  });
+
+  it("returns false when the card at specified index is not selected", () => {
+    const h = new Hand.Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.DiscardPlanner(h, d, false);
+    h.give(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.isSelected(0)).toBeFalsy();
+  });
+
+  it("returns false when index is out of range", () => {
+    const h = new Hand.Hand();
+    const d = Discard.CreateDiscardPairForTest();
+    const p = new Discard.DiscardPlanner(h, d, false);
+    h.give(new Card.Card(Card.Mark.SPADES, 3));
+    expect(p.isSelected(-1)).toBeFalsy();
+    expect(p.isSelected(91724683)).toBeFalsy();
+  });
+});
+
 describe("select", () => {
   it("returns SUCCESS when successfully selected a card", () => {
     const h = new Hand.Hand();

@@ -130,6 +130,13 @@ export class DiscardPlanner {
     }
   }
 
+  public isSelected(index:number):boolean{
+    if(index<0 || index >= this.selected.length){
+      return false;
+    }
+    return this.selected[index];
+  }
+
   public isSelectable(index: number): SelectableCheckResult {
     // out of range?
     if (index < 0 || index >= this.hand.count()) {
