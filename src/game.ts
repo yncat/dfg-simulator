@@ -4,6 +4,9 @@ Game manager
 import * as Player from "./player";
 import * as Deck from "./deck";
 import * as CalcFunctions from "./calcFunctions";
+import * as Hand from "./hand";
+import * as Discard from "./discard";
+import * as Card from "./card";
 
 export type StartInfo = {
   playerCount: number; // Number of players joined in the game
@@ -17,6 +20,7 @@ export class GameInitializationError extends Error {}
 
 export interface Game {
   readonly startInfo: StartInfo;
+  getActivePlayerControl: () => ActivePlayerControl;
 }
 
 export function createGame(players: Player.Player[]): Game {
@@ -45,10 +49,29 @@ function identifiersValid(players: Player.Player[]) {
 
 class GameImple implements Game {
   private players: Player.Player[];
+  private turn: number;
+  private lastDiscardPair: Discard.DiscardPair;
+  strengthInverted: boolean;
   public readonly startInfo: StartInfo;
   constructor(players: Player.Player[]) {
     this.players = players;
+    this.turn = 0;
+    this.lastDiscardPair = Discard.createNullDiscardPair();
+    this.strengthInverted = false;
     this.startInfo = this.prepair();
+  }
+
+  public getActivePlayerControl(): ActivePlayerControl {
+    const dp = new Discard.DiscardPlanner(
+      this.players[this.turn].hand,
+      this.lastDiscardPair,
+      this.strengthInverted
+    );
+    return new ActivePlayerControlImple(
+      this.players[this.turn].identifier,
+      this.players[this.turn].hand,
+      dp
+    );
   }
 
   private prepair(): StartInfo {
@@ -120,5 +143,38 @@ class GameImple implements Game {
     return this.players.map((v) => {
       return v.hand.count();
     });
+  }
+}
+
+export interface ActivePlayerControl {
+  readonly playerIdentifier: string;
+  enumerateHand: () => Card.Card[];
+}
+
+// DO NOT USE EXCEPT TESTING PURPOSES.
+export function createActivePlayerControlForTest(
+  playerIdentifier: string,
+  hand: Hand.Hand,
+  discardPlanner: Discard.DiscardPlanner
+): ActivePlayerControl {
+  return new ActivePlayerControlImple(playerIdentifier, hand, discardPlanner);
+}
+
+class ActivePlayerControlImple implements ActivePlayerControl {
+  public readonly playerIdentifier: string;
+  private readonly hand: Hand.Hand;
+  private readonly discardPlanner: Discard.DiscardPlanner;
+  constructor(
+    playerIdentifier: string,
+    hand: Hand.Hand,
+    discardPlanner: Discard.DiscardPlanner
+  ) {
+    this.playerIdentifier = playerIdentifier;
+    this.hand = hand;
+    this.discardPlanner = discardPlanner;
+  }
+
+  public enumerateHand(): Card.Card[] {
+    return this.hand.cards;
   }
 }

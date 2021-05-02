@@ -77,6 +77,10 @@ class DiscardPairImple implements DiscardPair {
   }
 }
 
+export function createNullDiscardPair(): DiscardPair {
+  return new DiscardPairImple([]);
+}
+
 // DO NOT USE EXCEPT TESTING PURPOSES.
 export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
   return new DiscardPairImple(cards);
@@ -106,7 +110,7 @@ export const DeselectResult = {
 } as const;
 export type DeselectResult = typeof DeselectResult[keyof typeof DeselectResult];
 
-export class discardPlanner {
+export class DiscardPlanner {
   private hand: Hand;
   private lastDiscardPair: DiscardPair;
   private strengthInverted: boolean;
