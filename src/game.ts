@@ -149,7 +149,7 @@ class GameImple implements Game {
 export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
-  cardIsSelectable: (index: number) => SelectableCheckResult;
+  checkCardSelectability: (index: number) => SelectabilityCheckResult;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -163,12 +163,12 @@ export function createActivePlayerControlForTest(
 
 // Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
 // card selectable result
-export const SelectableCheckResult = {
+export const SelectabilityCheckResult = {
   SELECTABLE: 0,
   ALREADY_SELECTED: 1,
   NOT_SELECTABLE: 2,
 } as const;
-export type SelectableCheckResult = typeof SelectableCheckResult[keyof typeof SelectableCheckResult];
+export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
 
 // card select result
 export const SelectResult = {
@@ -204,19 +204,19 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.hand.cards;
   }
 
-  public cardIsSelectable(index: number): SelectableCheckResult {
-    return this.convertSelectableCheckResult(
-      this.discardPlanner.isSelectable(index)
+  public checkCardSelectability(index: number): SelectabilityCheckResult {
+    return this.convertSelectabilityCheckResult(
+      this.discardPlanner.checkSelectability(index)
     );
   }
 
-  private convertSelectableCheckResult(
-    ret: Discard.SelectableCheckResult
-  ): SelectableCheckResult {
-    return ret == Discard.SelectableCheckResult.SELECTABLE
-      ? SelectableCheckResult.SELECTABLE
-      : ret == Discard.SelectableCheckResult.ALREADY_SELECTED
-      ? SelectableCheckResult.ALREADY_SELECTED
-      : SelectableCheckResult.NOT_SELECTABLE;
+  private convertSelectabilityCheckResult(
+    ret: Discard.SelectabilityCheckResult
+  ): SelectabilityCheckResult {
+    return ret == Discard.SelectabilityCheckResult.SELECTABLE
+      ? SelectabilityCheckResult.SELECTABLE
+      : ret == Discard.SelectabilityCheckResult.ALREADY_SELECTED
+      ? SelectabilityCheckResult.ALREADY_SELECTED
+      : SelectabilityCheckResult.NOT_SELECTABLE;
   }
 }

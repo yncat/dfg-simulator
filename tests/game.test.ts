@@ -55,20 +55,20 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
   });
 });
 
-describe("ActivePlayerControlImple.cardIsSelectable", () => {
+describe("ActivePlayerControlImple.checkCardSelectability", () => {
   it("returns SELECTABLE when DiscardPlanner returned SELECTABLE", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
     const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
-    const isSelectable = jest
-      .spyOn(dp, "isSelectable")
+    const checkSelectability = jest
+      .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectableCheckResult.SELECTABLE;
+        return Discard.SelectabilityCheckResult.SELECTABLE;
       });
-    const ret = ctrl.cardIsSelectable(0);
-    expect(isSelectable).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectableCheckResult.SELECTABLE);
+    const ret = ctrl.checkCardSelectability(0);
+    expect(checkSelectability).toHaveBeenCalled();
+    expect(ret).toBe(Game.SelectabilityCheckResult.SELECTABLE);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -76,14 +76,14 @@ describe("ActivePlayerControlImple.cardIsSelectable", () => {
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
     const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
-    const isSelectable = jest
-      .spyOn(dp, "isSelectable")
+    const checkSelectability = jest
+      .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectableCheckResult.ALREADY_SELECTED;
+        return Discard.SelectabilityCheckResult.ALREADY_SELECTED;
       });
-    const ret = ctrl.cardIsSelectable(0);
-    expect(isSelectable).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectableCheckResult.ALREADY_SELECTED);
+    const ret = ctrl.checkCardSelectability(0);
+    expect(checkSelectability).toHaveBeenCalled();
+    expect(ret).toBe(Game.SelectabilityCheckResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -91,13 +91,13 @@ describe("ActivePlayerControlImple.cardIsSelectable", () => {
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
     const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
-    const isSelectable = jest
-      .spyOn(dp, "isSelectable")
+    const checkSelectability = jest
+      .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectableCheckResult.NOT_SELECTABLE;
+        return Discard.SelectabilityCheckResult.NOT_SELECTABLE;
       });
-    const ret = ctrl.cardIsSelectable(0);
-    expect(isSelectable).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectableCheckResult.NOT_SELECTABLE);
+    const ret = ctrl.checkCardSelectability(0);
+    expect(checkSelectability).toHaveBeenCalled();
+    expect(ret).toBe(Game.SelectabilityCheckResult.NOT_SELECTABLE);
   });
 });

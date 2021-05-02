@@ -87,12 +87,12 @@ export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
 }
 
 // card selectable result
-export const SelectableCheckResult = {
+export const SelectabilityCheckResult = {
   SELECTABLE: 0,
   ALREADY_SELECTED: 1,
   NOT_SELECTABLE: 2,
 } as const;
-export type SelectableCheckResult = typeof SelectableCheckResult[keyof typeof SelectableCheckResult];
+export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
 
 // card select result
 export const SelectResult = {
@@ -130,26 +130,26 @@ export class DiscardPlanner {
     }
   }
 
-  public isSelected(index:number):boolean{
-    if(index<0 || index >= this.selected.length){
+  public isSelected(index: number): boolean {
+    if (index < 0 || index >= this.selected.length) {
       return false;
     }
     return this.selected[index];
   }
 
-  public isSelectable(index: number): SelectableCheckResult {
+  public checkSelectability(index: number): SelectabilityCheckResult {
     // out of range?
     if (index < 0 || index >= this.hand.count()) {
-      return SelectableCheckResult.NOT_SELECTABLE;
+      return SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // already selected?
     if (this.selected[index]) {
-      return SelectableCheckResult.ALREADY_SELECTED;
+      return SelectabilityCheckResult.ALREADY_SELECTED;
     }
 
     const cnt = this.countSelectedCards();
-    let ret: SelectableCheckResult = SelectableCheckResult.SELECTABLE;
+    let ret: SelectabilityCheckResult = SelectabilityCheckResult.SELECTABLE;
     if (cnt == 0) {
       ret = this.checkSingle(index);
     } else {
@@ -216,17 +216,17 @@ export class DiscardPlanner {
     });
   }
 
-  private checkSingle(index: number): SelectableCheckResult {
+  private checkSingle(index: number): SelectabilityCheckResult {
     const selectingCard = this.hand.cards[index];
     if (this.lastDiscardPair.isNull()) {
-      return SelectableCheckResult.SELECTABLE;
+      return SelectabilityCheckResult.SELECTABLE;
     }
 
     // If selecting a joker and the last discard pair consists of one card only, it can be selected unless the last discard pair is also a joker.
     if (selectingCard.isJoker() && this.lastDiscardPair.count() == 1) {
       return this.lastDiscardPair.cards[0].isJoker()
-        ? SelectableCheckResult.NOT_SELECTABLE
-        : SelectableCheckResult.SELECTABLE;
+        ? SelectabilityCheckResult.NOT_SELECTABLE
+        : SelectabilityCheckResult.SELECTABLE;
     }
 
     // Single joker can be overriden by a 3 of spades
@@ -235,7 +235,7 @@ export class DiscardPlanner {
       selectingCard.mark == Card.Mark.SPADES &&
       selectingCard.cardNumber == 3
     ) {
-      return SelectableCheckResult.SELECTABLE;
+      return SelectabilityCheckResult.SELECTABLE;
     }
 
     // check strength
@@ -245,7 +245,7 @@ export class DiscardPlanner {
       this.strengthInverted
     );
     if (!strongEnough) {
-      return SelectableCheckResult.NOT_SELECTABLE;
+      return SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // we have to disallow selecting this card when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
@@ -257,7 +257,7 @@ export class DiscardPlanner {
     const lastDiscardPairCount = this.lastDiscardPair.count();
     // if we are selecting joker and we have enough jokers for wildcarding everything, that's OK.
     if (selectingCard.isJoker() && jokers >= lastDiscardPairCount) {
-      return SelectableCheckResult.SELECTABLE;
+      return SelectabilityCheckResult.SELECTABLE;
     }
 
     if (this.lastDiscardPair.isKaidan()) {
@@ -275,7 +275,7 @@ export class DiscardPlanner {
           } // if
         } // for
         if (!found) {
-          return SelectableCheckResult.NOT_SELECTABLE;
+          return SelectabilityCheckResult.NOT_SELECTABLE;
         } // if
       } else {
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
@@ -298,8 +298,8 @@ export class DiscardPlanner {
         }
 
         return found
-          ? SelectableCheckResult.SELECTABLE
-          : SelectableCheckResult.NOT_SELECTABLE;
+          ? SelectabilityCheckResult.SELECTABLE
+          : SelectabilityCheckResult.NOT_SELECTABLE;
       }
     } else {
       // kaidan?
@@ -321,7 +321,7 @@ export class DiscardPlanner {
           } // if
         } // for
         if (!found) {
-          return SelectableCheckResult.NOT_SELECTABLE;
+          return SelectabilityCheckResult.NOT_SELECTABLE;
         }
       } else {
         // since we are selecting a numbered card, the subsequent cards must be the same number.
@@ -331,12 +331,12 @@ export class DiscardPlanner {
             this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) <
           this.lastDiscardPair.count()
         ) {
-          return SelectableCheckResult.NOT_SELECTABLE;
+          return SelectabilityCheckResult.NOT_SELECTABLE;
         } // if
       } // joker or number
     } // not a kaidan
 
-    return SelectableCheckResult.SELECTABLE;
+    return SelectabilityCheckResult.SELECTABLE;
   }
 
   private checkMultiple(index: number) {
@@ -345,12 +345,12 @@ export class DiscardPlanner {
     const selectedCount = this.countSelectedCards();
     // Number of cards must not exceed the last discard pair
     if (lastDiscardCount == selectedCount) {
-      return SelectableCheckResult.NOT_SELECTABLE;
+      return SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // Jokers can wildcard everything.
     if (selectingCard.isJoker()) {
-      return SelectableCheckResult.SELECTABLE;
+      return SelectabilityCheckResult.SELECTABLE;
     }
 
     if (this.lastDiscardPair.isKaidan()) {
@@ -376,16 +376,16 @@ export class DiscardPlanner {
           cn = stronger;
         }
         return found
-          ? SelectableCheckResult.SELECTABLE
-          : SelectableCheckResult.NOT_SELECTABLE;
+          ? SelectabilityCheckResult.SELECTABLE
+          : SelectabilityCheckResult.NOT_SELECTABLE;
       } else {
         // we have at least 1 numbered card in the previous selection
         const wc = this.findWeakestSelectedCard();
         // OK if the selecting card is connected by kaidan with the previous selection.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
         return this.isConnectedByKaidan(wc.cardNumber, selectingCard.cardNumber)
-          ? SelectableCheckResult.SELECTABLE
-          : SelectableCheckResult.NOT_SELECTABLE;
+          ? SelectabilityCheckResult.SELECTABLE
+          : SelectabilityCheckResult.NOT_SELECTABLE;
       }
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
@@ -404,15 +404,15 @@ export class DiscardPlanner {
             this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) >=
             this.lastDiscardPair.count();
         return ok
-          ? SelectableCheckResult.SELECTABLE
-          : SelectableCheckResult.NOT_SELECTABLE;
+          ? SelectabilityCheckResult.SELECTABLE
+          : SelectabilityCheckResult.NOT_SELECTABLE;
       }
       // numbered cards are previously selected, so simply check if the currently selecting one's card number matches.
       return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
-        ? SelectableCheckResult.SELECTABLE
-        : SelectableCheckResult.NOT_SELECTABLE;
+        ? SelectabilityCheckResult.SELECTABLE
+        : SelectabilityCheckResult.NOT_SELECTABLE;
     }
-    return SelectableCheckResult.NOT_SELECTABLE;
+    return SelectabilityCheckResult.NOT_SELECTABLE;
   }
 
   private isSameNumberFromPreviouslySelected(cardNumber: number) {
