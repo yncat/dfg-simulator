@@ -67,10 +67,12 @@ class GameImple implements Game {
       this.lastDiscardPair,
       this.strengthInverted
     );
+    const dpe = new Discard.DiscardPairEnumerator(this.lastDiscardPair,this.strengthInverted);
     return new ActivePlayerControlImple(
       this.players[this.turn].identifier,
       this.players[this.turn].hand,
-      dp
+      dp,
+      dpe
     );
   }
 
@@ -153,15 +155,21 @@ export interface ActivePlayerControl {
   isCardSelected: (index: number) => boolean;
   selectCard: (index: number) => CardSelectResult;
   deselectCard: (index: number) => CardDeselectResult;
+  enumerateDiscardPairs:()=>DiscardPair[];
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
 export function createActivePlayerControlForTest(
   playerIdentifier: string,
   hand: Hand.Hand,
-  discardPlanner: Discard.DiscardPlanner
+  discardPlanner: Discard.DiscardPlanner,
+  discardPairEnumerator:Discard.DiscardPairEnumerator
 ): ActivePlayerControl {
-  return new ActivePlayerControlImple(playerIdentifier, hand, discardPlanner);
+  return new ActivePlayerControlImple(playerIdentifier, hand, discardPlanner,discardPairEnumerator);
+}
+
+export interface DiscardPair{
+  cards:Card.Card[];
 }
 
 // Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
@@ -193,14 +201,17 @@ class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
   private readonly hand: Hand.Hand;
   private readonly discardPlanner: Discard.DiscardPlanner;
+  private readonly discardPairEnumerator:Discard.DiscardPairEnumerator;
   constructor(
     playerIdentifier: string,
     hand: Hand.Hand,
-    discardPlanner: Discard.DiscardPlanner
+    discardPlanner: Discard.DiscardPlanner,
+    discardPairEnumerator:Discard.DiscardPairEnumerator
   ) {
     this.playerIdentifier = playerIdentifier;
     this.hand = hand;
     this.discardPlanner = discardPlanner;
+    this.discardPairEnumerator=discardPairEnumerator;
   }
 
   public enumerateHand(): Card.Card[] {
@@ -223,6 +234,10 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public deselectCard(index: number): CardDeselectResult {
     return this.convertCardDeselectResult(this.discardPlanner.deselect(index));
+  }
+
+  public enumerateDiscardPairs():DiscardPair[]{
+    return this.discardPairEnumerator.enumerate(...this.discardPlanner.enumerateSelectedCards());
   }
 
   private convertSelectabilityCheckResult(

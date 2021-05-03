@@ -50,7 +50,8 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
     h.give(c1, c2);
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     expect(ctrl.enumerateHand()).toStrictEqual([c1, c2]);
   });
 });
@@ -60,7 +61,8 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
@@ -75,7 +77,8 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
@@ -90,7 +93,8 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
@@ -107,7 +111,8 @@ describe("ActivePlayerControl.isCardSelected", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const isSelected = jest
       .spyOn(dp, "isSelected")
       .mockImplementation((index) => {
@@ -124,7 +129,8 @@ describe("ActivePlayerControlImple.selectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
       return Discard.CardSelectResult.SUCCESS;
     });
@@ -137,7 +143,8 @@ describe("ActivePlayerControlImple.selectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
       return Discard.CardSelectResult.ALREADY_SELECTED;
     });
@@ -150,7 +157,8 @@ describe("ActivePlayerControlImple.selectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
       return Discard.CardSelectResult.NOT_SELECTABLE;
     });
@@ -165,7 +173,8 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
       return Discard.CardDeselectResult.SUCCESS;
     });
@@ -178,7 +187,8 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
       return Discard.CardDeselectResult.ALREADY_DESELECTED;
     });
@@ -191,12 +201,31 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
       return Discard.CardDeselectResult.NOT_DESELECTABLE;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
     expect(ret).toBe(Game.CardDeselectResult.NOT_DESELECTABLE);
+  });
+});
+
+describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
+  it("returns what DiscardPairEnumerator returned", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
+    const c = new Card.Card(Card.Mark.SPADES, 3);
+    const want = [Discard.CreateDiscardPairForTest(c, c)];
+    const enumerate = jest.spyOn(dpe, "enumerate").mockImplementation(() => {
+      return want;
+    });
+    const ret = ctrl.enumerateDiscardPairs();
+    expect(enumerate).toHaveBeenCalled();
+    expect(ret).toStrictEqual(want);
   });
 });

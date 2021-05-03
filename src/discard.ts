@@ -210,7 +210,7 @@ export class DiscardPlanner {
     return CardDeselectResult.SUCCESS;
   }
 
-  private enumerateSelectedCards() {
+  public enumerateSelectedCards() {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
     });
