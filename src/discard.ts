@@ -534,19 +534,19 @@ export class DiscardPlanner {
 
 export class DiscardPairEnumerator {
   private selectedCards: Card.Card[];
-  private lastDiscardPair: DiscardPair;
-  private strengthInverted: boolean;
+  private readonly lastDiscardPair: DiscardPair;
+  private readonly strengthInverted: boolean;
   constructor(
     lastDiscardPair: DiscardPair,
-    strengthInverted: boolean,
-    ...selectedCards: Card.Card[]
+    strengthInverted: boolean
   ) {
     this.lastDiscardPair = lastDiscardPair;
     this.strengthInverted = strengthInverted;
-    this.selectedCards = selectedCards;
+    this.selectedCards=[];
   }
 
-  public enumerate(): DiscardPair[] {
+  public enumerate(...selectedCards:Card.Card[]): DiscardPair[] {
+    this.selectedCards = selectedCards;
     // Obviously blank if no cards are selected
     if (this.selectedCards.length == 0) {
       return [];
