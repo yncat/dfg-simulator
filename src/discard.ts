@@ -210,7 +210,7 @@ export class DiscardPlanner {
     return CardDeselectResult.SUCCESS;
   }
 
-  public enumerateSelectedCards() {
+  public enumerateSelectedCards():Card.Card[] {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
     });
@@ -536,16 +536,13 @@ export class DiscardPairEnumerator {
   private selectedCards: Card.Card[];
   private readonly lastDiscardPair: DiscardPair;
   private readonly strengthInverted: boolean;
-  constructor(
-    lastDiscardPair: DiscardPair,
-    strengthInverted: boolean
-  ) {
+  constructor(lastDiscardPair: DiscardPair, strengthInverted: boolean) {
     this.lastDiscardPair = lastDiscardPair;
     this.strengthInverted = strengthInverted;
-    this.selectedCards=[];
+    this.selectedCards = [];
   }
 
-  public enumerate(...selectedCards:Card.Card[]): DiscardPair[] {
+  public enumerate(...selectedCards: Card.Card[]): DiscardPair[] {
     this.selectedCards = selectedCards;
     // Obviously blank if no cards are selected
     if (this.selectedCards.length == 0) {
