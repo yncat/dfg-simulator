@@ -16,11 +16,26 @@ export type StartInfo = {
   handCounts: number[]; // Number of cards given
 };
 
+export const GameEvent = {
+  NAGARE: 0,
+  AGARI: 1,
+  YAGIRI: 2,
+  KAKUMEI: 3,
+  STR_INVERT: 4,
+  STR_NORMAL: 5,
+  DISCARD: 6,
+  PASS: 7,
+} as const;
+export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
+
 export class GameInitializationError extends Error {}
 
 export interface Game {
   readonly startInfo: StartInfo;
   startActivePlayerControl: () => ActivePlayerControl;
+  finishActivePlayerControl: (
+    activePlayerControl: ActivePlayerControl
+  ) => GameEvent[];
 }
 
 export function createGame(players: Player.Player[]): Game {
@@ -77,6 +92,15 @@ class GameImple implements Game {
       dp,
       dpe
     );
+  }
+
+  public finishActivePlayerControl(
+    activePlayerControl: ActivePlayerControl
+  ): GameEvent[] {
+    const events: GameEvent[] = [];
+    // process discard or pass
+    this.processDiscardOrPass(activePlayerControl, events);
+    return events;
   }
 
   private prepair(): StartInfo {
@@ -148,6 +172,19 @@ class GameImple implements Game {
     return this.players.map((v) => {
       return v.hand.count();
     });
+  }
+
+  private processDiscardOrPass(
+    activePlayerControl: ActivePlayerControl,
+    events: GameEvent[]
+  ) {
+    if (activePlayerControl.hasPassed()) {
+      events.push(GameEvent.PASS);
+      return;
+    }
+    // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
+    this.lastDiscardPair = activePlayerControl.getDiscard();
+    events.push(GameEvent.DISCARD);
   }
 }
 
