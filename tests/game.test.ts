@@ -31,13 +31,13 @@ describe("createGame", () => {
   });
 });
 
-describe("Game.getActivePlayerControl", () => {
+describe("Game.startActivePlayerControl", () => {
   it("returns an ActivePlayerControl instance with required properties", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
     const g = Game.createGame([p1, p2, p3]);
-    const ctrl = g.getActivePlayerControl();
+    const ctrl = g.startActivePlayerControl();
     expect(ctrl).not.toBeNull();
   });
 });

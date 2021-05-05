@@ -20,7 +20,7 @@ export class GameInitializationError extends Error {}
 
 export interface Game {
   readonly startInfo: StartInfo;
-  getActivePlayerControl: () => ActivePlayerControl;
+  startActivePlayerControl: () => ActivePlayerControl;
 }
 
 export function createGame(players: Player.Player[]): Game {
@@ -61,7 +61,7 @@ class GameImple implements Game {
     this.startInfo = this.prepair();
   }
 
-  public getActivePlayerControl(): ActivePlayerControl {
+  public startActivePlayerControl(): ActivePlayerControl {
     const dp = new Discard.DiscardPlanner(
       this.players[this.turn].hand,
       this.lastDiscardPair,
