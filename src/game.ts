@@ -26,6 +26,7 @@ export const GameEvent = {
   STR_NORMAL: 5,
   DISCARD: 6,
   PASS: 7,
+  GAME_END: 8,
 } as const;
 export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
 
@@ -69,6 +70,7 @@ class GameImple implements Game {
   private lastDiscardPair: Discard.DiscardPair;
   private lastDiscarderIdentifier: string;
   strengthInverted: boolean;
+  private agariPlayerIdentifiers: string[];
   public readonly startInfo: StartInfo;
   constructor(players: Player.Player[]) {
     this.players = players;
@@ -78,6 +80,7 @@ class GameImple implements Game {
     this.lastDiscardPair = Discard.createNullDiscardPair();
     this.lastDiscarderIdentifier = "";
     this.strengthInverted = false;
+    this.agariPlayerIdentifiers = [];
     this.startInfo = this.prepair();
   }
 
@@ -111,6 +114,8 @@ class GameImple implements Game {
     this.players[this.activePlayerIndex].hand.take(
       ...activePlayerControl.getDiscard().cards
     );
+    this.processAgariCheck(activePlayerControl, events);
+    this.processGameEndCheck(activePlayerControl, events);
     this.processTurnAdvancement(activePlayerControl, events);
     return events;
   }
@@ -222,6 +227,35 @@ class GameImple implements Game {
       ) {
         break;
       }
+    }
+  }
+
+  private processAgariCheck(
+    activePlayerControl: ActivePlayerControl,
+    events: GameEvent[]
+  ) {
+    if (this.players[this.activePlayerIndex].hand.count() == 0) {
+      events.push(GameEvent.AGARI);
+      this.agariPlayerIdentifiers.push(
+        this.players[this.activePlayerIndex].identifier
+      );
+      const pos = this.agariPlayerIdentifiers.length;
+      this.players[this.activePlayerIndex].rank.determine(
+        this.players.length,
+        pos
+      );
+    }
+  }
+
+  private processGameEndCheck(
+    activePlayerControl: ActivePlayerControl,
+    events: GameEvent[]
+  ) {
+    const rm = this.players.filter((v) => {
+      return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
+    });
+    if (rm.length == 0) {
+      events.push(GameEvent.GAME_END);
     }
   }
 
