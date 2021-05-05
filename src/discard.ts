@@ -12,7 +12,7 @@ export interface DiscardPair {
   calcStrength: () => number;
   isNull: () => boolean;
   isKaidan: () => boolean;
-  isSameFrom:(discardPair:DiscardPair)=>boolean;
+  isSameFrom: (discardPair: DiscardPair) => boolean;
 }
 
 class DiscardPairImple implements DiscardPair {
@@ -65,14 +65,14 @@ class DiscardPairImple implements DiscardPair {
     return ok;
   }
 
-  public isSameFrom(discardPair:DiscardPair):boolean{
-    if(this.count()!=discardPair.count()){
+  public isSameFrom(discardPair: DiscardPair): boolean {
+    if (this.count() != discardPair.count()) {
       return false;
     }
-    let ok=true;
-    for(let i=0;i<this.count();i++){
-      if(!this.cards[i].isSameFrom(discardPair.cards[i])){
-        ok=false;
+    let ok = true;
+    for (let i = 0; i < this.count(); i++) {
+      if (!this.cards[i].isSameFrom(discardPair.cards[i])) {
+        ok = false;
         break;
       }
     }
@@ -224,7 +224,7 @@ export class DiscardPlanner {
     return CardDeselectResult.SUCCESS;
   }
 
-  public enumerateSelectedCards():Card.Card[] {
+  public enumerateSelectedCards(): Card.Card[] {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
     });

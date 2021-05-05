@@ -167,8 +167,8 @@ export interface ActivePlayerControl {
   enumerateDiscardPairs: () => DiscardPair[];
   pass: () => void;
   hasPassed: () => boolean;
-  discard:(discardPair:DiscardPair)=>DiscardResult;
-  getDiscard:()=>DiscardPair;
+  discard: (discardPair: DiscardPair) => DiscardResult;
+  getDiscard: () => DiscardPair;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -185,7 +185,6 @@ export function createActivePlayerControlForTest(
     discardPairEnumerator
   );
 }
-
 
 // Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
 // card selectable result
@@ -219,10 +218,10 @@ export interface DiscardPair {
   calcStrength: () => number;
   isNull: () => boolean;
   isKaidan: () => boolean;
-  isSameFrom:(discardPair:DiscardPair)=>boolean;
+  isSameFrom: (discardPair: DiscardPair) => boolean;
 }
 
-export class ActivePlayerControlError extends Error{}
+export class ActivePlayerControlError extends Error {}
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
@@ -282,21 +281,21 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.passed;
   }
 
-  public discard(dp:DiscardPair):DiscardResult{
-    const matched=this.enumerateDiscardPairs().filter((v)=>{
+  public discard(dp: DiscardPair): DiscardResult {
+    const matched = this.enumerateDiscardPairs().filter((v) => {
       return v.isSameFrom(dp);
     });
-    if(matched.length==0){
+    if (matched.length == 0) {
       return DiscardResult.NOT_FOUND;
     }
 
-    this.discardPair=dp;
-    this.passed=false;
+    this.discardPair = dp;
+    this.passed = false;
     return DiscardResult.SUCCESS;
   }
 
-  public getDiscard():DiscardPair{
-    if(this.discardPair===null){
+  public getDiscard(): DiscardPair {
+    if (this.discardPair === null) {
       throw new ActivePlayerControlError("cannot get discard when passed");
     }
     return this.discardPair;
