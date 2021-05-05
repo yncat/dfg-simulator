@@ -28,7 +28,8 @@ export const GameEvent = {
 } as const;
 export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
 
-export class GameInitializationError extends Error {}
+export class GameError extends Error {}
+
 
 export interface Game {
   readonly startInfo: StartInfo;
@@ -40,7 +41,7 @@ export interface Game {
 
 export function createGame(players: Player.Player[]): Game {
   if (!identifiersValid(players)) {
-    throw new GameInitializationError(
+    throw new GameError(
       "one of the players' identifiers is duplicating"
     );
   }
@@ -64,13 +65,17 @@ function identifiersValid(players: Player.Player[]) {
 
 class GameImple implements Game {
   private players: Player.Player[];
-  private turn: number;
+  private turnCount: number;
+  private activePlayerIndex: number;
+  private activePlayerActionCount: number;
   private lastDiscardPair: Discard.DiscardPair;
   strengthInverted: boolean;
   public readonly startInfo: StartInfo;
   constructor(players: Player.Player[]) {
     this.players = players;
-    this.turn = 0;
+    this.turnCount = 1;
+    this.activePlayerIndex = 0;
+    this.activePlayerActionCount = 0;
     this.lastDiscardPair = Discard.createNullDiscardPair();
     this.strengthInverted = false;
     this.startInfo = this.prepair();
@@ -78,7 +83,7 @@ class GameImple implements Game {
 
   public startActivePlayerControl(): ActivePlayerControl {
     const dp = new Discard.DiscardPlanner(
-      this.players[this.turn].hand,
+      this.players[this.activePlayerIndex].hand,
       this.lastDiscardPair,
       this.strengthInverted
     );
@@ -87,8 +92,9 @@ class GameImple implements Game {
       this.strengthInverted
     );
     return new ActivePlayerControlImple(
-      this.players[this.turn].identifier,
-      this.players[this.turn].hand,
+      this.calcControlIdentifier(),
+      this.players[this.activePlayerIndex].identifier,
+      this.players[this.activePlayerIndex].hand,
       dp,
       dpe
     );
@@ -97,6 +103,9 @@ class GameImple implements Game {
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
   ): GameEvent[] {
+    if(activePlayerControl.controlIdentifier != this.calcControlIdentifier()){
+      throw new GameError("the given activePlayerControl is no longer valid")
+    }
     const events: GameEvent[] = [];
     // process discard or pass
     this.processDiscardOrPass(activePlayerControl, events);
@@ -149,7 +158,7 @@ class GameImple implements Game {
           }
           c = decks[0].draw();
           if (c === null) {
-            throw new GameInitializationError(
+            throw new GameError(
               "deck is unexpectedly empty, maybe corrupted?"
             );
           }
@@ -186,6 +195,18 @@ class GameImple implements Game {
     this.lastDiscardPair = activePlayerControl.getDiscard();
     events.push(GameEvent.DISCARD);
   }
+
+  private calcControlIdentifier() {
+    // control identifier is used to check whether an ActivePlayerControl object is valid at the current context when it is passed to finishActivePlayerControl.
+    return (
+      "t" +
+      this.turnCount.toString() +
+      "p" +
+      this.activePlayerIndex.toString() +
+      "a" +
+      this.activePlayerActionCount.toString()
+    );
+  }
 }
 
 export const DiscardResult = {
@@ -195,6 +216,7 @@ export const DiscardResult = {
 export type DiscardResult = typeof DiscardResult[keyof typeof DiscardResult];
 
 export interface ActivePlayerControl {
+  readonly controlIdentifier:string;
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
   checkCardSelectability: (index: number) => SelectabilityCheckResult;
@@ -210,12 +232,14 @@ export interface ActivePlayerControl {
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
 export function createActivePlayerControlForTest(
+  controlIdentifier: string,
   playerIdentifier: string,
   hand: Hand.Hand,
   discardPlanner: Discard.DiscardPlanner,
   discardPairEnumerator: Discard.DiscardPairEnumerator
 ): ActivePlayerControl {
   return new ActivePlayerControlImple(
+    controlIdentifier,
     playerIdentifier,
     hand,
     discardPlanner,
@@ -262,17 +286,20 @@ export class ActivePlayerControlError extends Error {}
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
+  public readonly controlIdentifier: string;
   private readonly hand: Hand.Hand;
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
   private passed: boolean;
   private discardPair: DiscardPair | null;
   constructor(
+    controlIdentifier: string,
     playerIdentifier: string,
     hand: Hand.Hand,
     discardPlanner: Discard.DiscardPlanner,
     discardPairEnumerator: Discard.DiscardPairEnumerator
   ) {
+    this.controlIdentifier = controlIdentifier;
     this.playerIdentifier = playerIdentifier;
     this.hand = hand;
     this.discardPlanner = discardPlanner;
