@@ -14,6 +14,18 @@ export class Hand {
     this.cards = this.cards.concat(cards);
   }
 
+  public take(...cards: Card.Card[]): void {
+    // If one or more of the cards don't exist in the hand, they're just ignored.
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < this.cards.length; j++) {
+        if (cards[i].isSameFrom(this.cards[j])) {
+          this.cards.splice(j, 1);
+          break;
+        }
+      }
+    }
+  }
+
   public count(): number {
     return this.cards.length;
   }

@@ -116,3 +116,20 @@ describe("countJokers", () => {
     expect(h2.countJokers()).toBe(2);
   });
 });
+
+describe("take", () => {
+  describe("can take cards from the hand", () => {
+    const h = new Hand.Hand();
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 7);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 8);
+    const c3 = new Card.Card(Card.Mark.DIAMONDS, 9);
+    // nonexistent card should be ignored
+    const c4 = new Card.Card(Card.Mark.DIAMONDS, 10);
+    // It should remove cards properly even if the specified card is another instance of the same card.
+    const c22 = new Card.Card(Card.Mark.DIAMONDS, 8);
+    h.give(c1, c2, c3);
+    h.take(c1, c22, c4);
+    expect(h.cards.length).toBe(1);
+    expect(h.cards).toStrictEqual([c3]);
+  });
+});
