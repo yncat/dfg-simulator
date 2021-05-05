@@ -7,6 +7,7 @@ import * as CalcFunctions from "./calcFunctions";
 import * as Hand from "./hand";
 import * as Discard from "./discard";
 import * as Card from "./card";
+import * as Rank from "./rank";
 
 export type StartInfo = {
   playerCount: number; // Number of players joined in the game
@@ -30,7 +31,6 @@ export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
 
 export class GameError extends Error {}
 
-
 export interface Game {
   readonly startInfo: StartInfo;
   startActivePlayerControl: () => ActivePlayerControl;
@@ -41,9 +41,7 @@ export interface Game {
 
 export function createGame(players: Player.Player[]): Game {
   if (!identifiersValid(players)) {
-    throw new GameError(
-      "one of the players' identifiers is duplicating"
-    );
+    throw new GameError("one of the players' identifiers is duplicating");
   }
 
   const g = new GameImple(players);
@@ -69,6 +67,7 @@ class GameImple implements Game {
   private activePlayerIndex: number;
   private activePlayerActionCount: number;
   private lastDiscardPair: Discard.DiscardPair;
+  private lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   public readonly startInfo: StartInfo;
   constructor(players: Player.Player[]) {
@@ -77,6 +76,7 @@ class GameImple implements Game {
     this.activePlayerIndex = 0;
     this.activePlayerActionCount = 0;
     this.lastDiscardPair = Discard.createNullDiscardPair();
+    this.lastDiscarderIdentifier = "";
     this.strengthInverted = false;
     this.startInfo = this.prepair();
   }
@@ -103,12 +103,15 @@ class GameImple implements Game {
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
   ): GameEvent[] {
-    if(activePlayerControl.controlIdentifier != this.calcControlIdentifier()){
-      throw new GameError("the given activePlayerControl is no longer valid")
+    if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
+      throw new GameError("the given activePlayerControl is no longer valid");
     }
     const events: GameEvent[] = [];
-    // process discard or pass
     this.processDiscardOrPass(activePlayerControl, events);
+    this.players[this.activePlayerIndex].hand.take(
+      ...activePlayerControl.getDiscard().cards
+    );
+    this.processTurnAdvancement(activePlayerControl, events);
     return events;
   }
 
@@ -158,9 +161,7 @@ class GameImple implements Game {
           }
           c = decks[0].draw();
           if (c === null) {
-            throw new GameError(
-              "deck is unexpectedly empty, maybe corrupted?"
-            );
+            throw new GameError("deck is unexpectedly empty, maybe corrupted?");
           }
         }
         this.players[i].hand.give(c);
@@ -193,7 +194,35 @@ class GameImple implements Game {
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
     this.lastDiscardPair = activePlayerControl.getDiscard();
+    this.lastDiscarderIdentifier = this.players[
+      this.activePlayerIndex
+    ].identifier;
     events.push(GameEvent.DISCARD);
+  }
+
+  private processTurnAdvancement(
+    activePlayerControl: ActivePlayerControl,
+    events: GameEvent[]
+  ) {
+    while (true) {
+      this.activePlayerIndex++;
+      if (this.activePlayerIndex == this.players.length) {
+        this.activePlayerIndex = 0;
+        this.turnCount++;
+      }
+      if (
+        this.players[this.activePlayerIndex].identifier ==
+        activePlayerControl.playerIdentifier
+      ) {
+        events.push(GameEvent.NAGARE);
+      }
+      if (
+        this.players[this.activePlayerIndex].rank.getRankType() ==
+        Rank.RankType.UNDETERMINED
+      ) {
+        break;
+      }
+    }
   }
 
   private calcControlIdentifier() {
@@ -216,7 +245,7 @@ export const DiscardResult = {
 export type DiscardResult = typeof DiscardResult[keyof typeof DiscardResult];
 
 export interface ActivePlayerControl {
-  readonly controlIdentifier:string;
+  readonly controlIdentifier: string;
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
   checkCardSelectability: (index: number) => SelectabilityCheckResult;
