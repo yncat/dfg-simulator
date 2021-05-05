@@ -151,6 +151,12 @@ class GameImple implements Game {
   }
 }
 
+export const DiscardResult = {
+  SUCCESS: 0,
+  NOT_FOUND: 1,
+} as const;
+export type DiscardResult = typeof DiscardResult[keyof typeof DiscardResult];
+
 export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
@@ -161,6 +167,8 @@ export interface ActivePlayerControl {
   enumerateDiscardPairs: () => DiscardPair[];
   pass: () => void;
   hasPassed: () => boolean;
+  discard:(discardPair:DiscardPair)=>DiscardResult;
+  getDiscard:()=>DiscardPair;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -178,14 +186,6 @@ export function createActivePlayerControlForTest(
   );
 }
 
-export interface DiscardPair {
-  cards: Card.Card[];
-  count: () => number;
-  calcCardNumber: (strengthInverted: boolean) => number;
-  calcStrength: () => number;
-  isNull: () => boolean;
-  isKaidan: () => boolean;
-}
 
 // Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
 // card selectable result
@@ -212,13 +212,25 @@ export const CardDeselectResult = {
 } as const;
 export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
 
+export interface DiscardPair {
+  cards: Card.Card[];
+  count: () => number;
+  calcCardNumber: (strengthInverted: boolean) => number;
+  calcStrength: () => number;
+  isNull: () => boolean;
+  isKaidan: () => boolean;
+  isSameFrom:(discardPair:DiscardPair)=>boolean;
+}
+
+export class ActivePlayerControlError extends Error{}
+
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
   private readonly hand: Hand.Hand;
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
   private passed: boolean;
-  private discard: DiscardPair | null;
+  private discardPair: DiscardPair | null;
   constructor(
     playerIdentifier: string,
     hand: Hand.Hand,
@@ -230,7 +242,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     this.discardPlanner = discardPlanner;
     this.discardPairEnumerator = discardPairEnumerator;
     this.passed = false;
-    this.discard = null;
+    this.discardPair = null;
   }
 
   public enumerateHand(): Card.Card[] {
@@ -263,11 +275,31 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public pass(): void {
     this.passed = true;
-    this.discard = null;
+    this.discardPair = null;
   }
 
   public hasPassed(): boolean {
     return this.passed;
+  }
+
+  public discard(dp:DiscardPair):DiscardResult{
+    const matched=this.enumerateDiscardPairs().filter((v)=>{
+      return v.isSameFrom(dp);
+    });
+    if(matched.length==0){
+      return DiscardResult.NOT_FOUND;
+    }
+
+    this.discardPair=dp;
+    this.passed=false;
+    return DiscardResult.SUCCESS;
+  }
+
+  public getDiscard():DiscardPair{
+    if(this.discardPair===null){
+      throw new ActivePlayerControlError("cannot get discard when passed");
+    }
+    return this.discardPair;
   }
 
   private convertSelectabilityCheckResult(

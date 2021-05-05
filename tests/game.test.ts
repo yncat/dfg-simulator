@@ -242,3 +242,41 @@ describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () =
     expect(ctrl.hasPassed()).toBeTruthy();
   });
 });
+
+describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () => {
+  it("can set discard pair", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const enumerate = jest
+      .spyOn(dpe, "enumerate")
+      .mockImplementation((...args: Card.Card[]) => {
+        return [Discard.CreateDiscardPairForTest(c1, c1)];
+      });
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
+    const dsc = Discard.CreateDiscardPairForTest(c1, c1);
+    const ret = ctrl.discard(dsc);
+    expect(ret).toBe(Game.DiscardResult.SUCCESS);
+    expect(ctrl.getDiscard()).toStrictEqual(dsc);
+  });
+
+  it("cannot set discard when the specified discard pair does not exist on available ones", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 7);
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const enumerate = jest
+      .spyOn(dpe, "enumerate")
+      .mockImplementation((...args: Card.Card[]) => {
+        return [Discard.CreateDiscardPairForTest(c1, c1)];
+      });
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
+    const dsc = Discard.CreateDiscardPairForTest(c2, c2);
+    const ret = ctrl.discard(dsc);
+    expect(ret).toBe(Game.DiscardResult.NOT_FOUND);
+  });
+});

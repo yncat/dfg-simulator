@@ -5,7 +5,6 @@ import * as Card from "./card";
 import { Hand } from "./hand";
 import * as CalcFunctions from "./calcFunctions";
 
-// Use interface to prevent DiscardPair from being instantiated directly from outside
 export interface DiscardPair {
   cards: Card.Card[];
   count: () => number;
@@ -13,6 +12,7 @@ export interface DiscardPair {
   calcStrength: () => number;
   isNull: () => boolean;
   isKaidan: () => boolean;
+  isSameFrom:(discardPair:DiscardPair)=>boolean;
 }
 
 class DiscardPairImple implements DiscardPair {
@@ -62,6 +62,20 @@ class DiscardPairImple implements DiscardPair {
       }
     }
 
+    return ok;
+  }
+
+  public isSameFrom(discardPair:DiscardPair):boolean{
+    if(this.count()!=discardPair.count()){
+      return false;
+    }
+    let ok=true;
+    for(let i=0;i<this.count();i++){
+      if(!this.cards[i].isSameFrom(discardPair.cards[i])){
+        ok=false;
+        break;
+      }
+    }
     return ok;
   }
 
