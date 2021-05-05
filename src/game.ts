@@ -159,6 +159,8 @@ export interface ActivePlayerControl {
   selectCard: (index: number) => CardSelectResult;
   deselectCard: (index: number) => CardDeselectResult;
   enumerateDiscardPairs: () => DiscardPair[];
+  pass: () => void;
+  hasPassed: () => boolean;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -178,6 +180,11 @@ export function createActivePlayerControlForTest(
 
 export interface DiscardPair {
   cards: Card.Card[];
+  count: () => number;
+  calcCardNumber: (strengthInverted: boolean) => number;
+  calcStrength: () => number;
+  isNull: () => boolean;
+  isKaidan: () => boolean;
 }
 
 // Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
@@ -210,6 +217,8 @@ class ActivePlayerControlImple implements ActivePlayerControl {
   private readonly hand: Hand.Hand;
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
+  private passed: boolean;
+  private discard: DiscardPair | null;
   constructor(
     playerIdentifier: string,
     hand: Hand.Hand,
@@ -220,6 +229,8 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     this.hand = hand;
     this.discardPlanner = discardPlanner;
     this.discardPairEnumerator = discardPairEnumerator;
+    this.passed = false;
+    this.discard = null;
   }
 
   public enumerateHand(): Card.Card[] {
@@ -248,6 +259,15 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPairEnumerator.enumerate(
       ...this.discardPlanner.enumerateSelectedCards()
     );
+  }
+
+  public pass(): void {
+    this.passed = true;
+    this.discard = null;
+  }
+
+  public hasPassed(): boolean {
+    return this.passed;
   }
 
   private convertSelectabilityCheckResult(

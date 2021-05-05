@@ -229,3 +229,16 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
     expect(ret).toStrictEqual(want);
   });
 });
+
+describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () => {
+  it("can set passed flag", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest("abc", h, dp, dpe);
+    expect(ctrl.hasPassed()).toBeFalsy();
+    ctrl.pass();
+    expect(ctrl.hasPassed()).toBeTruthy();
+  });
+});
