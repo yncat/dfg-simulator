@@ -11,8 +11,7 @@ import * as Rank from "./rank";
 
 export type StartInfo = {
   playerCount: number; // Number of players joined in the game
-  deckCount: number; // How many decks are being used?
-  // Arrays above are all sorted by actual play order.
+  // Arrays above are assumed to be all sorted by actual play order.
   playerIdentifiers: string[]; // player identifiers
   handCounts: number[]; // Number of cards given
 };
@@ -40,29 +39,17 @@ export interface Game {
   ) => GameEvent[];
 }
 
-export function createGame(players: Player.Player[]): Game {
-  if (!identifiersValid(players)) {
-    throw new GameError("one of the players' identifiers is duplicating");
-  }
+export type GameInitParams = {
+  players: Player.Player[];
+  activePlayerIndex: number;
+  activePlayerActionCount: number;
+  lastDiscardPair: Discard.DiscardPair;
+  lastDiscarderIdentifier: string;
+  strengthInverted: boolean;
+  agariPlayerIdentifiers: string[];
+};
 
-  const g = new GameImple(players);
-  return g;
-}
-
-function identifiersValid(players: Player.Player[]) {
-  let found = false;
-  for (let i = 0; i < players.length - 1; i++) {
-    for (let j = i + 1; j < players.length; j++) {
-      if (players[i].identifier == players[j].identifier) {
-        found = true;
-        break;
-      }
-    }
-  }
-  return !found;
-}
-
-class GameImple implements Game {
+export class GameImple implements Game {
   private players: Player.Player[];
   private turnCount: number;
   private activePlayerIndex: number;
@@ -72,16 +59,18 @@ class GameImple implements Game {
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
   public readonly startInfo: StartInfo;
-  constructor(players: Player.Player[]) {
-    this.players = players;
+
+  constructor(params: GameInitParams) {
+    // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
+    this.players = params.players;
     this.turnCount = 1;
-    this.activePlayerIndex = 0;
-    this.activePlayerActionCount = 0;
-    this.lastDiscardPair = Discard.createNullDiscardPair();
-    this.lastDiscarderIdentifier = "";
-    this.strengthInverted = false;
-    this.agariPlayerIdentifiers = [];
-    this.startInfo = this.prepair();
+    this.activePlayerIndex = params.activePlayerIndex;
+    this.activePlayerActionCount = params.activePlayerActionCount;
+    this.lastDiscardPair = params.lastDiscardPair;
+    this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
+    this.strengthInverted = params.strengthInverted;
+    this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
+    this.startInfo = this.makeStartInfo();
   }
 
   public startActivePlayerControl(): ActivePlayerControl {
@@ -120,61 +109,12 @@ class GameImple implements Game {
     return events;
   }
 
-  private prepair(): StartInfo {
-    this.shufflePlayers();
-    const decks = this.prepairDecks();
-    const deckCount = decks.length;
-    this.distributeCards(decks);
+  private makeStartInfo(): StartInfo {
     return {
       playerCount: this.players.length,
-      deckCount: deckCount,
       playerIdentifiers: this.enumeratePlayerIdentifiers(),
       handCounts: this.enumerateHandCounts(),
     };
-  }
-
-  private shufflePlayers() {
-    const out = Array.from(this.players);
-    for (let i = out.length - 1; i > 0; i--) {
-      const r = Math.floor(Math.random() * (i + 1));
-      const tmp = out[i];
-      out[i] = out[r];
-      out[r] = tmp;
-    }
-    this.players = out;
-  }
-
-  private prepairDecks() {
-    const deckCount = CalcFunctions.calcRequiredDeckCount(this.players.length);
-    const decks: Deck.Deck[] = [];
-    for (let i = 0; i < deckCount; i++) {
-      const d = new Deck.Deck();
-      d.shuffle();
-      decks.push(d);
-    }
-    return decks;
-  }
-
-  private distributeCards(decks: Deck.Deck[]) {
-    while (decks.length > 0) {
-      for (let i = 0; i < this.players.length; i++) {
-        let c = decks[0].draw();
-        if (c === null) {
-          decks.shift();
-          if (decks.length == 0) {
-            break;
-          }
-          c = decks[0].draw();
-          if (c === null) {
-            throw new GameError("deck is unexpectedly empty, maybe corrupted?");
-          }
-        }
-        this.players[i].hand.give(c);
-      }
-    }
-    for (let i = 0; i < this.players.length; i++) {
-      this.players[i].hand.sort();
-    }
   }
 
   private enumeratePlayerIdentifiers() {
