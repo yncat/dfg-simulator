@@ -2,8 +2,6 @@
 Game manager
 */
 import * as Player from "./player";
-import * as Deck from "./deck";
-import * as CalcFunctions from "./calcFunctions";
 import * as Hand from "./hand";
 import * as Discard from "./discard";
 import * as Card from "./card";

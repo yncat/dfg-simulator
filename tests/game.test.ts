@@ -6,37 +6,25 @@ import * as Player from "../src/player";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
-describe("createGame", () => {
-  it("returns a new game instance and properly initializes related objects", () => {
-    const p1 = Player.createPlayer("a");
-    const p2 = Player.createPlayer("b");
-    const p3 = Player.createPlayer("c");
-    const g = Game.createGame([p1, p2, p3]);
-    expect(g).not.toBeNull();
-    expect(p1.hand.count()).not.toBe(0);
-    expect(p2.hand.count()).not.toBe(0);
-    expect(p3.hand.count()).not.toBe(0);
-    expect(g.startInfo.deckCount).toBe(1);
-    expect(g.startInfo.playerCount).toBe(3);
-    expect(g.startInfo.handCounts).toStrictEqual([18, 18, 18]);
-  });
-
-  it("throws an error when player identifiers are not unique", () => {
-    const p1 = Player.createPlayer("a");
-    const p2 = Player.createPlayer("b");
-    const p3 = Player.createPlayer("b");
-    expect(() => {
-      Game.createGame([p1, p2, p3]);
-    }).toThrow("one of the players' identifiers is duplicating");
-  });
-});
+function createGameFixture() {
+  const p1 = Player.createPlayer("a");
+  const p2 = Player.createPlayer("b");
+  const p3 = Player.createPlayer("c");
+  const params: Game.GameInitParams = {
+    players: [p1, p2, p3],
+    activePlayerIndex: 0,
+    activePlayerActionCount: 0,
+    lastDiscardPair: Discard.createNullDiscardPair(),
+    lastDiscarderIdentifier: "",
+    strengthInverted: false,
+    agariPlayerIdentifiers: [],
+  };
+  return new Game.GameImple(params);
+}
 
 describe("Game.startActivePlayerControl", () => {
   it("returns an ActivePlayerControl instance with required properties", () => {
-    const p1 = Player.createPlayer("a");
-    const p2 = Player.createPlayer("b");
-    const p3 = Player.createPlayer("c");
-    const g = Game.createGame([p1, p2, p3]);
+    const g = createGameFixture();
     const ctrl = g.startActivePlayerControl();
     expect(ctrl).not.toBeNull();
   });

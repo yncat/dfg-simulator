@@ -14,6 +14,8 @@ export function createGame(players: Player[]): Game {
   }
 
   const shuffledPlayers = shufflePlayers(players);
+  const decks = prepareDecks(players.length);
+  distributeCards(shuffledPlayers, decks);
 
   const params = {
     players: shuffledPlayers,
@@ -53,7 +55,7 @@ function shufflePlayers(players: Player[]): Player[] {
   return out;
 }
 
-function prepairDecks(playerCount: number): Deck[] {
+function prepareDecks(playerCount: number): Deck[] {
   const deckCount = calcRequiredDeckCount(playerCount);
   const decks: Deck[] = [];
   for (let i = 0; i < deckCount; i++) {
