@@ -6,6 +6,7 @@
   "scripts": {
     "set-github-hook": "cp github_hooks/pre-commit ./.git/hooks",
     "test": "jest --passWithNoTests",
+    "test-with-sound": "npm run test && powershell -c \"[console]::beep(500,300)\"",
     "fmt-lint": "prettier -c tests/**/*.ts src/**/*.ts",
     "fmt": "prettier -w src/**/*.ts tests/**/*.ts",
     "lint": "eslint . --ext ts",
