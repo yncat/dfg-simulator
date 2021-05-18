@@ -23,7 +23,33 @@ function createGameFixture() {
 }
 
 describe("Game.finishActivePlayerControl", () => {
-  test("when discarding selected cards, update related states", () => {
+  it("rejects invalid controllers", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dps[0]);
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(() => {
+      const events = g.finishActivePlayerControl(ctrl);
+    }).toThrow("the given activePlayerControl is no longer valid");
+  });
+
+  it("updates related states and emits event when discarding", () => {
     const p1 = Player.createPlayer("a");
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
     const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
@@ -53,7 +79,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
-  test("when passing, update player indices only", () => {
+  test("updates related states and emits events when passing", () => {
     const p1 = Player.createPlayer("a");
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
     const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
