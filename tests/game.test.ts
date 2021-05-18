@@ -3,6 +3,7 @@ import * as Discard from "../src/discard";
 import * as Game from "../src/game";
 import * as Hand from "../src/hand";
 import * as Player from "../src/player";
+import * as Rank from "../src/rank";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
@@ -79,7 +80,37 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
-  test("updates related states and emits events when passing", () => {
+  it("emits agari event when player hand gets empty", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    expect(dps[0].cards).toStrictEqual([c1]);
+    ctrl.discard(dps[0]);
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
+    expect(events).toStrictEqual([Game.GameEvent.DISCARD, Game.GameEvent.AGARI]);
+    expect(p1.hand.cards).toStrictEqual([]);
+    const ndp = Discard.CreateDiscardPairForTest(c1);
+    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO)
+  });
+
+  it("updates related states and emits events when passing", () => {
     const p1 = Player.createPlayer("a");
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
     const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
