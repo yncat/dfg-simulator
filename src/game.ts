@@ -98,9 +98,7 @@ export class GameImple implements Game {
     }
     const events: GameEvent[] = [];
     this.processDiscardOrPass(activePlayerControl, events);
-    this.players[this.activePlayerIndex].hand.take(
-      ...activePlayerControl.getDiscard().cards
-    );
+    this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck(activePlayerControl, events);
     this.processGameEndCheck(activePlayerControl, events);
     this.processTurnAdvancement(activePlayerControl, events);
@@ -141,6 +139,15 @@ export class GameImple implements Game {
       this.activePlayerIndex
     ].identifier;
     events.push(GameEvent.DISCARD);
+  }
+
+  private processPlayerHandUpdate(activePlayerControl: ActivePlayerControl) {
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+    this.players[this.activePlayerIndex].hand.take(
+      ...activePlayerControl.getDiscard().cards
+    );
   }
 
   private processTurnAdvancement(

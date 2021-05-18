@@ -6,7 +6,7 @@ The goal is to create a library that can simulate Daifugo card game. Connect to 
 - install
 - build
 - test
-- test-with-sound (makes a sound when successfully finished, windows only)
+    - test-with-sound (makes a sound when successfully finished, windows only)
 - set-github-hook
 - fmt
 - lint

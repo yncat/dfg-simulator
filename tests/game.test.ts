@@ -22,11 +22,62 @@ function createGameFixture() {
   return new Game.GameImple(params);
 }
 
-describe("Game.startActivePlayerControl", () => {
-  it("returns an ActivePlayerControl instance with required properties", () => {
-    const g = createGameFixture();
+describe("Game.finishActivePlayerControl", () => {
+  test("when discarding selected cards, update related states", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
-    expect(ctrl).not.toBeNull();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    expect(dps[0].cards).toStrictEqual([c1]);
+    ctrl.discard(dps[0]);
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
+    expect(events).toStrictEqual([Game.GameEvent.DISCARD]);
+    expect(p1.hand.cards).toStrictEqual([c2]);
+    const ndp = Discard.CreateDiscardPairForTest(c1);
+    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  test("when passing, update player indices only", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(g["lastDiscarderIdentifier"]).toBe("");
+    expect(events).toStrictEqual([Game.GameEvent.PASS]);
+    expect(p1.hand.cards).toStrictEqual([c1, c2]);
+    const ndp = Discard.createNullDiscardPair();
+    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(1);
   });
 });
 
