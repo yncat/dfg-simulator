@@ -162,7 +162,7 @@ export class GameImple implements Game {
       }
       if (
         this.players[this.activePlayerIndex].identifier ==
-        activePlayerControl.playerIdentifier
+        this.lastDiscarderIdentifier
       ) {
         events.push(GameEvent.NAGARE);
       }
