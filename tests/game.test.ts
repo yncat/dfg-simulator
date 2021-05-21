@@ -102,12 +102,15 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.discard(dps[0]);
     const events = g.finishActivePlayerControl(ctrl);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
-    expect(events).toStrictEqual([Game.GameEvent.DISCARD, Game.GameEvent.AGARI]);
+    expect(events).toStrictEqual([
+      Game.GameEvent.DISCARD,
+      Game.GameEvent.AGARI,
+    ]);
     expect(p1.hand.cards).toStrictEqual([]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
-    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO)
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
   });
 
   it("updates related states and emits events when passing", () => {
@@ -134,6 +137,67 @@ describe("Game.finishActivePlayerControl", () => {
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
     const ndp = Discard.createNullDiscardPair();
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("goes back to the first player if all players finished action", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 1,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(0);
+  });
+
+  it("skips rank determined player", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    p2.rank.force(Rank.RankType.DAIFUGO);
+    const p3 = Player.createPlayer("c");
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(2);
+  });
+
+  it("skips rank determined player even if next turn starts", () => {
+    const p1 = Player.createPlayer("a");
+    p1.rank.force(Rank.RankType.DAIFUGO);
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 2,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    const events = g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
   });
 });

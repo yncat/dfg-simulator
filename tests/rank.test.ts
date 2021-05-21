@@ -98,3 +98,11 @@ describe("rank determination errors", () => {
     }).toThrow("position is higher than number of players");
   });
 });
+
+describe("force", () => {
+  test("force-changes rank", () => {
+    const r = new Rank.Rank();
+    r.force(Rank.RankType.DAIFUGO);
+    expect(r.getRankType()).toBe(Rank.RankType.DAIFUGO);
+  });
+});

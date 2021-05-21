@@ -44,6 +44,10 @@ export class Rank {
     };
   }
 
+  public force(newtype: RankType): void {
+    this.rankType = newtype;
+  }
+
   private calcRankType(numberOfPlayers: number, position: number) {
     if (numberOfPlayers <= 0) {
       throw new RankCalculationError("number of players must be >0");
