@@ -106,10 +106,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl = g.startActivePlayerControl();
     ctrl.pass();
     const events = g.finishActivePlayerControl(ctrl);
-    expect(events).toStrictEqual([
-      Game.GameEvent.PASS,
-      Game.GameEvent.NAGARE,
-    ]);
+    expect(events).toStrictEqual([Game.GameEvent.PASS, Game.GameEvent.NAGARE]);
   });
 
   it("emits agari event when player hand gets empty", () => {
@@ -117,8 +114,9 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("b");
     const params: Game.GameInitParams = {
-      players: [p1, p2],
+      players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
       lastDiscardPair: Discard.createNullDiscardPair(),
@@ -143,6 +141,40 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
+  });
+
+  it("determines rank, and emits agari / end event when player gets agari and only 1 player remains", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dps[0]);
+    const events = g.finishActivePlayerControl(ctrl);
+    expect(events).toStrictEqual([
+      Game.GameEvent.DISCARD,
+      Game.GameEvent.AGARI,
+      Game.GameEvent.GAME_END,
+    ]);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual([
+      p1.identifier,
+      p2.identifier,
+    ]);
   });
 
   it("updates related states and emits events when passing", () => {
@@ -173,11 +205,16 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("goes back to the first player if all players finished action", () => {
+    const c1 = new Card.Card(Card.Mark.HEARTS, 2);
     const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
     const params: Game.GameInitParams = {
-      players: [p1, p2],
-      activePlayerIndex: 1,
+      players: [p1, p2, p3],
+      activePlayerIndex: 2,
       activePlayerActionCount: 0,
       lastDiscardPair: Discard.createNullDiscardPair(),
       lastDiscarderIdentifier: "",
@@ -192,10 +229,14 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("skips rank determined player", () => {
+    const c1 = new Card.Card(Card.Mark.SPADES, 7);
     const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
     p2.rank.force(Rank.RankType.DAIFUGO);
     const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -213,10 +254,14 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("skips rank determined player even if next turn starts", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
     const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
     p1.rank.force(Rank.RankType.DAIFUGO);
     const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 2,

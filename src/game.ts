@@ -56,6 +56,7 @@ export class GameImple implements Game {
   private lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
+  private gameEnded: boolean; // cach the game finish state for internal use
   public readonly startInfo: StartInfo;
 
   constructor(params: GameInitParams) {
@@ -68,6 +69,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
+    this.gameEnded = false;
     this.startInfo = this.makeStartInfo();
   }
 
@@ -154,6 +156,11 @@ export class GameImple implements Game {
     activePlayerControl: ActivePlayerControl,
     events: GameEvent[]
   ) {
+    // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
+    if (this.gameEnded) {
+      return;
+    }
+
     while (true) {
       this.activePlayerIndex++;
       if (this.activePlayerIndex == this.players.length) {
@@ -196,11 +203,18 @@ export class GameImple implements Game {
     activePlayerControl: ActivePlayerControl,
     events: GameEvent[]
   ) {
+    for(let i=0;i<this.players.length;i++){
+    }
     const rm = this.players.filter((v) => {
       return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
     });
-    if (rm.length == 0) {
+    if (rm.length == 1) {
+      const p = rm[0];
+      p.rank.determine(this.players.length, this.players.length);
+      this.agariPlayerIdentifiers.push(p.identifier);
       events.push(GameEvent.GAME_END);
+      // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
+      this.gameEnded = true;
     }
   }
 
