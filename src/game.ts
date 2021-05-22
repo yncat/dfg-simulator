@@ -24,8 +24,20 @@ export const GameEvent = {
   DISCARD: 6,
   PASS: 7,
   GAME_END: 8,
+  PLAYER_KICKED: 9,
 } as const;
 export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
+
+export type PlayerRankChangeResult = {
+  identifier: string;
+  before: Rank.RankType;
+  after: Rank.RankType;
+};
+
+export type KickPlayerResult = {
+  gameEvents: GameEvent[];
+  playerRankChanges: PlayerRankChangeResult[];
+};
 
 export class GameError extends Error {}
 
@@ -35,6 +47,7 @@ export interface Game {
   finishActivePlayerControl: (
     activePlayerControl: ActivePlayerControl
   ) => GameEvent[];
+  kickPlayerByIdentifier(identifier: string): KickPlayerResult;
 }
 
 export type GameInitParams = {
@@ -98,17 +111,88 @@ export class GameImple implements Game {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
-    if(activePlayerControl.enumerateHand().length==0){
-      throw new GameError("this player's hand is empty; cannot perform any action");
+    if (activePlayerControl.enumerateHand().length == 0) {
+      throw new GameError(
+        "this player's hand is empty; cannot perform any action"
+      );
     }
 
     const events: GameEvent[] = [];
     this.processDiscardOrPass(activePlayerControl, events);
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck(activePlayerControl, events);
-    this.processGameEndCheck(activePlayerControl, events);
-    this.processTurnAdvancement(activePlayerControl, events);
+    this.processGameEndCheck(events);
+    this.processTurnAdvancement(events);
     return events;
+  }
+
+  public kickPlayerByIdentifier(identifier: string): KickPlayerResult {
+    const p = this.findPlayer(identifier);
+    if (p === null) {
+      throw new GameError("player to kick is not found");
+    }
+
+    const events: GameEvent[] = [];
+    events.push(GameEvent.PLAYER_KICKED);
+    this.deletePlayer(identifier);
+    const playerRankChanges = this.recalcAlreadyRankedPlayers();
+    this.processGameEndCheck(events);
+    return { gameEvents: events, playerRankChanges: playerRankChanges };
+  }
+
+  private findPlayerOrNull(identifier: string): Player.Player | null {
+    let found: Player.Player | null = null;
+    for (let i = 0; i < this.players.length; i++) {
+      if (this.players[i].identifier == identifier) {
+        found = this.players[i];
+        break;
+      }
+    }
+
+    return found;
+  }
+
+  private findPlayer(identifier: string): Player.Player {
+    // this throws an error when player is not found.
+    let found: Player.Player | null = null;
+    for (let i = 0; i < this.players.length; i++) {
+      if (this.players[i].identifier == identifier) {
+        found = this.players[i];
+        break;
+      }
+    }
+
+    if (found === null) {
+      throw new GameError("player data consistency is unexpectedly broken");
+    }
+
+    return found;
+  }
+
+  private deletePlayer(identifier: string) {
+    this.agariPlayerIdentifiers = this.agariPlayerIdentifiers.filter((v) => {
+      return v != identifier;
+    });
+    this.players = this.players.filter((v) => {
+      return v.identifier != identifier;
+    });
+  }
+
+  private recalcAlreadyRankedPlayers(): PlayerRankChangeResult[] {
+    const changes: PlayerRankChangeResult[] = [];
+    for (let i = 0; i < this.agariPlayerIdentifiers.length; i++) {
+      const p = this.findPlayer(this.agariPlayerIdentifiers[i]);
+      // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
+      const ret = p.rank.determine(this.players.length - 1, i + 1);
+      if (ret.changed) {
+        changes.push({
+          identifier: p.identifier,
+          before: ret.before,
+          after: ret.after,
+        });
+      }
+    }
+    return changes;
   }
 
   private makeStartInfo(): StartInfo {
@@ -156,10 +240,7 @@ export class GameImple implements Game {
     );
   }
 
-  private processTurnAdvancement(
-    activePlayerControl: ActivePlayerControl,
-    events: GameEvent[]
-  ) {
+  private processTurnAdvancement(events: GameEvent[]) {
     // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
     if (this.gameEnded) {
       return;
@@ -203,10 +284,7 @@ export class GameImple implements Game {
     }
   }
 
-  private processGameEndCheck(
-    activePlayerControl: ActivePlayerControl,
-    events: GameEvent[]
-  ) {
+  private processGameEndCheck(events: GameEvent[]) {
     for (let i = 0; i < this.players.length; i++) {}
     const rm = this.players.filter((v) => {
       return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
