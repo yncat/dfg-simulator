@@ -50,6 +50,25 @@ describe("Game.finishActivePlayerControl", () => {
     }).toThrow("the given activePlayerControl is no longer valid");
   });
 
+  it("rejects action when player's hand is empty", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    expect(() => {
+      const events = g.finishActivePlayerControl(ctrl);
+    }).toThrow("this player's hand is empty; cannot perform any action");
+  });
+
   it("updates related states and emits event when discarding", () => {
     const p1 = Player.createPlayer("a");
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);

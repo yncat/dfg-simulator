@@ -98,6 +98,10 @@ export class GameImple implements Game {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
+    if(activePlayerControl.enumerateHand().length==0){
+      throw new GameError("this player's hand is empty; cannot perform any action");
+    }
+
     const events: GameEvent[] = [];
     this.processDiscardOrPass(activePlayerControl, events);
     this.processPlayerHandUpdate(activePlayerControl);
