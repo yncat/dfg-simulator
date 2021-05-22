@@ -203,8 +203,7 @@ export class GameImple implements Game {
     activePlayerControl: ActivePlayerControl,
     events: GameEvent[]
   ) {
-    for(let i=0;i<this.players.length;i++){
-    }
+    for (let i = 0; i < this.players.length; i++) {}
     const rm = this.players.filter((v) => {
       return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
     });
