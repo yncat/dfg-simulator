@@ -298,6 +298,29 @@ describe("Game.finishActivePlayerControl", () => {
   });
 });
 
+describe("Game.kickPlayerByIdentifier", () => {
+  it("throws an error when nonexistent player identifier is passed", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    expect(() => {
+      g.kickPlayerByIdentifier("abcabc");
+    }).toThrow("player to kick is not found");
+  });
+});
+
 describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 5);

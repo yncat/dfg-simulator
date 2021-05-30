@@ -127,13 +127,17 @@ export class GameImple implements Game {
   }
 
   public kickPlayerByIdentifier(identifier: string): KickPlayerResult {
-    const p = this.findPlayer(identifier);
+    const p = this.findPlayerOrNull(identifier);
     if (p === null) {
       throw new GameError("player to kick is not found");
     }
 
     const events: GameEvent[] = [];
     events.push(GameEvent.PLAYER_KICKED);
+    // if the kicked player is currently active, internally go back to the previously active player.
+    if (p === this.players[this.activePlayerIndex]) {
+      this.processTurnReverseWhenKicked();
+    }
     this.deletePlayer(identifier);
     const playerRankChanges = this.recalcAlreadyRankedPlayers();
     this.processGameEndCheck(events);
@@ -154,6 +158,7 @@ export class GameImple implements Game {
 
   private findPlayer(identifier: string): Player.Player {
     // this throws an error when player is not found.
+    // To get null when player is not found, use findPlayerOrNull.
     let found: Player.Player | null = null;
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].identifier == identifier) {
@@ -267,6 +272,27 @@ export class GameImple implements Game {
     }
   }
 
+  private processTurnReverseWhenKicked() {
+    // internally used to reverce turn for the last active player when the active player is kicked out of the game.
+    if (this.gameEnded) {
+      return;
+    }
+
+    while (true) {
+      this.activePlayerIndex--;
+      if (this.activePlayerIndex == 0) {
+        this.activePlayerIndex = this.players.length;
+        // do not touch turn count here because this is not the game's real logic. We are doing this for switching to the correct player after deleting the kicked player.
+      }
+      if (
+        this.players[this.activePlayerIndex].rank.getRankType() ==
+        Rank.RankType.UNDETERMINED
+      ) {
+        break;
+      }
+    }
+  }
+
   private processAgariCheck(
     activePlayerControl: ActivePlayerControl,
     events: GameEvent[]
@@ -285,7 +311,6 @@ export class GameImple implements Game {
   }
 
   private processGameEndCheck(events: GameEvent[]) {
-    for (let i = 0; i < this.players.length; i++) {}
     const rm = this.players.filter((v) => {
       return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
     });
