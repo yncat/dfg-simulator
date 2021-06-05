@@ -3,10 +3,18 @@ import { Player } from "./player";
 import { Deck } from "./deck";
 import { calcRequiredDeckCount } from "./calcFunctions";
 import { createNullDiscardPair } from "./discard";
+import * as Event from "./event";
 
 export class GameCreationError extends Error {}
 
-export function createGame(players: Player[]): Game {
+export function createEventConfig(): Event.EventConfig {
+  return Event.createDefaultEventConfig();
+}
+
+export function createGame(
+  players: Player[],
+  eventConfig: Event.EventConfig
+): Game {
   if (!identifiersValid(players)) {
     throw new GameCreationError(
       "one of the players' identifiers is duplicating"
@@ -25,6 +33,7 @@ export function createGame(players: Player[]): Game {
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
+    eventConfig: eventConfig,
   };
 
   const g = new GameImple(params);

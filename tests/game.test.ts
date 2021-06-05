@@ -4,6 +4,7 @@ import * as Game from "../src/game";
 import * as Hand from "../src/hand";
 import * as Player from "../src/player";
 import * as Rank from "../src/rank";
+import * as Event from "../src/event";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 
@@ -19,6 +20,7 @@ function createGameFixture() {
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
+    eventConfig: Event.createDefaultEventConfig(),
   };
   return new Game.GameImple(params);
 }
@@ -38,6 +40,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -61,6 +64,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -83,6 +87,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -114,6 +119,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     let ctrl = g.startActivePlayerControl();
@@ -142,6 +148,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -176,6 +183,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -210,6 +218,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -239,6 +248,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -264,6 +274,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -289,6 +300,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -313,6 +325,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     expect(() => {
@@ -337,6 +350,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
@@ -363,6 +377,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
@@ -389,6 +404,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      eventConfig: Event.createDefaultEventConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("c");
