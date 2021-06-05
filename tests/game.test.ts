@@ -51,9 +51,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
     ctrl.discard(dps[0]);
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
     expect(() => {
-      const events = g.finishActivePlayerControl(ctrl);
+      g.finishActivePlayerControl(ctrl);
     }).toThrow("the given activePlayerControl is no longer valid");
   });
 
@@ -75,7 +75,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     expect(() => {
-      const events = g.finishActivePlayerControl(ctrl);
+      g.finishActivePlayerControl(ctrl);
     }).toThrow("this player's hand is empty; cannot perform any action");
   });
 
@@ -85,6 +85,8 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -93,9 +95,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -103,9 +103,9 @@ describe("Game.finishActivePlayerControl", () => {
     const dps = ctrl.enumerateDiscardPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
-    expect(events).toStrictEqual([Game.GameEvent.DISCARD]);
+    expect(onDiscard).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([c2]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
@@ -119,6 +119,9 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onPass = jest.spyOn(d, "onPass").mockImplementation(() => {});
+    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -127,9 +130,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     let ctrl = g.startActivePlayerControl();
@@ -140,8 +141,9 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     ctrl = g.startActivePlayerControl();
     ctrl.pass();
-    const events = g.finishActivePlayerControl(ctrl);
-    expect(events).toStrictEqual([Game.GameEvent.PASS, Game.GameEvent.NAGARE]);
+    g.finishActivePlayerControl(ctrl);
+    expect(onPass).toHaveBeenCalled();
+    expect(onNagare).toHaveBeenCalled();
   });
 
   it("emits agari event when player hand gets empty", () => {
@@ -150,6 +152,9 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("b");
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
+    const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -158,9 +163,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -168,12 +171,10 @@ describe("Game.finishActivePlayerControl", () => {
     const dps = ctrl.enumerateDiscardPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
+    expect(onDiscard).toHaveBeenCalled();
+    expect(onAgari).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
-    expect(events).toStrictEqual([
-      Game.GameEvent.DISCARD,
-      Game.GameEvent.AGARI,
-    ]);
     expect(p1.hand.cards).toStrictEqual([]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
@@ -187,6 +188,10 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
+    const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
+    const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -195,21 +200,17 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
     ctrl.discard(dps[0]);
-    const events = g.finishActivePlayerControl(ctrl);
-    expect(events).toStrictEqual([
-      Game.GameEvent.DISCARD,
-      Game.GameEvent.AGARI,
-      Game.GameEvent.GAME_END,
-    ]);
+    g.finishActivePlayerControl(ctrl);
+    expect(onDiscard).toHaveBeenCalled();
+    expect(onAgari).toHaveBeenCalled();
+    expect(onGameEnd).toHaveBeenCalled();
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([
@@ -224,6 +225,8 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onPass = jest.spyOn(d, "onPass").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -232,16 +235,14 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
+    expect(onPass).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe("");
-    expect(events).toStrictEqual([Game.GameEvent.PASS]);
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
     const ndp = Discard.createNullDiscardPair();
     expect(g["lastDiscardPair"]).toStrictEqual(ndp);
@@ -271,7 +272,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
   });
 
@@ -299,7 +300,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(2);
   });
 
@@ -327,7 +328,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
-    const events = g.finishActivePlayerControl(ctrl);
+    g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
   });
 });
