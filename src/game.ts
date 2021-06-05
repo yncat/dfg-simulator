@@ -15,25 +15,6 @@ export type StartInfo = {
   handCounts: number[]; // Number of cards given
 };
 
-export const GameEvent = {
-  NAGARE: 0,
-  AGARI: 1,
-  YAGIRI: 2,
-  KAKUMEI: 3,
-  STR_NORMAL: 5,
-  DISCARD: 6,
-  PASS: 7,
-  GAME_END: 8,
-  PLAYER_KICKED: 9,
-} as const;
-export type GameEvent = typeof GameEvent[keyof typeof GameEvent];
-
-export type PlayerRankChangeResult = {
-  identifier: string;
-  before: Rank.RankType;
-  after: Rank.RankType;
-};
-
 export class GameError extends Error {}
 
 export interface Game {
@@ -133,7 +114,7 @@ export class GameImple implements Game {
       this.processTurnReverseWhenKicked();
     }
     this.deletePlayer(identifier);
-    const playerRankChanges = this.recalcAlreadyRankedPlayers();
+    this.recalcAlreadyRankedPlayers();
     this.processGameEndCheck();
     if (wasActive) {
       this.processTurnAdvancement();
@@ -179,21 +160,13 @@ export class GameImple implements Game {
     });
   }
 
-  private recalcAlreadyRankedPlayers(): PlayerRankChangeResult[] {
-    const changes: PlayerRankChangeResult[] = [];
+  private recalcAlreadyRankedPlayers() {
     for (let i = 0; i < this.agariPlayerIdentifiers.length; i++) {
       const p = this.findPlayer(this.agariPlayerIdentifiers[i]);
       // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
       const ret = p.rank.determine(this.players.length - 1, i + 1);
-      if (ret.changed) {
-        changes.push({
-          identifier: p.identifier,
-          before: ret.before,
-          after: ret.after,
-        });
-      }
+      // TODO: add playerRankChange event
     }
-    return changes;
   }
 
   private makeStartInfo(): StartInfo {
