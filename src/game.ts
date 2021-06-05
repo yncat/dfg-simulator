@@ -134,13 +134,17 @@ export class GameImple implements Game {
 
     const events: GameEvent[] = [];
     events.push(GameEvent.PLAYER_KICKED);
+    const wasActive = p === this.players[this.activePlayerIndex];
     // if the kicked player is currently active, internally go back to the previously active player.
-    if (p === this.players[this.activePlayerIndex]) {
+    if (wasActive) {
       this.processTurnReverseWhenKicked();
     }
     this.deletePlayer(identifier);
     const playerRankChanges = this.recalcAlreadyRankedPlayers();
     this.processGameEndCheck(events);
+    if (wasActive) {
+      this.processTurnAdvancement(events);
+    }
     return { gameEvents: events, playerRankChanges: playerRankChanges };
   }
 
@@ -280,8 +284,8 @@ export class GameImple implements Game {
 
     while (true) {
       this.activePlayerIndex--;
-      if (this.activePlayerIndex == 0) {
-        this.activePlayerIndex = this.players.length;
+      if (this.activePlayerIndex == -1) {
+        this.activePlayerIndex = this.players.length - 1;
         // do not touch turn count here because this is not the game's real logic. We are doing this for switching to the correct player after deleting the kicked player.
       }
       if (

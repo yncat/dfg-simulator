@@ -319,6 +319,84 @@ describe("Game.kickPlayerByIdentifier", () => {
       g.kickPlayerByIdentifier("abcabc");
     }).toThrow("player to kick is not found");
   });
+
+  it("when kicking a player who is not ranked yet and is not active in this turn", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("b");
+    expect(ret.playerRankChanges).toStrictEqual([]);
+    expect(ret.gameEvents).toStrictEqual([Game.GameEvent.PLAYER_KICKED]);
+    expect(g["players"]).toStrictEqual([p1, p3]);
+    expect(g["activePlayerIndex"]).toBe(0);
+  });
+
+  it("when kicking a player who is not ranked yet and is not active in this turn 01", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 1,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("b");
+    expect(ret.playerRankChanges).toStrictEqual([]);
+    expect(ret.gameEvents).toStrictEqual([Game.GameEvent.PLAYER_KICKED]);
+    expect(g["players"]).toStrictEqual([p1, p3]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("when kicking a player who is not ranked yet and is not active in this turn 02", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 2,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("c");
+    expect(ret.playerRankChanges).toStrictEqual([]);
+    expect(ret.gameEvents).toStrictEqual([Game.GameEvent.PLAYER_KICKED]);
+    expect(g["players"]).toStrictEqual([p1, p2]);
+    expect(g["activePlayerIndex"]).toBe(0);
+  });
 });
 
 describe("ActivePlayerControlImple.enumerateHand", () => {
