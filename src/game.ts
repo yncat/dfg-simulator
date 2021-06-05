@@ -96,7 +96,7 @@ export class GameImple implements Game {
 
     this.processDiscardOrPass(activePlayerControl);
     this.processPlayerHandUpdate(activePlayerControl);
-    this.processAgariCheck(activePlayerControl);
+    this.processAgariCheck();
     this.processGameEndCheck();
     this.processTurnAdvancement();
   }
@@ -164,7 +164,7 @@ export class GameImple implements Game {
     for (let i = 0; i < this.agariPlayerIdentifiers.length; i++) {
       const p = this.findPlayer(this.agariPlayerIdentifiers[i]);
       // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
-      const ret = p.rank.determine(this.players.length - 1, i + 1);
+      p.rank.determine(this.players.length - 1, i + 1);
       // TODO: add playerRankChange event
     }
   }
@@ -259,7 +259,7 @@ export class GameImple implements Game {
     }
   }
 
-  private processAgariCheck(activePlayerControl: ActivePlayerControl) {
+  private processAgariCheck() {
     if (this.players[this.activePlayerIndex].hand.count() == 0) {
       this.eventDispatcher.onAgari();
       this.agariPlayerIdentifiers.push(

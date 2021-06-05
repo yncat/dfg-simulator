@@ -7,6 +7,7 @@ import * as Rank from "../src/rank";
 import * as Event from "../src/event";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
+/* eslint @typescript-eslint/no-empty-function: 0 */
 
 function createGameFixture() {
   const p1 = Player.createPlayer("a");

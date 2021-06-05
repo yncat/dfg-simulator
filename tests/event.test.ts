@@ -1,5 +1,8 @@
 import * as Event from "../src/event";
 
+/* eslint @typescript-eslint/no-unused-vars: 0 */
+/* eslint @typescript-eslint/no-empty-function: 0 */
+
 describe("EventDispatcher", () => {
   describe("onNagare", () => {
     it("calls event function", () => {
