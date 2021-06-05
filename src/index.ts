@@ -33,7 +33,7 @@ export function createGame(
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
-    eventConfig: eventConfig,
+    eventDispatcher: Event.createEventDispatcher(eventConfig),
   };
 
   const g = new GameImple(params);

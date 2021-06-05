@@ -33,3 +33,70 @@ export function createDefaultEventConfig(): EventConfig {
     onPlayerKicked: null,
   };
 }
+
+export class EventDispatcher {
+  private eventConfig: EventConfig;
+  constructor(eventConfig: EventConfig) {
+    this.eventConfig = eventConfig;
+  }
+
+  public onNagare(): void {
+    if (this.eventConfig.onNagare !== null) {
+      this.eventConfig.onNagare();
+    }
+  }
+
+  public onAgari(): void {
+    if (this.eventConfig.onAgari !== null) {
+      this.eventConfig.onAgari();
+    }
+  }
+
+  public onYagiri(): void {
+    if (this.eventConfig.onYagiri !== null) {
+      this.eventConfig.onYagiri();
+    }
+  }
+
+  public onKakumei(): void {
+    if (this.eventConfig.onKakumei !== null) {
+      this.eventConfig.onKakumei();
+    }
+  }
+
+  public onStrengthInversion(strengthInverted: boolean): void {
+    if (this.eventConfig.onStrengthInversion !== null) {
+      this.eventConfig.onStrengthInversion(strengthInverted);
+    }
+  }
+
+  public onDiscard(): void {
+    if (this.eventConfig.onDiscard !== null) {
+      this.eventConfig.onDiscard();
+    }
+  }
+
+  public onPass(): void {
+    if (this.eventConfig.onPass !== null) {
+      this.eventConfig.onPass();
+    }
+  }
+
+  public onGameEnd(): void {
+    if (this.eventConfig.onGameEnd !== null) {
+      this.eventConfig.onGameEnd();
+    }
+  }
+
+  public onPlayerKicked(): void {
+    if (this.eventConfig.onPlayerKicked !== null) {
+      this.eventConfig.onPlayerKicked();
+    }
+  }
+}
+
+export function createEventDispatcher(
+  eventConfig: EventConfig
+): EventDispatcher {
+  return new EventDispatcher(eventConfig);
+}

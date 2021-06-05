@@ -1,12 +1,13 @@
 import * as Player from "../src/player";
 import * as Index from "../src/index";
+import * as Event from "../src/event";
 
 describe("createGame", () => {
   it("returns a new game instance and properly initializes related objects", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const g = Index.createGame([p1, p2, p3]);
+    const g = Index.createGame([p1, p2, p3], Event.createDefaultEventConfig());
     expect(g).not.toBeNull();
     expect(p1.hand.count()).not.toBe(0);
     expect(p2.hand.count()).not.toBe(0);
@@ -20,7 +21,7 @@ describe("createGame", () => {
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("b");
     expect(() => {
-      Index.createGame([p1, p2, p3]);
+      Index.createGame([p1, p2, p3], Event.createDefaultEventConfig());
     }).toThrow("one of the players' identifiers is duplicating");
   });
 });

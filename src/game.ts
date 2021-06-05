@@ -34,20 +34,13 @@ export type PlayerRankChangeResult = {
   after: Rank.RankType;
 };
 
-export type KickPlayerResult = {
-  gameEvents: GameEvent[];
-  playerRankChanges: PlayerRankChangeResult[];
-};
-
 export class GameError extends Error {}
 
 export interface Game {
   readonly startInfo: StartInfo;
   startActivePlayerControl: () => ActivePlayerControl;
-  finishActivePlayerControl: (
-    activePlayerControl: ActivePlayerControl
-  ) => GameEvent[];
-  kickPlayerByIdentifier(identifier: string): KickPlayerResult;
+  finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
+  kickPlayerByIdentifier(identifier: string): void;
 }
 
 export type GameInitParams = {
@@ -58,7 +51,7 @@ export type GameInitParams = {
   lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   agariPlayerIdentifiers: string[];
-  eventConfig: Event.EventConfig;
+  eventDispatcher: Event.EventDispatcher;
 };
 
 export class GameImple implements Game {
@@ -71,7 +64,7 @@ export class GameImple implements Game {
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
   private gameEnded: boolean; // cach the game finish state for internal use
-  private eventConfig: Event.EventConfig;
+  private eventDispatcher: Event.EventDispatcher;
   public readonly startInfo: StartInfo;
 
   constructor(params: GameInitParams) {
@@ -84,7 +77,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
-    this.eventConfig = params.eventConfig;
+    this.eventDispatcher = params.eventDispatcher;
     this.gameEnded = false;
     this.startInfo = this.makeStartInfo();
   }
@@ -110,7 +103,7 @@ export class GameImple implements Game {
 
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
-  ): GameEvent[] {
+  ): void {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
@@ -120,23 +113,20 @@ export class GameImple implements Game {
       );
     }
 
-    const events: GameEvent[] = [];
-    this.processDiscardOrPass(activePlayerControl, events);
+    this.processDiscardOrPass(activePlayerControl);
     this.processPlayerHandUpdate(activePlayerControl);
-    this.processAgariCheck(activePlayerControl, events);
-    this.processGameEndCheck(events);
-    this.processTurnAdvancement(events);
-    return events;
+    this.processAgariCheck(activePlayerControl);
+    this.processGameEndCheck();
+    this.processTurnAdvancement();
   }
 
-  public kickPlayerByIdentifier(identifier: string): KickPlayerResult {
+  public kickPlayerByIdentifier(identifier: string): void {
     const p = this.findPlayerOrNull(identifier);
     if (p === null) {
       throw new GameError("player to kick is not found");
     }
 
-    const events: GameEvent[] = [];
-    events.push(GameEvent.PLAYER_KICKED);
+    this.eventDispatcher.onPlayerKicked();
     const wasActive = p === this.players[this.activePlayerIndex];
     // if the kicked player is currently active, internally go back to the previously active player.
     if (wasActive) {
@@ -144,11 +134,10 @@ export class GameImple implements Game {
     }
     this.deletePlayer(identifier);
     const playerRankChanges = this.recalcAlreadyRankedPlayers();
-    this.processGameEndCheck(events);
+    this.processGameEndCheck();
     if (wasActive) {
-      this.processTurnAdvancement(events);
+      this.processTurnAdvancement();
     }
-    return { gameEvents: events, playerRankChanges: playerRankChanges };
   }
 
   private findPlayerOrNull(identifier: string): Player.Player | null {
@@ -227,12 +216,9 @@ export class GameImple implements Game {
     });
   }
 
-  private processDiscardOrPass(
-    activePlayerControl: ActivePlayerControl,
-    events: GameEvent[]
-  ) {
+  private processDiscardOrPass(activePlayerControl: ActivePlayerControl) {
     if (activePlayerControl.hasPassed()) {
-      events.push(GameEvent.PASS);
+      this.eventDispatcher.onPass();
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
@@ -240,7 +226,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = this.players[
       this.activePlayerIndex
     ].identifier;
-    events.push(GameEvent.DISCARD);
+    this.eventDispatcher.onDiscard();
   }
 
   private processPlayerHandUpdate(activePlayerControl: ActivePlayerControl) {
@@ -252,7 +238,7 @@ export class GameImple implements Game {
     );
   }
 
-  private processTurnAdvancement(events: GameEvent[]) {
+  private processTurnAdvancement() {
     // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
     if (this.gameEnded) {
       return;
@@ -268,7 +254,7 @@ export class GameImple implements Game {
         this.players[this.activePlayerIndex].identifier ==
         this.lastDiscarderIdentifier
       ) {
-        events.push(GameEvent.NAGARE);
+        this.eventDispatcher.onNagare();
       }
       if (
         this.players[this.activePlayerIndex].rank.getRankType() ==
@@ -300,12 +286,9 @@ export class GameImple implements Game {
     }
   }
 
-  private processAgariCheck(
-    activePlayerControl: ActivePlayerControl,
-    events: GameEvent[]
-  ) {
+  private processAgariCheck(activePlayerControl: ActivePlayerControl) {
     if (this.players[this.activePlayerIndex].hand.count() == 0) {
-      events.push(GameEvent.AGARI);
+      this.eventDispatcher.onAgari();
       this.agariPlayerIdentifiers.push(
         this.players[this.activePlayerIndex].identifier
       );
@@ -317,7 +300,7 @@ export class GameImple implements Game {
     }
   }
 
-  private processGameEndCheck(events: GameEvent[]) {
+  private processGameEndCheck() {
     const rm = this.players.filter((v) => {
       return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
     });
@@ -325,7 +308,7 @@ export class GameImple implements Game {
       const p = rm[0];
       p.rank.determine(this.players.length, this.players.length);
       this.agariPlayerIdentifiers.push(p.identifier);
-      events.push(GameEvent.GAME_END);
+      this.eventDispatcher.onGameEnd();
       // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
     }
