@@ -367,6 +367,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onPlayerKicked = jest
+      .spyOn(d, "onPlayerKicked")
+      .mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -375,12 +379,11 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
-    const ret = g.kickPlayerByIdentifier("b");
+    g.kickPlayerByIdentifier("b");
+    expect(onPlayerKicked).toHaveBeenCalled();
     expect(g["players"]).toStrictEqual([p1, p3]);
     expect(g["activePlayerIndex"]).toBe(0);
   });
