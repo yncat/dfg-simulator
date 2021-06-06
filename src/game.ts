@@ -164,8 +164,14 @@ export class GameImple implements Game {
     for (let i = 0; i < this.agariPlayerIdentifiers.length; i++) {
       const p = this.findPlayer(this.agariPlayerIdentifiers[i]);
       // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
-      p.rank.determine(this.players.length - 1, i + 1);
-      // TODO: add playerRankChange event
+      const ret = p.rank.determine(this.players.length - 1, i + 1);
+      if (ret.changed) {
+        this.eventDispatcher.onPlayerRankChanged(
+          p.identifier,
+          ret.before,
+          ret.after
+        );
+      }
     }
   }
 

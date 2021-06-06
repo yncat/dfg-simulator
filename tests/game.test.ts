@@ -474,6 +474,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p4.hand.give(c1, c2);
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onPlayerRankChanged = jest
+      .spyOn(d, "onPlayerRankChanged")
+      .mockImplementation((identifier, before, after) => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3, p4],
       activePlayerIndex: 0,
@@ -482,14 +486,16 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventDispatcher: d,
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(onPlayerRankChanged).toHaveBeenCalled();
+    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
+    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
   });
 
   it("recalculates already ranked players and ends the game if required", () => {
@@ -505,6 +511,9 @@ describe("Game.kickPlayerByIdentifier", () => {
     p2.rank.force(Rank.RankType.DAIFUGO);
     const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
     const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
+    const onPlayerRankChanged = jest
+      .spyOn(d, "onPlayerRankChanged")
+      .mockImplementation((identifier, before, after) => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -521,6 +530,15 @@ describe("Game.kickPlayerByIdentifier", () => {
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p3.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
     expect(onGameEnd).toHaveBeenCalled();
+    expect(onPlayerRankChanged).toHaveBeenCalled();
+    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
+    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(onPlayerRankChanged.mock.calls[1][0]).toBe("c");
+    expect(onPlayerRankChanged.mock.calls[1][1]).toBe(
+      Rank.RankType.UNDETERMINED
+    );
+    expect(onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
   });
 
   it("triggers nagare callback if required", () => {
