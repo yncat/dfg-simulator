@@ -442,6 +442,38 @@ describe("Game.kickPlayerByIdentifier", () => {
     expect(g["players"]).toStrictEqual([p1, p2]);
     expect(g["activePlayerIndex"]).toBe(0);
   });
+
+  it("recalculates already ranked players", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    // We need one more players because there's only one unranked player(c) after b's deletion and the game automatically ends.
+    const p4 = Player.createPlayer("d");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    p4.hand.give(c1, c2);
+    p1.rank.force(Rank.RankType.FUGO);
+    p2.rank.force(Rank.RankType.DAIFUGO);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3, p4],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: ["b", "a"],
+      eventDispatcher: Event.createEventDispatcher(
+        Event.createDefaultEventConfig()
+      ),
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("b");
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+  });
 });
 
 describe("ActivePlayerControlImple.enumerateHand", () => {
