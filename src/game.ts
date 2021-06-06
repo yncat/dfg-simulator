@@ -260,15 +260,16 @@ export class GameImple implements Game {
   }
 
   private processAgariCheck() {
-    if (this.players[this.activePlayerIndex].hand.count() == 0) {
+    const p = this.players[this.activePlayerIndex];
+    if (p.hand.count() == 0) {
       this.eventDispatcher.onAgari();
-      this.agariPlayerIdentifiers.push(
-        this.players[this.activePlayerIndex].identifier
-      );
+      this.agariPlayerIdentifiers.push(p.identifier);
       const pos = this.agariPlayerIdentifiers.length;
-      this.players[this.activePlayerIndex].rank.determine(
-        this.players.length,
-        pos
+      const ret = p.rank.determine(this.players.length, pos);
+      this.eventDispatcher.onPlayerRankChanged(
+        p.identifier,
+        ret.before,
+        ret.after
       );
     }
   }

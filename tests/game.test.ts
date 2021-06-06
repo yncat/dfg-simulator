@@ -156,6 +156,9 @@ describe("Game.finishActivePlayerControl", () => {
     const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
     const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
     const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
+    const onPlayerRankChanged = jest
+      .spyOn(d, "onPlayerRankChanged")
+      .mockImplementation((identifier, before, after) => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -175,6 +178,12 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     expect(onDiscard).toHaveBeenCalled();
     expect(onAgari).toHaveBeenCalled();
+    expect(onPlayerRankChanged).toHaveBeenCalled();
+    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(
+      Rank.RankType.UNDETERMINED
+    );
+    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
