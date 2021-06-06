@@ -280,8 +280,13 @@ export class GameImple implements Game {
     });
     if (rm.length == 1) {
       const p = rm[0];
-      p.rank.determine(this.players.length, this.players.length);
+      const ret = p.rank.determine(this.players.length, this.players.length);
       this.agariPlayerIdentifiers.push(p.identifier);
+      this.eventDispatcher.onPlayerRankChanged(
+        p.identifier,
+        ret.before,
+        ret.after
+      );
       this.eventDispatcher.onGameEnd();
       // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;

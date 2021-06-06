@@ -202,6 +202,9 @@ describe("Game.finishActivePlayerControl", () => {
     const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
     const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
     const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
+    const onPlayerRankChanged = jest
+      .spyOn(d, "onPlayerRankChanged")
+      .mockImplementation((identifier, before, after) => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -221,6 +224,11 @@ describe("Game.finishActivePlayerControl", () => {
     expect(onDiscard).toHaveBeenCalled();
     expect(onAgari).toHaveBeenCalled();
     expect(onGameEnd).toHaveBeenCalled();
+    expect(onPlayerRankChanged).toHaveBeenCalled();
+    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(onPlayerRankChanged.mock.calls[1][0]).toBe("b");
+    expect(onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([
