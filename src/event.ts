@@ -1,3 +1,5 @@
+import { RankType } from "./rank";
+
 export type NagareCallback = () => void;
 export type AgariCallback = () => void;
 export type YagiriCallback = () => void;
@@ -7,6 +9,11 @@ export type DiscardCallback = () => void;
 export type PassCallback = () => void;
 export type GameEndCallback = () => void;
 export type PlayerKickedCallback = () => void;
+export type PlayerRankChangedCallback = (
+  identifier: string,
+  before: RankType,
+  after: RankType
+) => void;
 
 export type EventConfig = {
   onNagare: NagareCallback | null;
@@ -18,6 +25,7 @@ export type EventConfig = {
   onPass: PassCallback | null;
   onGameEnd: GameEndCallback | null;
   onPlayerKicked: PlayerKickedCallback | null;
+  onPlayerRankChanged: PlayerRankChangedCallback | null;
 };
 
 export function createDefaultEventConfig(): EventConfig {
@@ -31,6 +39,7 @@ export function createDefaultEventConfig(): EventConfig {
     onPass: null,
     onGameEnd: null,
     onPlayerKicked: null,
+    onPlayerRankChanged: null,
   };
 }
 
@@ -91,6 +100,16 @@ export class EventDispatcher {
   public onPlayerKicked(): void {
     if (this.eventConfig.onPlayerKicked !== null) {
       this.eventConfig.onPlayerKicked();
+    }
+  }
+
+  public onPlayerRankChanged(
+    identifier: string,
+    before: RankType,
+    after: RankType
+  ): void {
+    if (this.eventConfig.onPlayerRankChanged !== null) {
+      this.eventConfig.onPlayerRankChanged(identifier, before, after);
     }
   }
 }

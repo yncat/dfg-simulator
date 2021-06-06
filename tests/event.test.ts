@@ -1,4 +1,5 @@
 import * as Event from "../src/event";
+import * as Rank from "../src/rank";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 /* eslint @typescript-eslint/no-empty-function: 0 */
@@ -100,6 +101,23 @@ describe("EventDispatcher", () => {
       c.onPlayerKicked = f;
       const d = Event.createEventDispatcher(c);
       d.onPlayerKicked();
+      expect(f).toHaveBeenCalled();
+    });
+  });
+
+  describe("onPlayerRankChanged", () => {
+    it("calls event function", () => {
+      const f = jest.fn(
+        (identifier: string, before: Rank.RankType, after: Rank.RankType) => {}
+      );
+      const c = Event.createDefaultEventConfig();
+      c.onPlayerRankChanged = f;
+      const d = Event.createEventDispatcher(c);
+      d.onPlayerRankChanged(
+        "abc",
+        Rank.RankType.UNDETERMINED,
+        Rank.RankType.DAIFUGO
+      );
       expect(f).toHaveBeenCalled();
     });
   });
