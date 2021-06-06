@@ -474,6 +474,63 @@ describe("Game.kickPlayerByIdentifier", () => {
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
   });
+
+  it("recalculates already ranked players and ends the game if required", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    p1.rank.force(Rank.RankType.FUGO);
+    p2.rank.force(Rank.RankType.DAIFUGO);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: ["b", "a"],
+      eventDispatcher: d,
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("b");
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a", "c"]);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(p3.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(onGameEnd).toHaveBeenCalled();
+  });
+
+  it("triggers nagare callback if required", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 2,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "a",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventDispatcher: d,
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("c");
+    expect(onNagare).toHaveBeenCalled();
+  });
 });
 
 describe("ActivePlayerControlImple.enumerateHand", () => {
