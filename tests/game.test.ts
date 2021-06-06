@@ -5,6 +5,7 @@ import * as Hand from "../src/hand";
 import * as Player from "../src/player";
 import * as Rank from "../src/rank";
 import * as Event from "../src/event";
+import * as Rule from "../src/Rule";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 /* eslint @typescript-eslint/no-empty-function: 0 */
@@ -24,6 +25,7 @@ function createGameFixture() {
     eventDispatcher: Event.createEventDispatcher(
       Event.createDefaultEventConfig()
     ),
+    ruleConfig: Rule.createDefaultRuleConfig(),
   };
   return new Game.GameImple(params);
 }
@@ -46,6 +48,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -72,6 +75,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -97,6 +101,7 @@ describe("Game.finishActivePlayerControl", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -132,6 +137,7 @@ describe("Game.finishActivePlayerControl", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     let ctrl = g.startActivePlayerControl();
@@ -168,6 +174,7 @@ describe("Game.finishActivePlayerControl", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -214,6 +221,7 @@ describe("Game.finishActivePlayerControl", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -254,6 +262,7 @@ describe("Game.finishActivePlayerControl", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -286,6 +295,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -314,6 +324,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -342,6 +353,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
@@ -369,6 +381,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     expect(() => {
@@ -398,6 +411,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     g.kickPlayerByIdentifier("b");
@@ -426,6 +440,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
@@ -453,6 +468,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventDispatcher: Event.createEventDispatcher(
         Event.createDefaultEventConfig()
       ),
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("c");
@@ -487,6 +503,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
@@ -523,6 +540,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
@@ -561,6 +579,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       strengthInverted: false,
       agariPlayerIdentifiers: [],
       eventDispatcher: d,
+      ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("c");

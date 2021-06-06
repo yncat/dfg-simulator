@@ -7,6 +7,7 @@ import * as Discard from "./discard";
 import * as Card from "./card";
 import * as Rank from "./rank";
 import * as Event from "./event";
+import * as Rule from "./rule";
 
 export type StartInfo = {
   playerCount: number; // Number of players joined in the game
@@ -33,6 +34,7 @@ export type GameInitParams = {
   strengthInverted: boolean;
   agariPlayerIdentifiers: string[];
   eventDispatcher: Event.EventDispatcher;
+  ruleConfig: Rule.RuleConfig;
 };
 
 export class GameImple implements Game {
@@ -46,6 +48,7 @@ export class GameImple implements Game {
   private agariPlayerIdentifiers: string[];
   private gameEnded: boolean; // cach the game finish state for internal use
   private eventDispatcher: Event.EventDispatcher;
+  private ruleConfig: Rule.RuleConfig;
   public readonly startInfo: StartInfo;
 
   constructor(params: GameInitParams) {
@@ -59,6 +62,7 @@ export class GameImple implements Game {
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
     this.eventDispatcher = params.eventDispatcher;
+    this.ruleConfig = params.ruleConfig;
     this.gameEnded = false;
     this.startInfo = this.makeStartInfo();
   }

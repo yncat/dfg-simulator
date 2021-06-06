@@ -4,6 +4,7 @@ import { Deck } from "./deck";
 import { calcRequiredDeckCount } from "./calcFunctions";
 import { createNullDiscardPair } from "./discard";
 import * as Event from "./event";
+import * as Rule from "./rule";
 
 export class GameCreationError extends Error {}
 
@@ -11,9 +12,14 @@ export function createEventConfig(): Event.EventConfig {
   return Event.createDefaultEventConfig();
 }
 
+export function createRuleConfig(): Rule.RuleConfig {
+  return Rule.createDefaultRuleConfig();
+}
+
 export function createGame(
   players: Player[],
-  eventConfig: Event.EventConfig
+  eventConfig: Event.EventConfig,
+  ruleConfig: Rule.RuleConfig
 ): Game {
   if (!identifiersValid(players)) {
     throw new GameCreationError(
@@ -34,6 +40,7 @@ export function createGame(
     strengthInverted: false,
     agariPlayerIdentifiers: [],
     eventDispatcher: Event.createEventDispatcher(eventConfig),
+    ruleConfig: ruleConfig,
   };
 
   const g = new GameImple(params);
