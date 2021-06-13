@@ -17,6 +17,14 @@ Basic features are already implemented. The next step is writing an example game
 - fmt-lint
 - pre-commit
 
+## Supported rules
+
+- Yagiri (8)
+- J back (11)
+- Kakumei / Kaidan Kakumei
+- Joker as wildcards
+- 3 of spades against a joker
+
 ## Documentation
 
-None!!!!!!!!!!!!!!
+Not available yet!!!!!!!
