@@ -366,7 +366,6 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = new Card.Card(Card.Mark.DIAMONDS, 8);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
-    p1.rank.force(Rank.RankType.DAIFUGO);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
@@ -399,6 +398,44 @@ describe("Game.finishActivePlayerControl", () => {
     expect(onNagare).toHaveBeenCalled();
     const ctrl2 = g.startActivePlayerControl();
     expect(ctrl2.playerIdentifier).toBe("a");
+  });
+
+  it("triggers JBack", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 11);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onJBack = jest.spyOn(d, "onJBack").mockImplementation(() => {});
+    const onStrengthInversion = jest
+      .spyOn(d, "onStrengthInversion")
+      .mockImplementation((newstate: boolean) => {});
+    const r = Rule.createDefaultRuleConfig();
+    r.jBack = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventDispatcher: d,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["strengthInverted"]).toBeTruthy();
+    expect(onJBack).toHaveBeenCalled();
+    expect(onStrengthInversion).toHaveBeenCalled();
+    expect(onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 });
 

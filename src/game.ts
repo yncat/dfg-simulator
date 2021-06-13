@@ -99,10 +99,11 @@ export class GameImple implements Game {
     }
 
     this.processDiscardOrPass(activePlayerControl);
+    const yagiriTriggered = this.processYagiri(activePlayerControl);
+    this.processJBack(activePlayerControl);
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
     this.processGameEndCheck();
-    const yagiriTriggered = this.processYagiri(activePlayerControl);
     if (!yagiriTriggered) {
       this.processTurnAdvancement();
     }
@@ -222,6 +223,22 @@ export class GameImple implements Game {
     this.players[this.activePlayerIndex].hand.take(
       ...activePlayerControl.getDiscard().cards
     );
+  }
+
+  private processJBack(activePlayerControl: ActivePlayerControl) {
+    if (!this.ruleConfig.jBack) {
+      return;
+    }
+    const dp = activePlayerControl.getDiscard();
+    if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
+      this.invertStrength();
+      this.eventDispatcher.onJBack();
+      this.eventDispatcher.onStrengthInversion(this.strengthInverted);
+    }
+  }
+
+  private invertStrength() {
+    this.strengthInverted = !this.strengthInverted;
   }
 
   private processYagiri(activePlayerControl: ActivePlayerControl) {
