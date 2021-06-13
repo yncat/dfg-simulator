@@ -437,6 +437,47 @@ describe("Game.finishActivePlayerControl", () => {
     expect(onStrengthInversion).toHaveBeenCalled();
     expect(onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
+
+  it("triggers Kakumei", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c1, c1, c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onKakumei = jest.spyOn(d, "onKakumei").mockImplementation(() => {});
+    const onStrengthInversion = jest
+      .spyOn(d, "onStrengthInversion")
+      .mockImplementation((newstate: boolean) => {});
+    const r = Rule.createDefaultRuleConfig();
+    r.kakumei = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventDispatcher: d,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["strengthInverted"]).toBeTruthy();
+    expect(onKakumei).toHaveBeenCalled();
+    expect(onStrengthInversion).toHaveBeenCalled();
+    expect(onStrengthInversion.mock.calls[0][0]).toBeTruthy();
+  });
 });
 
 describe("Game.kickPlayerByIdentifier", () => {

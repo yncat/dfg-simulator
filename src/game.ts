@@ -101,6 +101,7 @@ export class GameImple implements Game {
     this.processDiscardOrPass(activePlayerControl);
     const yagiriTriggered = this.processYagiri(activePlayerControl);
     this.processJBack(activePlayerControl);
+    this.processKakumei(activePlayerControl);
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
     this.processGameEndCheck();
@@ -233,6 +234,18 @@ export class GameImple implements Game {
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
       this.eventDispatcher.onJBack();
+      this.eventDispatcher.onStrengthInversion(this.strengthInverted);
+    }
+  }
+
+  private processKakumei(activePlayerControl: ActivePlayerControl) {
+    if (!this.ruleConfig.kakumei) {
+      return;
+    }
+    const dp = activePlayerControl.getDiscard();
+    if (dp.count() >= 4) {
+      this.invertStrength();
+      this.eventDispatcher.onKakumei();
       this.eventDispatcher.onStrengthInversion(this.strengthInverted);
     }
   }
