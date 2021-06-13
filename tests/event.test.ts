@@ -38,6 +38,17 @@ describe("EventDispatcher", () => {
     });
   });
 
+  describe("onJBack", () => {
+    it("calls event function", () => {
+      const f = jest.fn();
+      const c = Event.createDefaultEventConfig();
+      c.onJBack = f;
+      const d = Event.createEventDispatcher(c);
+      d.onJBack();
+      expect(f).toHaveBeenCalled();
+    });
+  });
+
   describe("onKakumei", () => {
     it("calls event function", () => {
       const f = jest.fn();

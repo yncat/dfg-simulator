@@ -3,6 +3,7 @@ import { RankType } from "./rank";
 export type NagareCallback = () => void;
 export type AgariCallback = () => void;
 export type YagiriCallback = () => void;
+export type JBackCallback = () => void;
 export type KakumeiCallback = () => void;
 export type StrengthInversionCallback = (strengthInverted: boolean) => void;
 export type DiscardCallback = () => void;
@@ -19,6 +20,7 @@ export type EventConfig = {
   onNagare: NagareCallback | null;
   onAgari: AgariCallback | null;
   onYagiri: YagiriCallback | null;
+  onJBack: JBackCallback | null;
   onKakumei: KakumeiCallback | null;
   onStrengthInversion: StrengthInversionCallback | null;
   onDiscard: DiscardCallback | null;
@@ -33,6 +35,7 @@ export function createDefaultEventConfig(): EventConfig {
     onNagare: null,
     onAgari: null,
     onYagiri: null,
+    onJBack: null,
     onKakumei: null,
     onStrengthInversion: null,
     onDiscard: null,
@@ -64,6 +67,12 @@ export class EventDispatcher {
   public onYagiri(): void {
     if (this.eventConfig.onYagiri !== null) {
       this.eventConfig.onYagiri();
+    }
+  }
+
+  public onJBack(): void {
+    if (this.eventConfig.onJBack !== null) {
+      this.eventConfig.onJBack();
     }
   }
 
