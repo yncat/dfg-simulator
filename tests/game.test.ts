@@ -361,6 +361,45 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
   });
+
+  it("triggers Yagiri", () => {
+    const c1 = new Card.Card(Card.Mark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    p1.rank.force(Rank.RankType.DAIFUGO);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const onYagiri = jest.spyOn(d, "onYagiri").mockImplementation(() => {});
+    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
+    const r = Rule.createDefaultRuleConfig();
+    r.yagiri = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventDispatcher: d,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(1);
+    expect(onYagiri).toHaveBeenCalled();
+    expect(onNagare).toHaveBeenCalled();
+    const ctrl2 = g.startActivePlayerControl();
+    expect(ctrl2.playerIdentifier).toBe("a");
+  });
 });
 
 describe("Game.kickPlayerByIdentifier", () => {

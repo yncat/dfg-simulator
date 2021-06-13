@@ -102,7 +102,10 @@ export class GameImple implements Game {
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
     this.processGameEndCheck();
-    this.processTurnAdvancement();
+    const yagiriTriggered = this.processYagiri(activePlayerControl);
+    if (!yagiriTriggered) {
+      this.processTurnAdvancement();
+    }
   }
 
   public kickPlayerByIdentifier(identifier: string): void {
@@ -219,6 +222,20 @@ export class GameImple implements Game {
     this.players[this.activePlayerIndex].hand.take(
       ...activePlayerControl.getDiscard().cards
     );
+  }
+
+  private processYagiri(activePlayerControl: ActivePlayerControl) {
+    if (!this.ruleConfig.yagiri) {
+      return false;
+    }
+    const dp = activePlayerControl.getDiscard();
+    if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
+      this.eventDispatcher.onYagiri();
+      this.eventDispatcher.onNagare();
+      this.activePlayerActionCount++;
+      return true;
+    }
+    return false;
   }
 
   private processTurnAdvancement() {
