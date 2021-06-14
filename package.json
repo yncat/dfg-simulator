@@ -12,7 +12,7 @@
     "fmt": "prettier -w src/**/*.ts tests/**/*.ts",
     "lint": "eslint . --ext ts",
     "pre-commit": "npm run test && npm run lint && npm run fmt-lint",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.production.json",
     "prepublishOnly": "npm run build"
   },
   "repository": {

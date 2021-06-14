@@ -10,4 +10,8 @@
         "newLine": "lf",
         "outDir": "dist",
     },
+    "exclude": [
+        "tests/*",
+        "dist/*"
+    ]
 }
