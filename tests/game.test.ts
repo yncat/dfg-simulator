@@ -5,7 +5,7 @@ import * as Hand from "../src/hand";
 import * as Player from "../src/player";
 import * as Rank from "../src/rank";
 import * as Event from "../src/event";
-import * as Rule from "../src/Rule";
+import * as Rule from "../src/rule";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 /* eslint @typescript-eslint/no-empty-function: 0 */
