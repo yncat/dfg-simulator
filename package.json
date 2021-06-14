@@ -1,6 +1,6 @@
 {
   "name": "dfg-simulator",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Daifugo card game simulation library",
   "main": "dist/index.js",
   "scripts": {
@@ -29,16 +29,14 @@
   },
   "homepage": "https://github.com/yncat/dfg-simulator#readme",
   "dependencies": {
-    "@types/jest": "^26.0.22",
-    "@types/rewire": "^2.5.28",
-    "jest": "^26.6.3",
-    "prettier": "^2.2.1",
-    "rewire": "^5.0.0",
-    "ts-jest": "^26.5.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.4",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.25.0"
