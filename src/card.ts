@@ -1,7 +1,7 @@
 /*
 Daifugo cards
 */
-import * as CalcFunctions from "../src/calcFunctions";
+import * as CalcFunctions from "./calcFunctions";
 
 // Marks
 export const Mark = {
