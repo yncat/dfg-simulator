@@ -8,9 +8,12 @@ import * as Rule from "./rule";
 
 export class GameCreationError extends Error {}
 
+export { generateUniqueIdentifiers } from "./player";
+
 export function createEventConfig(): Event.EventConfig {
   return Event.createDefaultEventConfig();
 }
+
 
 export function createRuleConfig(): Rule.RuleConfig {
   return Rule.createDefaultRuleConfig();
