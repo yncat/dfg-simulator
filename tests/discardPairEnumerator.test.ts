@@ -11,7 +11,7 @@ describe("enumerate", () => {
 
   describe("with same numbered pair", () => {
     it("returns DiscardPair of the given cards", () => {
-      const c = new Card.Card(Card.Mark.HEARTS, 7);
+      const c = new Card.Card(Card.CardMark.HEARTS, 7);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(c, c, c);
@@ -23,7 +23,7 @@ describe("enumerate", () => {
 
   describe("with jokers only", () => {
     it("returns DiscardPair of the given jokers", () => {
-      const c = new Card.Card(Card.Mark.JOKER);
+      const c = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(c, c, c);
@@ -35,8 +35,8 @@ describe("enumerate", () => {
 
   describe("with same numbered pair with jokers", () => {
     it("returns DiscardPair of the given cards, wildcarding jokers correctly", () => {
-      const c1 = new Card.Card(Card.Mark.HEARTS, 7);
-      const c2 = new Card.Card(Card.Mark.JOKER);
+      const c1 = new Card.Card(Card.CardMark.HEARTS, 7);
+      const c2 = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(c1, c1, c2);
@@ -48,12 +48,12 @@ describe("enumerate", () => {
 
   describe("with one numbered card and two jokers", () => {
     it("returns DiscardPair instances for possible wildcard patterns", () => {
-      const h5 = new Card.Card(Card.Mark.HEARTS, 5);
-      const h6 = new Card.Card(Card.Mark.HEARTS, 6);
-      const h7 = new Card.Card(Card.Mark.HEARTS, 7);
-      const h8 = new Card.Card(Card.Mark.HEARTS, 8);
-      const h9 = new Card.Card(Card.Mark.HEARTS, 9);
-      const joker = new Card.Card(Card.Mark.JOKER);
+      const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
+      const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
+      const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
+      const h8 = new Card.Card(Card.CardMark.HEARTS, 8);
+      const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
+      const joker = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(h7, joker, joker);
@@ -71,9 +71,9 @@ describe("countJokers", () => {
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     e["selectedCards"] = [
-      new Card.Card(Card.Mark.SPADES, 7),
-      new Card.Card(Card.Mark.JOKER),
-      new Card.Card(Card.Mark.JOKER),
+      new Card.Card(Card.CardMark.SPADES, 7),
+      new Card.Card(Card.CardMark.JOKER),
+      new Card.Card(Card.CardMark.JOKER),
     ];
     expect(e["countJokers"]()).toBe(2);
   });
@@ -81,13 +81,13 @@ describe("countJokers", () => {
 
 describe("filterJokers", () => {
   it("can filter jokers", () => {
-    const c = new Card.Card(Card.Mark.SPADES, 7);
+    const c = new Card.Card(Card.CardMark.SPADES, 7);
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     e["selectedCards"] = [
       c,
-      new Card.Card(Card.Mark.JOKER),
-      new Card.Card(Card.Mark.JOKER),
+      new Card.Card(Card.CardMark.JOKER),
+      new Card.Card(Card.CardMark.JOKER),
     ];
     expect(e["filterJokers"]()).toStrictEqual([c]);
   });
@@ -98,8 +98,8 @@ describe("hasSameNumberedCards", () => {
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     e["selectedCards"] = [
-      new Card.Card(Card.Mark.SPADES, 6),
-      new Card.Card(Card.Mark.DIAMONDS, 6),
+      new Card.Card(Card.CardMark.SPADES, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 6),
     ];
     expect(e["hasSameNumberedCards"]()).toBeTruthy();
   });
@@ -108,8 +108,8 @@ describe("hasSameNumberedCards", () => {
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     e["selectedCards"] = [
-      new Card.Card(Card.Mark.SPADES, 6),
-      new Card.Card(Card.Mark.DIAMONDS, 2),
+      new Card.Card(Card.CardMark.SPADES, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 2),
     ];
     expect(e["hasSameNumberedCards"]()).toBeFalsy();
   });
@@ -120,9 +120,9 @@ describe("calcKaidanRange", () => {
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     e["selectedCards"] = [
-      new Card.Card(Card.Mark.SPADES, 6),
-      new Card.Card(Card.Mark.DIAMONDS, 7),
-      new Card.Card(Card.Mark.HEARTS, 8),
+      new Card.Card(Card.CardMark.SPADES, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 7),
+      new Card.Card(Card.CardMark.HEARTS, 8),
     ];
     const want = {
       weakestCardNumber: 6,
@@ -186,8 +186,8 @@ describe("WildcardCombination", () => {
 
 describe("prune", () => {
   it("returns all pairs if the last discard pair is empty", () => {
-    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
-    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
+    const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
     const d = Discard.CreateDiscardPairForTest();
     const e = new Discard.DiscardPairEnumerator(d, false);
     const ds: Discard.DiscardPair[] = [
@@ -198,9 +198,9 @@ describe("prune", () => {
   });
 
   it("can prune pairs which do not satisfy cards count", () => {
-    const h4 = new Card.Card(Card.Mark.HEARTS, 4);
-    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
-    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const h4 = new Card.Card(Card.CardMark.HEARTS, 4);
+    const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
+    const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
     const d = Discard.CreateDiscardPairForTest(h4, h4);
     const e = new Discard.DiscardPairEnumerator(d, false);
     const ds: Discard.DiscardPair[] = [
@@ -214,9 +214,9 @@ describe("prune", () => {
   });
 
   it("can prune pairs which do not match standard or kaidan condition", () => {
-    const h4 = new Card.Card(Card.Mark.HEARTS, 4);
-    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
-    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const h4 = new Card.Card(Card.CardMark.HEARTS, 4);
+    const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
+    const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
     const d = Discard.CreateDiscardPairForTest(h4, h4);
     const e = new Discard.DiscardPairEnumerator(d, false);
     const ds: Discard.DiscardPair[] = [
@@ -230,8 +230,8 @@ describe("prune", () => {
   });
 
   it("can prune pairs which is not stronger", () => {
-    const h5 = new Card.Card(Card.Mark.HEARTS, 5);
-    const h6 = new Card.Card(Card.Mark.HEARTS, 6);
+    const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
+    const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
     const d = Discard.CreateDiscardPairForTest(h5, h5);
     const e = new Discard.DiscardPairEnumerator(d, false);
     const ds: Discard.DiscardPair[] = [

@@ -65,8 +65,8 @@ describe("createGame", () => {
 describe("Game.finishActivePlayerControl", () => {
   it("rejects invalid controllers", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const params: Game.GameInitParams = {
@@ -118,8 +118,8 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("updates related states and emits event when discarding", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
@@ -152,8 +152,8 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("emits nagare event when everyone passed and the turn reaches the last discarder", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
@@ -187,7 +187,7 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("emits agari event when player hand gets empty", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("b");
@@ -234,7 +234,7 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("determines rank, and emits agari / end event when player gets agari and only 1 player remains", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
@@ -279,8 +279,8 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("updates related states and emits events when passing", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
@@ -309,7 +309,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("goes back to the first player if all players finished action", () => {
-    const c1 = new Card.Card(Card.Mark.HEARTS, 2);
+    const c1 = new Card.Card(Card.CardMark.HEARTS, 2);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
@@ -337,7 +337,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("skips rank determined player", () => {
-    const c1 = new Card.Card(Card.Mark.SPADES, 7);
+    const c1 = new Card.Card(Card.CardMark.SPADES, 7);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
@@ -366,7 +366,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("skips rank determined player even if next turn starts", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
     p1.rank.force(Rank.RankType.DAIFUGO);
@@ -395,7 +395,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("triggers Yagiri", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 8);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
@@ -433,7 +433,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("triggers JBack", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 11);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 11);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
@@ -471,7 +471,7 @@ describe("Game.finishActivePlayerControl", () => {
   });
 
   it("triggers Kakumei", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1, c1, c1, c1);
     const p2 = Player.createPlayer("b");
@@ -515,8 +515,8 @@ describe("Game.finishActivePlayerControl", () => {
 describe("Game.kickPlayerByIdentifier", () => {
   it("throws an error when nonexistent player identifier is passed", () => {
     const p1 = Player.createPlayer("a");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const params: Game.GameInitParams = {
@@ -542,8 +542,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -573,8 +573,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -601,8 +601,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -631,8 +631,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p3 = Player.createPlayer("c");
     // We need one more players because there's only one unranked player(c) after b's deletion and the game automatically ends.
     const p4 = Player.createPlayer("d");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -668,8 +668,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -712,8 +712,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 5);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
@@ -738,8 +738,8 @@ describe("Game.kickPlayerByIdentifier", () => {
 
 describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 5);
-    const c2 = new Card.Card(Card.Mark.HEARTS, 6);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 5);
+    const c2 = new Card.Card(Card.CardMark.HEARTS, 6);
     const h = new Hand.Hand();
     h.give(c1, c2);
     const ldp = Discard.CreateDiscardPairForTest();
@@ -985,7 +985,7 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
       dp,
       dpe
     );
-    const c = new Card.Card(Card.Mark.SPADES, 3);
+    const c = new Card.Card(Card.CardMark.SPADES, 3);
     const want = [Discard.CreateDiscardPairForTest(c, c)];
     const enumerate = jest.spyOn(dpe, "enumerate").mockImplementation(() => {
       return want;
@@ -1017,7 +1017,7 @@ describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () =
 
 describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () => {
   it("can set discard pair", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);
@@ -1041,8 +1041,8 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
   });
 
   it("cannot set discard when the specified discard pair does not exist on available ones", () => {
-    const c1 = new Card.Card(Card.Mark.DIAMONDS, 6);
-    const c2 = new Card.Card(Card.Mark.DIAMONDS, 7);
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const h = new Hand.Hand();
     const ldp = Discard.CreateDiscardPairForTest();
     const dp = new Discard.DiscardPlanner(h, ldp, false);

@@ -246,7 +246,7 @@ export class DiscardPlanner {
     // Single joker can be overriden by a 3 of spades
     if (
       this.lastDiscardPair.cards[0].isJoker() &&
-      selectingCard.mark == Card.Mark.SPADES &&
+      selectingCard.mark == Card.CardMark.SPADES &&
       selectingCard.cardNumber == 3
     ) {
       return SelectabilityCheckResult.SELECTABLE;

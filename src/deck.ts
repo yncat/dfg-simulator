@@ -10,23 +10,23 @@ export class Deck {
     this.cards = [];
     // Clubs 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.Mark.CLUBS, i));
+      this.cards.push(new Card.Card(Card.CardMark.CLUBS, i));
     }
     // Diamonds 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.Mark.DIAMONDS, i));
+      this.cards.push(new Card.Card(Card.CardMark.DIAMONDS, i));
     }
     // Hearts 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.Mark.HEARTS, i));
+      this.cards.push(new Card.Card(Card.CardMark.HEARTS, i));
     }
     // Spades 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.Mark.SPADES, i));
+      this.cards.push(new Card.Card(Card.CardMark.SPADES, i));
     }
     // Jokers
-    this.cards.push(new Card.Card(Card.Mark.JOKER));
-    this.cards.push(new Card.Card(Card.Mark.JOKER));
+    this.cards.push(new Card.Card(Card.CardMark.JOKER));
+    this.cards.push(new Card.Card(Card.CardMark.JOKER));
   }
 
   public shuffle(): void {
