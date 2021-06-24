@@ -41,10 +41,13 @@ export type GameInitParams = {
 };
 
 export function createGame(
-  players: Player.Player[],
+  playerIdentifiers: string[],
   eventConfig: Event.EventConfig,
   ruleConfig: Rule.RuleConfig
 ): Game {
+  const players = playerIdentifiers.map((v)=>{
+    return Player.createPlayer(v);
+  });
   if (!identifiersValid(players)) {
     throw new GameCreationError(
       "one of the players' identifiers is duplicating"
