@@ -3,11 +3,13 @@ Game manager
 */
 import * as Player from "./player";
 import * as Hand from "./hand";
-import * as Discard from "./discard";
 import * as Card from "./card";
 import * as Rank from "./rank";
 import * as Event from "./event";
 import * as Rule from "./rule";
+import * as Deck from "./deck";
+import * as Discard from "./discard";
+import * as CalcFunctions from "./calcFunctions";
 
 export type StartInfo = {
   playerCount: number; // Number of players joined in the game
@@ -17,6 +19,7 @@ export type StartInfo = {
 };
 
 export class GameError extends Error {}
+export class GameCreationError extends Error {}
 
 export interface Game {
   readonly startInfo: StartInfo;
@@ -36,6 +39,96 @@ export type GameInitParams = {
   eventDispatcher: Event.EventDispatcher;
   ruleConfig: Rule.RuleConfig;
 };
+
+export function createGame(
+  players: Player.Player[],
+  eventConfig: Event.EventConfig,
+  ruleConfig: Rule.RuleConfig
+): Game {
+  if (!identifiersValid(players)) {
+    throw new GameCreationError(
+      "one of the players' identifiers is duplicating"
+    );
+  }
+
+  const shuffledPlayers = shufflePlayers(players);
+  const decks = prepareDecks(players.length);
+  distributeCards(shuffledPlayers, decks);
+
+  const params = {
+    players: shuffledPlayers,
+    activePlayerIndex: 0,
+    activePlayerActionCount: 0,
+    lastDiscardPair: Discard.createNullDiscardPair(),
+    lastDiscarderIdentifier: "",
+    strengthInverted: false,
+    agariPlayerIdentifiers: [],
+    eventDispatcher: Event.createEventDispatcher(eventConfig),
+    ruleConfig: ruleConfig,
+  };
+
+  const g = new GameImple(params);
+  return g;
+}
+
+function identifiersValid(players: Player.Player[]) {
+  let found = false;
+  for (let i = 0; i < players.length - 1; i++) {
+    for (let j = i + 1; j < players.length; j++) {
+      if (players[i].identifier == players[j].identifier) {
+        found = true;
+        break;
+      }
+    }
+  }
+  return !found;
+}
+
+function shufflePlayers(players: Player.Player[]): Player.Player[] {
+  const out = Array.from(players);
+  for (let i = out.length - 1; i > 0; i--) {
+    const r = Math.floor(Math.random() * (i + 1));
+    const tmp = out[i];
+    out[i] = out[r];
+    out[r] = tmp;
+  }
+  return out;
+}
+
+function prepareDecks(playerCount: number): Deck.Deck[] {
+  const deckCount = CalcFunctions.calcRequiredDeckCount(playerCount);
+  const decks: Deck.Deck[] = [];
+  for (let i = 0; i < deckCount; i++) {
+    const d = new Deck.Deck();
+    d.shuffle();
+    decks.push(d);
+  }
+  return decks;
+}
+
+function distributeCards(players: Player.Player[], decks: Deck.Deck[]) {
+  while (decks.length > 0) {
+    for (let i = 0; i < players.length; i++) {
+      let c = decks[0].draw();
+      if (c === null) {
+        decks.shift();
+        if (decks.length == 0) {
+          break;
+        }
+        c = decks[0].draw();
+        if (c === null) {
+          throw new GameCreationError(
+            "deck is unexpectedly empty, maybe corrupted?"
+          );
+        }
+      }
+      players[i].hand.give(c);
+    }
+  }
+  for (let i = 0; i < players.length; i++) {
+    players[i].hand.sort();
+  }
+}
 
 export class GameImple implements Game {
   private players: Player.Player[];
