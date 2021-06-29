@@ -1,3 +1,4 @@
+import { mock } from "jest-mock-extended";
 import * as Card from "../src/card";
 import * as Discard from "../src/discard";
 import * as Game from "../src/game";
@@ -22,19 +23,21 @@ function createGameFixture() {
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
-    eventDispatcher: Event.createEventDispatcher(
-      Event.createDefaultEventConfig()
-    ),
+    eventReceiver: createMockEventReceiver(),
     ruleConfig: Rule.createDefaultRuleConfig(),
   };
   return new Game.GameImple(params);
+}
+
+function createMockEventReceiver(){
+  return mock<Event.EventReceiver>();
 }
 
 describe("createGame", () => {
   it("returns a new game instance and properly initializes related objects", () => {
     const g = Game.createGame(
       ["a", "b", "c"],
-      Event.createDefaultEventConfig(),
+      createMockEventReceiver(),
       Rule.createDefaultRuleConfig()
     );
     expect(g).not.toBeNull();
@@ -46,7 +49,7 @@ describe("createGame", () => {
     expect(() => {
       Game.createGame(
         ["a", "b", "b"],
-        Event.createDefaultEventConfig(),
+        createMockEventReceiver(),
         Rule.createDefaultRuleConfig()
       );
     }).toThrow("one of the players' identifiers is duplicating");
@@ -68,9 +71,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -95,9 +96,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -113,7 +112,7 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const d = createMockEventReceiver();
     const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
     const params: Game.GameInitParams = {
       players: [p1, p2],
@@ -123,7 +122,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -148,9 +147,7 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onPass = jest.spyOn(d, "onPass").mockImplementation(() => {});
-    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -159,7 +156,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -172,8 +169,8 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
-    expect(onPass).toHaveBeenCalled();
-    expect(onNagare).toHaveBeenCalled();
+    expect(d.onPass).toHaveBeenCalled();
+    expect(d.onNagare).toHaveBeenCalled();
   });
 
   it("emits agari event when player hand gets empty", () => {
@@ -182,12 +179,7 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("b");
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
-    const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
-    const onPlayerRankChanged = jest
-      .spyOn(d, "onPlayerRankChanged")
-      .mockImplementation((identifier, before, after) => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -196,7 +188,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -206,14 +198,14 @@ describe("Game.finishActivePlayerControl", () => {
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
-    expect(onDiscard).toHaveBeenCalled();
-    expect(onAgari).toHaveBeenCalled();
-    expect(onPlayerRankChanged).toHaveBeenCalled();
-    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
-    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(
+    expect(d.onDiscard).toHaveBeenCalled();
+    expect(d.onAgari).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(d.onPlayerRankChanged.mock.calls[0][1]).toBe(
       Rank.RankType.UNDETERMINED
     );
-    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(d.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
@@ -228,13 +220,7 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onDiscard = jest.spyOn(d, "onDiscard").mockImplementation(() => {});
-    const onAgari = jest.spyOn(d, "onAgari").mockImplementation(() => {});
-    const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
-    const onPlayerRankChanged = jest
-      .spyOn(d, "onPlayerRankChanged")
-      .mockImplementation((identifier, before, after) => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -243,7 +229,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -252,14 +238,14 @@ describe("Game.finishActivePlayerControl", () => {
     const dps = ctrl.enumerateDiscardPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
-    expect(onDiscard).toHaveBeenCalled();
-    expect(onAgari).toHaveBeenCalled();
-    expect(onGameEnd).toHaveBeenCalled();
-    expect(onPlayerRankChanged).toHaveBeenCalled();
-    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
-    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
-    expect(onPlayerRankChanged.mock.calls[1][0]).toBe("b");
-    expect(onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
+    expect(d.onDiscard).toHaveBeenCalled();
+    expect(d.onAgari).toHaveBeenCalled();
+    expect(d.onGameEnd).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(d.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(d.onPlayerRankChanged.mock.calls[1][0]).toBe("b");
+    expect(d.onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([
@@ -274,8 +260,7 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onPass = jest.spyOn(d, "onPass").mockImplementation(() => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2],
       activePlayerIndex: 0,
@@ -284,14 +269,14 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
-    expect(onPass).toHaveBeenCalled();
+    expect(d.onPass).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe("");
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
     const ndp = Discard.createNullDiscardPair();
@@ -315,9 +300,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -344,9 +327,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -373,9 +354,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -393,9 +372,7 @@ describe("Game.finishActivePlayerControl", () => {
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onYagiri = jest.spyOn(d, "onYagiri").mockImplementation(() => {});
-    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
+    const d = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
     const params: Game.GameInitParams = {
@@ -406,7 +383,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: r,
     };
     const g = new Game.GameImple(params);
@@ -417,8 +394,8 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
     expect(g["activePlayerActionCount"]).toBe(1);
-    expect(onYagiri).toHaveBeenCalled();
-    expect(onNagare).toHaveBeenCalled();
+    expect(d.onYagiri).toHaveBeenCalled();
+    expect(d.onNagare).toHaveBeenCalled();
     const ctrl2 = g.startActivePlayerControl();
     expect(ctrl2.playerIdentifier).toBe("a");
   });
@@ -431,11 +408,7 @@ describe("Game.finishActivePlayerControl", () => {
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onJBack = jest.spyOn(d, "onJBack").mockImplementation(() => {});
-    const onStrengthInversion = jest
-      .spyOn(d, "onStrengthInversion")
-      .mockImplementation((newstate: boolean) => {});
+    const d = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.jBack = true;
     const params: Game.GameInitParams = {
@@ -446,7 +419,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: r,
     };
     const g = new Game.GameImple(params);
@@ -456,9 +429,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
-    expect(onJBack).toHaveBeenCalled();
-    expect(onStrengthInversion).toHaveBeenCalled();
-    expect(onStrengthInversion.mock.calls[0][0]).toBeTruthy();
+    expect(d.onJBack).toHaveBeenCalled();
+    expect(d.onStrengthInversion).toHaveBeenCalled();
+    expect(d.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 
   it("triggers Kakumei", () => {
@@ -469,11 +442,7 @@ describe("Game.finishActivePlayerControl", () => {
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onKakumei = jest.spyOn(d, "onKakumei").mockImplementation(() => {});
-    const onStrengthInversion = jest
-      .spyOn(d, "onStrengthInversion")
-      .mockImplementation((newstate: boolean) => {});
+    const d = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.kakumei = true;
     const params: Game.GameInitParams = {
@@ -484,7 +453,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: r,
     };
     const g = new Game.GameImple(params);
@@ -497,9 +466,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
-    expect(onKakumei).toHaveBeenCalled();
-    expect(onStrengthInversion).toHaveBeenCalled();
-    expect(onStrengthInversion.mock.calls[0][0]).toBeTruthy();
+    expect(d.onKakumei).toHaveBeenCalled();
+    expect(d.onStrengthInversion).toHaveBeenCalled();
+    expect(d.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 });
 
@@ -518,9 +487,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -538,10 +505,7 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onPlayerKicked = jest
-      .spyOn(d, "onPlayerKicked")
-      .mockImplementation(() => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -550,12 +514,12 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     g.kickPlayerByIdentifier("b");
-    expect(onPlayerKicked).toHaveBeenCalled();
+    expect(d.onPlayerKicked).toHaveBeenCalled();
     expect(g["players"]).toStrictEqual([p1, p3]);
     expect(g["activePlayerIndex"]).toBe(0);
   });
@@ -577,9 +541,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -605,9 +567,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: Event.createEventDispatcher(
-        Event.createDefaultEventConfig()
-      ),
+      eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -630,10 +590,7 @@ describe("Game.kickPlayerByIdentifier", () => {
     p4.hand.give(c1, c2);
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onPlayerRankChanged = jest
-      .spyOn(d, "onPlayerRankChanged")
-      .mockImplementation((identifier, before, after) => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2, p3, p4],
       activePlayerIndex: 0,
@@ -642,17 +599,17 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
-    expect(onPlayerRankChanged).toHaveBeenCalled();
-    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
-    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
-    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(d.onPlayerRankChanged).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(d.onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
+    expect(d.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
   });
 
   it("recalculates already ranked players and ends the game if required", () => {
@@ -666,11 +623,8 @@ describe("Game.kickPlayerByIdentifier", () => {
     p3.hand.give(c1, c2);
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
+    const d = createMockEventReceiver();
     const onGameEnd = jest.spyOn(d, "onGameEnd").mockImplementation(() => {});
-    const onPlayerRankChanged = jest
-      .spyOn(d, "onPlayerRankChanged")
-      .mockImplementation((identifier, before, after) => {});
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
@@ -679,7 +633,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
@@ -687,16 +641,16 @@ describe("Game.kickPlayerByIdentifier", () => {
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a", "c"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p3.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
-    expect(onGameEnd).toHaveBeenCalled();
-    expect(onPlayerRankChanged).toHaveBeenCalled();
-    expect(onPlayerRankChanged.mock.calls[0][0]).toBe("a");
-    expect(onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
-    expect(onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
-    expect(onPlayerRankChanged.mock.calls[1][0]).toBe("c");
-    expect(onPlayerRankChanged.mock.calls[1][1]).toBe(
+    expect(d.onGameEnd).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged).toHaveBeenCalled();
+    expect(d.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(d.onPlayerRankChanged.mock.calls[0][1]).toBe(Rank.RankType.FUGO);
+    expect(d.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(d.onPlayerRankChanged.mock.calls[1][0]).toBe("c");
+    expect(d.onPlayerRankChanged.mock.calls[1][1]).toBe(
       Rank.RankType.UNDETERMINED
     );
-    expect(onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
+    expect(d.onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
   });
 
   it("triggers nagare callback if required", () => {
@@ -708,8 +662,7 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
-    const d = Event.createEventDispatcher(Event.createDefaultEventConfig());
-    const onNagare = jest.spyOn(d, "onNagare").mockImplementation(() => {});
+    const d = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
       activePlayerIndex: 2,
@@ -718,12 +671,12 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "a",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
-      eventDispatcher: d,
+      eventReceiver: d,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
     const g = new Game.GameImple(params);
     const ret = g.kickPlayerByIdentifier("c");
-    expect(onNagare).toHaveBeenCalled();
+    expect(d.onNagare).toHaveBeenCalled();
   });
 });
 

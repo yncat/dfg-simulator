@@ -36,13 +36,13 @@ export type GameInitParams = {
   lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   agariPlayerIdentifiers: string[];
-  eventDispatcher: Event.EventDispatcher;
+  eventReceiver: Event.EventReceiver;
   ruleConfig: Rule.RuleConfig;
 };
 
 export function createGame(
   playerIdentifiers: string[],
-  eventConfig: Event.EventConfig,
+  eventReceiver: Event.EventReceiver,
   ruleConfig: Rule.RuleConfig
 ): Game {
   const players = playerIdentifiers.map((v)=>{
@@ -66,7 +66,7 @@ export function createGame(
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
-    eventDispatcher: Event.createEventDispatcher(eventConfig),
+    eventReceiver: eventReceiver,
     ruleConfig: ruleConfig,
   };
 
@@ -143,7 +143,7 @@ export class GameImple implements Game {
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
   private gameEnded: boolean; // cach the game finish state for internal use
-  private eventDispatcher: Event.EventDispatcher;
+  private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
   public readonly startInfo: StartInfo;
 
@@ -157,7 +157,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
-    this.eventDispatcher = params.eventDispatcher;
+    this.eventReceiver = params.eventReceiver;
     this.ruleConfig = params.ruleConfig;
     this.gameEnded = false;
     this.startInfo = this.makeStartInfo();
@@ -212,7 +212,7 @@ export class GameImple implements Game {
       throw new GameError("player to kick is not found");
     }
 
-    this.eventDispatcher.onPlayerKicked();
+    this.eventReceiver.onPlayerKicked();
     const wasActive = p === this.players[this.activePlayerIndex];
     // if the kicked player is currently active, internally go back to the previously active player.
     if (wasActive) {
@@ -271,7 +271,7 @@ export class GameImple implements Game {
       // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
       const ret = p.rank.determine(this.players.length - 1, i + 1);
       if (ret.changed) {
-        this.eventDispatcher.onPlayerRankChanged(
+        this.eventReceiver.onPlayerRankChanged(
           p.identifier,
           ret.before,
           ret.after
@@ -302,7 +302,7 @@ export class GameImple implements Game {
 
   private processDiscardOrPass(activePlayerControl: ActivePlayerControl) {
     if (activePlayerControl.hasPassed()) {
-      this.eventDispatcher.onPass();
+      this.eventReceiver.onPass();
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
@@ -310,7 +310,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = this.players[
       this.activePlayerIndex
     ].identifier;
-    this.eventDispatcher.onDiscard();
+    this.eventReceiver.onDiscard();
   }
 
   private processPlayerHandUpdate(activePlayerControl: ActivePlayerControl) {
@@ -329,8 +329,8 @@ export class GameImple implements Game {
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
-      this.eventDispatcher.onJBack();
-      this.eventDispatcher.onStrengthInversion(this.strengthInverted);
+      this.eventReceiver.onJBack();
+      this.eventReceiver.onStrengthInversion(this.strengthInverted);
     }
   }
 
@@ -341,8 +341,8 @@ export class GameImple implements Game {
     const dp = activePlayerControl.getDiscard();
     if (dp.count() >= 4) {
       this.invertStrength();
-      this.eventDispatcher.onKakumei();
-      this.eventDispatcher.onStrengthInversion(this.strengthInverted);
+      this.eventReceiver.onKakumei();
+      this.eventReceiver.onStrengthInversion(this.strengthInverted);
     }
   }
 
@@ -356,8 +356,8 @@ export class GameImple implements Game {
     }
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
-      this.eventDispatcher.onYagiri();
-      this.eventDispatcher.onNagare();
+      this.eventReceiver.onYagiri();
+      this.eventReceiver.onNagare();
       this.activePlayerActionCount++;
       return true;
     }
@@ -380,7 +380,7 @@ export class GameImple implements Game {
         this.players[this.activePlayerIndex].identifier ==
         this.lastDiscarderIdentifier
       ) {
-        this.eventDispatcher.onNagare();
+        this.eventReceiver.onNagare();
       }
       if (
         this.players[this.activePlayerIndex].rank.getRankType() ==
@@ -415,11 +415,11 @@ export class GameImple implements Game {
   private processAgariCheck() {
     const p = this.players[this.activePlayerIndex];
     if (p.hand.count() == 0) {
-      this.eventDispatcher.onAgari();
+      this.eventReceiver.onAgari();
       this.agariPlayerIdentifiers.push(p.identifier);
       const pos = this.agariPlayerIdentifiers.length;
       const ret = p.rank.determine(this.players.length, pos);
-      this.eventDispatcher.onPlayerRankChanged(
+      this.eventReceiver.onPlayerRankChanged(
         p.identifier,
         ret.before,
         ret.after
@@ -435,12 +435,12 @@ export class GameImple implements Game {
       const p = rm[0];
       const ret = p.rank.determine(this.players.length, this.players.length);
       this.agariPlayerIdentifiers.push(p.identifier);
-      this.eventDispatcher.onPlayerRankChanged(
+      this.eventReceiver.onPlayerRankChanged(
         p.identifier,
         ret.before,
         ret.after
       );
-      this.eventDispatcher.onGameEnd();
+      this.eventReceiver.onGameEnd();
       // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
     }
