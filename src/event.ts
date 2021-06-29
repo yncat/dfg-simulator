@@ -28,4 +28,4 @@ export interface EventReceiver {
   onGameEnd: GameEndCallback;
   onPlayerKicked: PlayerKickedCallback;
   onPlayerRankChanged: PlayerRankChangedCallback;
-};
+}
