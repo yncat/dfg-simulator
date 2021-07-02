@@ -11,18 +11,10 @@ import * as Deck from "./deck";
 import * as Discard from "./discard";
 import * as CalcFunctions from "./calcFunctions";
 
-export type StartInfo = {
-  playerCount: number; // Number of players joined in the game
-  // Arrays above are assumed to be all sorted by actual play order.
-  playerIdentifiers: string[]; // player identifiers
-  handCounts: number[]; // Number of cards given
-};
-
 export class GameError extends Error {}
 export class GameCreationError extends Error {}
 
 export interface Game {
-  readonly startInfo: StartInfo;
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
   kickPlayerByIdentifier(identifier: string): void;
@@ -145,7 +137,6 @@ export class GameImple implements Game {
   private gameEnded: boolean; // cach the game finish state for internal use
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
-  public readonly startInfo: StartInfo;
 
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
@@ -160,7 +151,7 @@ export class GameImple implements Game {
     this.eventReceiver = params.eventReceiver;
     this.ruleConfig = params.ruleConfig;
     this.gameEnded = false;
-    this.startInfo = this.makeStartInfo();
+    this.makeStartInfo();
   }
 
   public startActivePlayerControl(): ActivePlayerControl {
@@ -280,7 +271,7 @@ export class GameImple implements Game {
     }
   }
 
-  private makeStartInfo(): StartInfo {
+  private makeStartInfo() {
     this.eventReceiver.onInitialInfoProvided(
       this.players.length,
       CalcFunctions.calcRequiredDeckCount(this.players.length)
@@ -291,11 +282,6 @@ export class GameImple implements Game {
         this.players[i].hand.count()
       );
     }
-    return {
-      playerCount: this.players.length,
-      playerIdentifiers: this.enumeratePlayerIdentifiers(),
-      handCounts: this.enumerateHandCounts(),
-    };
   }
 
   private enumeratePlayerIdentifiers() {
