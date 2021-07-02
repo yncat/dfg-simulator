@@ -1,4 +1,4 @@
-export { CardMark, CardNumber } from "./card";
+export { Card, CardMark, CardNumber } from "./card";
 export { EventReceiver } from "./event";
 export {
   DiscardPair,
