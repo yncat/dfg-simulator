@@ -926,6 +926,30 @@ describe("ActivePlayerControlImple.deselectCard", () => {
   });
 });
 
+describe("ActivePlayerControlImple.countSelectedCards", () => {
+  it("returns what discardPlanner returned", () => {
+    const h = new Hand.Hand();
+    const ldp = Discard.CreateDiscardPairForTest();
+    const dp = new Discard.DiscardPlanner(h, ldp, false);
+    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ctrl = Game.createActivePlayerControlForTest(
+      "t1p0a0",
+      "abc",
+      h,
+      dp,
+      dpe
+    );
+    const countSelectedCards = jest
+      .spyOn(dp, "countSelectedCards")
+      .mockImplementation(() => {
+        return 1;
+      });
+    const ret = ctrl.countSelectedCards();
+    expect(countSelectedCards).toHaveBeenCalled();
+    expect(ret).toBe(1);
+  });
+});
+
 describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
   it("returns what DiscardPairEnumerator returned", () => {
     const h = new Hand.Hand();

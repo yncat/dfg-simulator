@@ -469,6 +469,7 @@ export interface ActivePlayerControl {
   isCardSelected: (index: number) => boolean;
   selectCard: (index: number) => Discard.CardSelectResult;
   deselectCard: (index: number) => Discard.CardDeselectResult;
+  countSelectedCards: () => number;
   enumerateDiscardPairs: () => Discard.DiscardPair[];
   pass: () => void;
   hasPassed: () => boolean;
@@ -539,6 +540,10 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public deselectCard(index: number): Discard.CardDeselectResult {
     return this.discardPlanner.deselect(index);
+  }
+
+  public countSelectedCards(): number {
+    return this.discardPlanner.countSelectedCards();
   }
 
   public enumerateDiscardPairs(): Discard.DiscardPair[] {
