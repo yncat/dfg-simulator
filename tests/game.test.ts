@@ -29,7 +29,7 @@ function createGameFixture() {
   return new Game.GameImple(params);
 }
 
-function createMockEventReceiver(){
+function createMockEventReceiver() {
   return mock<Event.EventReceiver>();
 }
 
@@ -244,7 +244,9 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
     expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
     expect(r.onPlayerRankChanged.mock.calls[1][0]).toBe("b");
-    expect(r.onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
+    expect(r.onPlayerRankChanged.mock.calls[1][2]).toBe(
+      Rank.RankType.DAIHINMIN
+    );
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([
@@ -649,7 +651,9 @@ describe("Game.kickPlayerByIdentifier", () => {
     expect(er.onPlayerRankChanged.mock.calls[1][1]).toBe(
       Rank.RankType.UNDETERMINED
     );
-    expect(er.onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIHINMIN);
+    expect(er.onPlayerRankChanged.mock.calls[1][2]).toBe(
+      Rank.RankType.DAIHINMIN
+    );
   });
 
   it("triggers nagare callback if required", () => {
@@ -719,7 +723,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectabilityCheckResult.SELECTABLE);
+    expect(ret).toBe(Discard.SelectabilityCheckResult.SELECTABLE);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -741,7 +745,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectabilityCheckResult.ALREADY_SELECTED);
+    expect(ret).toBe(Discard.SelectabilityCheckResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -763,7 +767,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Game.SelectabilityCheckResult.NOT_SELECTABLE);
+    expect(ret).toBe(Discard.SelectabilityCheckResult.NOT_SELECTABLE);
   });
 });
 
@@ -809,7 +813,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardSelectResult.SUCCESS);
+    expect(ret).toBe(Discard.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -829,7 +833,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardSelectResult.ALREADY_SELECTED);
+    expect(ret).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -849,7 +853,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardSelectResult.NOT_SELECTABLE);
+    expect(ret).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
   });
 });
 
@@ -871,7 +875,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardDeselectResult.SUCCESS);
+    expect(ret).toBe(Discard.CardDeselectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
@@ -891,7 +895,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardDeselectResult.ALREADY_DESELECTED);
+    expect(ret).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
   });
 
   it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
@@ -911,7 +915,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Game.CardDeselectResult.NOT_DESELECTABLE);
+    expect(ret).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
   });
 });
 

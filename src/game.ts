@@ -45,7 +45,7 @@ export function createGame(
   eventReceiver: Event.EventReceiver,
   ruleConfig: Rule.RuleConfig
 ): Game {
-  const players = playerIdentifiers.map((v)=>{
+  const players = playerIdentifiers.map((v) => {
     return Player.createPlayer(v);
   });
   if (!identifiersValid(players)) {
@@ -469,15 +469,15 @@ export interface ActivePlayerControl {
   readonly controlIdentifier: string;
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
-  checkCardSelectability: (index: number) => SelectabilityCheckResult;
+  checkCardSelectability: (index: number) => Discard.SelectabilityCheckResult;
   isCardSelected: (index: number) => boolean;
-  selectCard: (index: number) => CardSelectResult;
-  deselectCard: (index: number) => CardDeselectResult;
-  enumerateDiscardPairs: () => DiscardPair[];
+  selectCard: (index: number) => Discard.CardSelectResult;
+  deselectCard: (index: number) => Discard.CardDeselectResult;
+  enumerateDiscardPairs: () => Discard.DiscardPair[];
   pass: () => void;
   hasPassed: () => boolean;
-  discard: (discardPair: DiscardPair) => DiscardResult;
-  getDiscard: () => DiscardPair;
+  discard: (discardPair: Discard.DiscardPair) => DiscardResult;
+  getDiscard: () => Discard.DiscardPair;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -497,41 +497,6 @@ export function createActivePlayerControlForTest(
   );
 }
 
-// Copying from discard module. Redefine here because I think that they're in a different domain model. Although it sounds tedious, we will convert values.
-// card selectable result
-export const SelectabilityCheckResult = {
-  SELECTABLE: 0,
-  ALREADY_SELECTED: 1,
-  NOT_SELECTABLE: 2,
-} as const;
-export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
-
-// card select result
-export const CardSelectResult = {
-  SUCCESS: 0,
-  ALREADY_SELECTED: 1,
-  NOT_SELECTABLE: 2,
-} as const;
-export type CardSelectResult = typeof CardSelectResult[keyof typeof CardSelectResult];
-
-// card deselect result
-export const CardDeselectResult = {
-  SUCCESS: 0,
-  ALREADY_DESELECTED: 1,
-  NOT_DESELECTABLE: 2,
-} as const;
-export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
-
-export interface DiscardPair {
-  cards: Card.Card[];
-  count: () => number;
-  calcCardNumber: (strengthInverted: boolean) => number;
-  calcStrength: () => number;
-  isNull: () => boolean;
-  isKaidan: () => boolean;
-  isSameFrom: (discardPair: DiscardPair) => boolean;
-}
-
 export class ActivePlayerControlError extends Error {}
 
 class ActivePlayerControlImple implements ActivePlayerControl {
@@ -541,7 +506,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
   private passed: boolean;
-  private discardPair: DiscardPair | null;
+  private discardPair: Discard.DiscardPair | null;
   constructor(
     controlIdentifier: string,
     playerIdentifier: string,
@@ -562,25 +527,25 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.hand.cards;
   }
 
-  public checkCardSelectability(index: number): SelectabilityCheckResult {
-    return this.convertSelectabilityCheckResult(
-      this.discardPlanner.checkSelectability(index)
-    );
+  public checkCardSelectability(
+    index: number
+  ): Discard.SelectabilityCheckResult {
+    return this.discardPlanner.checkSelectability(index);
   }
 
   public isCardSelected(index: number): boolean {
     return this.discardPlanner.isSelected(index);
   }
 
-  public selectCard(index: number): CardSelectResult {
-    return this.convertCardSelectResult(this.discardPlanner.select(index));
+  public selectCard(index: number): Discard.CardSelectResult {
+    return this.discardPlanner.select(index);
   }
 
-  public deselectCard(index: number): CardDeselectResult {
-    return this.convertCardDeselectResult(this.discardPlanner.deselect(index));
+  public deselectCard(index: number): Discard.CardDeselectResult {
+    return this.discardPlanner.deselect(index);
   }
 
-  public enumerateDiscardPairs(): DiscardPair[] {
+  public enumerateDiscardPairs(): Discard.DiscardPair[] {
     return this.discardPairEnumerator.enumerate(
       ...this.discardPlanner.enumerateSelectedCards()
     );
@@ -595,7 +560,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.passed;
   }
 
-  public discard(dp: DiscardPair): DiscardResult {
+  public discard(dp: Discard.DiscardPair): DiscardResult {
     const matched = this.enumerateDiscardPairs().filter((v) => {
       return v.isSameFrom(dp);
     });
@@ -608,36 +573,10 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return DiscardResult.SUCCESS;
   }
 
-  public getDiscard(): DiscardPair {
+  public getDiscard(): Discard.DiscardPair {
     if (this.discardPair === null) {
       throw new ActivePlayerControlError("cannot get discard when passed");
     }
     return this.discardPair;
-  }
-
-  private convertSelectabilityCheckResult(
-    ret: Discard.SelectabilityCheckResult
-  ): SelectabilityCheckResult {
-    return ret == Discard.SelectabilityCheckResult.SELECTABLE
-      ? SelectabilityCheckResult.SELECTABLE
-      : ret == Discard.SelectabilityCheckResult.ALREADY_SELECTED
-      ? SelectabilityCheckResult.ALREADY_SELECTED
-      : SelectabilityCheckResult.NOT_SELECTABLE;
-  }
-
-  private convertCardSelectResult(ret: Discard.CardSelectResult) {
-    return ret == Discard.CardSelectResult.SUCCESS
-      ? CardSelectResult.SUCCESS
-      : ret == Discard.CardSelectResult.ALREADY_SELECTED
-      ? CardSelectResult.ALREADY_SELECTED
-      : CardSelectResult.NOT_SELECTABLE;
-  }
-
-  private convertCardDeselectResult(ret: Discard.CardSelectResult) {
-    return ret == Discard.CardDeselectResult.SUCCESS
-      ? CardDeselectResult.SUCCESS
-      : ret == Discard.CardDeselectResult.ALREADY_DESELECTED
-      ? CardDeselectResult.ALREADY_DESELECTED
-      : CardDeselectResult.NOT_DESELECTABLE;
   }
 }
