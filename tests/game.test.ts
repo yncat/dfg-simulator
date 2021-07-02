@@ -35,12 +35,23 @@ function createMockEventReceiver() {
 
 describe("createGame", () => {
   it("returns a new game instance and properly initializes related objects", () => {
+    const er = createMockEventReceiver();
     const g = Game.createGame(
       ["a", "b", "c"],
-      createMockEventReceiver(),
+      er,
       Rule.createDefaultRuleConfig()
     );
     expect(g).not.toBeNull();
+    expect(er.onInitialInfoProvided).toHaveBeenCalled();
+    expect(er.onInitialInfoProvided.mock.calls[0][0]).toBe(3); // player count
+    expect(er.onInitialInfoProvided.mock.calls[0][1]).toBe(1); // deck count
+    expect(er.onCardsProvided).toHaveBeenCalled();
+    expect(er.onCardsProvided.mock.calls[0][0]).toBe("a");
+    expect(er.onCardsProvided.mock.calls[0][1]).toBe(18);
+    expect(er.onCardsProvided.mock.calls[1][0]).toBe("b");
+    expect(er.onCardsProvided.mock.calls[1][1]).toBe(18);
+    expect(er.onCardsProvided.mock.calls[2][0]).toBe("c");
+    expect(er.onCardsProvided.mock.calls[2][1]).toBe(18);
     expect(g.startInfo.playerCount).toBe(3);
     expect(g.startInfo.handCounts).toStrictEqual([18, 18, 18]);
   });

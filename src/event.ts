@@ -15,6 +15,14 @@ type PlayerRankChangedCallback = (
   before: RankType,
   after: RankType
 ) => void;
+type InitialInfoProvidedCallback = (
+  playerCount: number,
+  deckCount: number
+) => void;
+type CardsProvidedCallback = (
+  identifier: string,
+  providedCount: number
+) => void;
 
 export interface EventReceiver {
   onNagare: NagareCallback;
@@ -28,4 +36,6 @@ export interface EventReceiver {
   onGameEnd: GameEndCallback;
   onPlayerKicked: PlayerKickedCallback;
   onPlayerRankChanged: PlayerRankChangedCallback;
+  onInitialInfoProvided: InitialInfoProvidedCallback;
+  onCardsProvided: CardsProvidedCallback;
 }

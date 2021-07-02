@@ -281,6 +281,16 @@ export class GameImple implements Game {
   }
 
   private makeStartInfo(): StartInfo {
+    this.eventReceiver.onInitialInfoProvided(
+      this.players.length,
+      CalcFunctions.calcRequiredDeckCount(this.players.length)
+    );
+    for (let i = 0; i < this.players.length; i++) {
+      this.eventReceiver.onCardsProvided(
+        this.players[i].identifier,
+        this.players[i].hand.count()
+      );
+    }
     return {
       playerCount: this.players.length,
       playerIdentifiers: this.enumeratePlayerIdentifiers(),
