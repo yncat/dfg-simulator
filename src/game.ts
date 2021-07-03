@@ -254,6 +254,10 @@ export class GameImple implements Game {
     this.players = this.players.filter((v) => {
       return v.identifier != identifier;
     });
+    // Adjust active player index when required
+    if (this.activePlayerIndex >= this.players.length) {
+      this.activePlayerIndex = this.players.length - 1;
+    }
   }
 
   private recalcAlreadyRankedPlayers() {
