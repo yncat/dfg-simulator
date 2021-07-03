@@ -1,15 +1,16 @@
 import { RankType } from "./rank";
+import { DiscardPair } from "./discard";
 
 type NagareCallback = () => void;
-type AgariCallback = () => void;
-type YagiriCallback = () => void;
-type JBackCallback = () => void;
-type KakumeiCallback = () => void;
+type AgariCallback = (identifier: string) => void;
+type YagiriCallback = (identifier: string) => void;
+type JBackCallback = (identifier: string) => void;
+type KakumeiCallback = (identifier: string) => void;
 type StrengthInversionCallback = (strengthInverted: boolean) => void;
-type DiscardCallback = () => void;
-type PassCallback = () => void;
+type DiscardCallback = (identifier: string, discardPair: DiscardPair) => void;
+type PassCallback = (identifier: string) => void;
 type GameEndCallback = () => void;
-type PlayerKickedCallback = () => void;
+type PlayerKickedCallback = (identifier: string) => void;
 type PlayerRankChangedCallback = (
   identifier: string,
   before: RankType,

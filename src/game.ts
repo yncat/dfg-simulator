@@ -203,7 +203,7 @@ export class GameImple implements Game {
       throw new GameError("player to kick is not found");
     }
 
-    this.eventReceiver.onPlayerKicked();
+    this.eventReceiver.onPlayerKicked(p.identifier);
     const wasActive = p === this.players[this.activePlayerIndex];
     // if the kicked player is currently active, internally go back to the previously active player.
     if (wasActive) {
@@ -298,7 +298,7 @@ export class GameImple implements Game {
 
   private processDiscardOrPass(activePlayerControl: ActivePlayerControl) {
     if (activePlayerControl.hasPassed()) {
-      this.eventReceiver.onPass();
+      this.eventReceiver.onPass(activePlayerControl.playerIdentifier);
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
@@ -306,7 +306,10 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = this.players[
       this.activePlayerIndex
     ].identifier;
-    this.eventReceiver.onDiscard();
+    this.eventReceiver.onDiscard(
+      this.lastDiscarderIdentifier,
+      this.lastDiscardPair
+    );
   }
 
   private processPlayerHandUpdate(activePlayerControl: ActivePlayerControl) {
@@ -325,7 +328,7 @@ export class GameImple implements Game {
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
-      this.eventReceiver.onJBack();
+      this.eventReceiver.onJBack(activePlayerControl.playerIdentifier);
       this.eventReceiver.onStrengthInversion(this.strengthInverted);
     }
   }
@@ -337,7 +340,7 @@ export class GameImple implements Game {
     const dp = activePlayerControl.getDiscard();
     if (dp.count() >= 4) {
       this.invertStrength();
-      this.eventReceiver.onKakumei();
+      this.eventReceiver.onKakumei(activePlayerControl.playerIdentifier);
       this.eventReceiver.onStrengthInversion(this.strengthInverted);
     }
   }
@@ -352,7 +355,7 @@ export class GameImple implements Game {
     }
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
-      this.eventReceiver.onYagiri();
+      this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
       this.eventReceiver.onNagare();
       this.activePlayerActionCount++;
       return true;
@@ -411,7 +414,7 @@ export class GameImple implements Game {
   private processAgariCheck() {
     const p = this.players[this.activePlayerIndex];
     if (p.hand.count() == 0) {
-      this.eventReceiver.onAgari();
+      this.eventReceiver.onAgari(p.identifier);
       this.agariPlayerIdentifiers.push(p.identifier);
       const pos = this.agariPlayerIdentifiers.length;
       const ret = p.rank.determine(this.players.length, pos);
