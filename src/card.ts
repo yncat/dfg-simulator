@@ -19,6 +19,7 @@ export type CardNumber = number;
 class InvalidCardError extends Error {}
 
 export class Card {
+  private wildcard: boolean; // When true, it means that the card was originally a joker and is now used as a wildcard.
   constructor(public mark: CardMark, public cardNumber: CardNumber = 0) {
     if (cardNumber < 0 || cardNumber > 13) {
       throw new InvalidCardError("card number range must be 0(joker) to 13");
@@ -31,12 +32,23 @@ export class Card {
         "card number must not be 0 when it is not a joker"
       );
     }
+    this.wildcard = false;
   }
 
   public isSameFrom(anotherCard: Card): boolean {
     return (
-      this.mark == anotherCard.mark && this.cardNumber == anotherCard.cardNumber
+      this.mark == anotherCard.mark &&
+      this.cardNumber == anotherCard.cardNumber &&
+      this.isWildcard() == anotherCard.isWildcard()
     );
+  }
+
+  public flagAsWildcard() {
+    this.wildcard = true;
+  }
+
+  public isWildcard(): boolean {
+    return this.wildcard;
   }
 
   public isJoker(): boolean {
@@ -48,6 +60,10 @@ export class Card {
   }
 
   public copy(): Card {
-    return new Card(this.mark, this.cardNumber);
+    const c = new Card(this.mark, this.cardNumber);
+    if (this.wildcard) {
+      c.flagAsWildcard();
+    }
+    return c;
   }
 }

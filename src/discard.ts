@@ -589,6 +589,7 @@ export class DiscardPairEnumerator {
       const cds = this.filterJokers();
       // Just for symplicity, use the first element as joker's wildcard target.
       const wc = cds[0];
+      wc.flagAsWildcard();
       for (let i = 0; i < this.countJokers(); i++) {
         cds.push(wc.copy());
       }
@@ -656,10 +657,14 @@ export class DiscardPairEnumerator {
     const dps: DiscardPair[] = [];
     for (let i = 0; i < coms.length; i++) {
       const wcds = coms[i].weakerCardNumbers.map((v) => {
-        return new Card.Card(mark, v);
+        const c = new Card.Card(mark, v);
+        c.flagAsWildcard();
+        return c;
       });
       const scds = coms[i].strongerCardNumbers.map((v) => {
-        return new Card.Card(mark, v);
+        const c = new Card.Card(mark, v);
+        c.flagAsWildcard();
+        return c;
       });
       dps.push(new DiscardPairImple(wcds.concat(cds).concat(scds)));
     }
@@ -668,7 +673,9 @@ export class DiscardPairEnumerator {
     if (cds.length == 1) {
       const cps: Card.Card[] = [];
       for (let i = 0; i < jokers; i++) {
-        cps.push(cds[0].copy());
+        const c = cds[0].copy();
+        c.flagAsWildcard();
+        cps.push(c);
       }
       dps.push(new DiscardPairImple(cds.concat(cps)));
     }

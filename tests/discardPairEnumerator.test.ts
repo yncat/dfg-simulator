@@ -48,20 +48,27 @@ describe("enumerate", () => {
 
   describe("with one numbered card and two jokers", () => {
     it("returns DiscardPair instances for possible wildcard patterns", () => {
-      const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
-      const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
+      const h5w = new Card.Card(Card.CardMark.HEARTS, 5);
+      h5w.flagAsWildcard();
+      const h6w = new Card.Card(Card.CardMark.HEARTS, 6);
+      h6w.flagAsWildcard();
       const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
-      const h8 = new Card.Card(Card.CardMark.HEARTS, 8);
-      const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
+      const h7w = new Card.Card(Card.CardMark.HEARTS, 7);
+      h7w.flagAsWildcard();
+      const h8w = new Card.Card(Card.CardMark.HEARTS, 8);
+      h8w.flagAsWildcard();
+      h8w.flagAsWildcard();
+      const h9w = new Card.Card(Card.CardMark.HEARTS, 9);
+      h9w.flagAsWildcard();
       const joker = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(h7, joker, joker);
       expect(dps.length).toBe(4);
-      expect(dps[0]["cards"]).toStrictEqual([h5, h6, h7]);
-      expect(dps[1]["cards"]).toStrictEqual([h6, h7, h8]);
-      expect(dps[2]["cards"]).toStrictEqual([h7, h8, h9]);
-      expect(dps[3]["cards"]).toStrictEqual([h7, h7, h7]);
+      expect(dps[0]["cards"]).toStrictEqual([h5w, h6w, h7]);
+      expect(dps[1]["cards"]).toStrictEqual([h6w, h7, h8w]);
+      expect(dps[2]["cards"]).toStrictEqual([h7, h8w, h9w]);
+      expect(dps[3]["cards"]).toStrictEqual([h7, h7w, h7w]);
     });
   });
 });
