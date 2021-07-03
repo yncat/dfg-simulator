@@ -445,6 +445,41 @@ describe("Game.finishActivePlayerControl", () => {
     expect(ctrl2.playerIdentifier).toBe("a");
   });
 
+  it("do not trigger Yagiri when disabled by ruleConfig", () => {
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onYagiri).not.toHaveBeenCalled();
+    expect(er.onNagare).not.toHaveBeenCalled();
+    const ctrl2 = g.startActivePlayerControl();
+    expect(ctrl2.playerIdentifier).toBe("b");
+  });
+
   it("reset JBack by nagare with yagiri", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
     const p1 = Player.createPlayer("a");
@@ -515,6 +550,38 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 
+  it("do not triggers JBack when disabled by ruleConfig", () => {
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 11);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["strengthInverted"]).toBeFalsy();
+    expect(er.onJBack).not.toHaveBeenCalled();
+    expect(er.onStrengthInversion).not.toHaveBeenCalled();
+  });
+
   it("triggers Kakumei", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     const p1 = Player.createPlayer("a");
@@ -550,6 +617,41 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onKakumei).toHaveBeenCalled();
     expect(er.onStrengthInversion).toHaveBeenCalled();
     expect(er.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
+  });
+
+  it("do not trigger Kakumei when disabled by ruleConfig", () => {
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c1, c1, c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["strengthInverted"]).toBeFalsy();
+    expect(er.onKakumei).not.toHaveBeenCalled();
+    expect(er.onStrengthInversion).not.toHaveBeenCalled();
   });
 });
 
