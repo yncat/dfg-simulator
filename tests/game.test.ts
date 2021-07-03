@@ -177,6 +177,42 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     expect(r.onPass).toHaveBeenCalled();
     expect(r.onNagare).toHaveBeenCalled();
+    expect(r.onStrengthInversion).not.toHaveBeenCalled();
+  });
+
+  it("reset JBack by nagare with everyone's pass", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const r = createMockEventReceiver();
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: r,
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    g["inJBack"] = true;
+    let ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    expect(dps[0].cards).toStrictEqual([c1]);
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+    ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    g.finishActivePlayerControl(ctrl);
+    expect(r.onPass).toHaveBeenCalled();
+    expect(r.onNagare).toHaveBeenCalled();
+    expect(r.onStrengthInversion).toHaveBeenCalled();
   });
 
   it("emits agari event when player hand gets empty", () => {
@@ -403,9 +439,46 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(0);
     expect(g["activePlayerActionCount"]).toBe(1);
     expect(er.onYagiri).toHaveBeenCalled();
+    expect(er.onStrengthInversion).not.toHaveBeenCalled();
     expect(er.onNagare).toHaveBeenCalled();
     const ctrl2 = g.startActivePlayerControl();
     expect(ctrl2.playerIdentifier).toBe("a");
+  });
+
+  it("reset JBack by nagare with yagiri", () => {
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.yagiri = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = new Game.GameImple(params);
+    g["inJBack"] = true;
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(1);
+    expect(er.onYagiri).toHaveBeenCalled();
+    expect(er.onNagare).toHaveBeenCalled();
+    expect(er.onStrengthInversion).toHaveBeenCalled();
   });
 
   it("triggers JBack", () => {

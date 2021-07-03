@@ -144,6 +144,7 @@ export class GameImple implements Game {
   private gameEnded: boolean; // cach the game finish state for internal use
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
+  private inJBack: boolean;
 
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
@@ -158,6 +159,7 @@ export class GameImple implements Game {
     this.eventReceiver = params.eventReceiver;
     this.ruleConfig = params.ruleConfig;
     this.gameEnded = false;
+    this.inJBack = false;
     this.makeStartInfo();
   }
 
@@ -353,6 +355,7 @@ export class GameImple implements Game {
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
       this.eventReceiver.onJBack(activePlayerControl.playerIdentifier);
+      this.inJBack = true;
       this.eventReceiver.onStrengthInversion(this.strengthInverted);
     }
   }
@@ -381,10 +384,19 @@ export class GameImple implements Game {
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
       this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
       this.eventReceiver.onNagare();
+      this.processJBackReset();
       this.activePlayerActionCount++;
       return true;
     }
     return false;
+  }
+
+  private processJBackReset() {
+    if (this.inJBack) {
+      this.inJBack = false;
+      this.invertStrength();
+      this.eventReceiver.onStrengthInversion(this.strengthInverted);
+    }
   }
 
   private processTurnAdvancement() {
@@ -404,6 +416,7 @@ export class GameImple implements Game {
         this.lastDiscarderIdentifier
       ) {
         this.eventReceiver.onNagare();
+        this.processJBackReset();
       }
       if (
         this.players[this.activePlayerIndex].rank.getRankType() ==
