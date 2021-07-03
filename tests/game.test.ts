@@ -480,6 +480,115 @@ describe("Game.finishActivePlayerControl", () => {
   });
 });
 
+describe("gameImple.isEnded", () => {
+  it("returns false when the game is not ended yet", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    expect(g.isEnded()).toBeFalsy();
+  });
+
+  it("returns true when game has ended", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g.isEnded()).toBeTruthy();
+  });
+
+  it("returns true when the game is ended by the last player got kicked", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    p1.rank.force(Rank.RankType.FUGO);
+    p2.rank.force(Rank.RankType.DAIFUGO);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: ["b", "a"],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.kickPlayerByIdentifier("b");
+    expect(g.isEnded()).toBeTruthy();
+  });
+});
+
+describe("gameImple.enumeratePlayerRanks", () => {
+  it("can enumerate all players current ranks", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    p1.rank.force(Rank.RankType.DAIFUGO);
+    p2.rank.force(Rank.RankType.HEIMIN);
+    p3.rank.force(Rank.RankType.DAIHINMIN);
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      lastDiscardPair: Discard.createNullDiscardPair(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    const ret = g.enumeratePlayerRanks();
+    expect(ret[0]).toStrictEqual({
+      identifier: "a",
+      rank: Rank.RankType.DAIFUGO,
+    });
+    expect(ret[1]).toStrictEqual({
+      identifier: "b",
+      rank: Rank.RankType.HEIMIN,
+    });
+    expect(ret[2]).toStrictEqual({
+      identifier: "c",
+      rank: Rank.RankType.DAIHINMIN,
+    });
+  });
+});
+
 describe("Game.kickPlayerByIdentifier", () => {
   it("throws an error when nonexistent player identifier is passed", () => {
     const p1 = Player.createPlayer("a");

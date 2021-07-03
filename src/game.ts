@@ -11,12 +11,19 @@ import * as Deck from "./deck";
 import * as Discard from "./discard";
 import * as CalcFunctions from "./calcFunctions";
 
+export type PlayerRank = {
+  identifier: string;
+  rank: Rank.RankType;
+};
+
 export class GameError extends Error {}
 export class GameCreationError extends Error {}
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
+  enumeratePlayerRanks: () => PlayerRank[];
+  isEnded: () => boolean;
   kickPlayerByIdentifier(identifier: string): void;
 }
 
@@ -195,6 +202,19 @@ export class GameImple implements Game {
     if (!yagiriTriggered) {
       this.processTurnAdvancement();
     }
+  }
+
+  public enumeratePlayerRanks(): PlayerRank[] {
+    return this.players.map((v) => {
+      return {
+        identifier: v.identifier,
+        rank: v.rank.getRankType(),
+      };
+    });
+  }
+
+  public isEnded(): boolean {
+    return this.gameEnded;
   }
 
   public kickPlayerByIdentifier(identifier: string): void {
