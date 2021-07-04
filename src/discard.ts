@@ -597,7 +597,20 @@ export class DiscardPairEnumerator {
     }
     // There may be multiple solutions, so we need to check and enumerate each of them.
     const range = this.calcKaidanRange();
-    const jokers = this.countJokers();
+    let jokers = this.countJokers();
+    // First, we use jokers to fill the missing parts of the kaidan, if any.
+    if (range.weakestCardNumber != range.strongestCardNumber) {
+      jokers = this.fillMissingKaidanCards(
+        jokers,
+        range.weakestCardNumber,
+        range.strongestCardNumber
+      );
+      if (jokers == 0) {
+        // all jokers have been used
+        // fillMissingKaidanCards already changed this.selectedCards and replaced jokers to wildcards.
+        return [new DiscardPairImple(this.selectedCards)];
+      }
+    }
     // Since the combination is a kaidan, jokers cannot be used as wildcards of same number.
     // First, we place all jokers to the weaker direction.
     // If there's no place left, use stronger direction instead.
@@ -683,6 +696,69 @@ export class DiscardPairEnumerator {
     return dps;
   }
 
+  private fillMissingKaidanCards(
+    jokers: number,
+    weakestCardNumber: Card.CardNumber,
+    strongestCardNumber: Card.CardNumber
+  ) {
+    // Dynamically replace the missing kaidan cards with existing jokers.
+    let njokers = jokers;
+    let ofs = weakestCardNumber;
+    while (true) {
+      const next = CalcFunctions.calcStrongerCardNumber(
+        ofs,
+        this.strengthInverted
+      );
+      if (next === null) {
+        throw new Error(
+          "tried to search for stronger number even if weakest -> strongest are defined"
+        );
+      }
+      ofs = next;
+      if (ofs == strongestCardNumber) {
+        break;
+      }
+      if (!this.hasCardWithNumber(ofs)) {
+        if (njokers == 0) {
+          this.sort();
+          return 0;
+        }
+        njokers--;
+        this.removeJoker();
+        const wc = new Card.Card(Card.CardMark.DIAMONDS, ofs);
+        wc.flagAsWildcard();
+        this.selectedCards.push(wc);
+      }
+    }
+    this.sort();
+    return njokers;
+  }
+
+  private removeJoker() {
+    for (let i = 0; i < this.selectedCards.length; i++) {
+      if (this.selectedCards[i].isJoker()) {
+        this.selectedCards.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  public sort(): void {
+    // copied from card.sort
+    this.selectedCards.sort((a, b) => {
+      if (a.cardNumber == b.cardNumber) {
+        return 0;
+      }
+      if (a.isJoker()) {
+        return 1;
+      }
+      if (b.isJoker()) {
+        return -1;
+      }
+      return a.calcStrength() < b.calcStrength() ? -1 : 1;
+    });
+  }
+
   private prune(pairs: DiscardPair[], lastPair: DiscardPair) {
     // Prunes discard pairs that are not playable after the given last pair.
     return lastPair.isNull()
@@ -723,6 +799,14 @@ export class DiscardPairEnumerator {
     });
   }
 
+  private hasCardWithNumber(cardNumber: Card.CardNumber) {
+    return (
+      this.selectedCards.filter((val) => {
+        return val.cardNumber == cardNumber;
+      }).length > 0
+    );
+  }
+
   private hasSameNumberedCards() {
     const cds = this.selectedCards.filter((v) => {
       return !v.isJoker();
@@ -736,8 +820,9 @@ export class DiscardPairEnumerator {
   }
 
   private calcKaidanRange() {
-    // get the weakest an strongest card number in a kaidan.
+    // get the weakest and strongest card number in a kaidan.
     // This function does not consider jokers.
+    // even if the numbers between the weakest and strongest are not actually connected, it still returns them, assuming that the missing parts can be wildcarded with jokers.
     const cds = this.selectedCards.filter((v) => {
       return !v.isJoker();
     });

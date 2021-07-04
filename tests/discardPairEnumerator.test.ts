@@ -57,7 +57,6 @@ describe("enumerate", () => {
       h7w.flagAsWildcard();
       const h8w = new Card.Card(Card.CardMark.HEARTS, 8);
       h8w.flagAsWildcard();
-      h8w.flagAsWildcard();
       const h9w = new Card.Card(Card.CardMark.HEARTS, 9);
       h9w.flagAsWildcard();
       const joker = new Card.Card(Card.CardMark.JOKER);
@@ -69,6 +68,19 @@ describe("enumerate", () => {
       expect(dps[1]["cards"]).toStrictEqual([h6w, h7, h8w]);
       expect(dps[2]["cards"]).toStrictEqual([h7, h8w, h9w]);
       expect(dps[3]["cards"]).toStrictEqual([h7, h7w, h7w]);
+    });
+
+    it("uses jokers for connecting kaidan", () => {
+      const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
+      const d8w = new Card.Card(Card.CardMark.DIAMONDS, 8);
+      d8w.flagAsWildcard();
+      const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
+      const joker = new Card.Card(Card.CardMark.JOKER);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false);
+      const dps = e.enumerate(h7, h9, joker);
+      expect(dps.length).toBe(1);
+      expect(dps[0]["cards"]).toStrictEqual([h7, d8w, h9]);
     });
   });
 });
@@ -97,6 +109,72 @@ describe("filterJokers", () => {
       new Card.Card(Card.CardMark.JOKER),
     ];
     expect(e["filterJokers"]()).toStrictEqual([c]);
+  });
+});
+
+describe("hasCardWithNumber", () => {
+  it("returns true when the specified card is in list", () => {
+    const c = new Card.Card(Card.CardMark.SPADES, 7);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    e["selectedCards"] = [c];
+    expect(e["hasCardWithNumber"](7)).toBeTruthy();
+  });
+
+  it("returns false when the specified card is not in list", () => {
+    const c = new Card.Card(Card.CardMark.SPADES, 7);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    e["selectedCards"] = [c];
+    expect(e["hasCardWithNumber"](9)).toBeFalsy();
+  });
+});
+
+describe("fillMissingKaidanCards", () => {
+  it("use one joker", () => {
+    const c1 = new Card.Card(Card.CardMark.SPADES, 7);
+    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    wc1.flagAsWildcard();
+    const c2 = new Card.Card(Card.CardMark.SPADES, 9);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    e["selectedCards"] = [c1, c2, joker];
+    const jokers = e["fillMissingKaidanCards"](1, 7, 9);
+    expect(jokers).toBe(0);
+    expect(e["selectedCards"]).toStrictEqual([c1, wc1, c2]);
+  });
+
+  it("use two jokers", () => {
+    const c1 = new Card.Card(Card.CardMark.SPADES, 7);
+    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    wc1.flagAsWildcard();
+    const wc2 = new Card.Card(Card.CardMark.DIAMONDS, 9);
+    wc2.flagAsWildcard();
+    const c2 = new Card.Card(Card.CardMark.SPADES, 10);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    e["selectedCards"] = [c1, c2, joker, joker];
+    const jokers = e["fillMissingKaidanCards"](2, 7, 10);
+    expect(jokers).toBe(0);
+    expect(e["selectedCards"]).toStrictEqual([c1, wc1, wc2, c2]);
+  });
+
+  it("use two jokers and another joker remains", () => {
+    const c1 = new Card.Card(Card.CardMark.SPADES, 7);
+    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    wc1.flagAsWildcard();
+    const wc2 = new Card.Card(Card.CardMark.DIAMONDS, 9);
+    wc2.flagAsWildcard();
+    const c2 = new Card.Card(Card.CardMark.SPADES, 10);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const d = Discard.CreateDiscardPairForTest();
+    const e = new Discard.DiscardPairEnumerator(d, false);
+    e["selectedCards"] = [c1, c2, joker, joker, joker];
+    const jokers = e["fillMissingKaidanCards"](3, 7, 10);
+    expect(jokers).toBe(1);
+    expect(e["selectedCards"]).toStrictEqual([c1, wc1, wc2, c2, joker]);
   });
 });
 
