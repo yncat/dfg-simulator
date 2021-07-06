@@ -1,4 +1,3 @@
-import { isExportDeclaration } from "typescript";
 import * as Card from "../src/card";
 
 describe("Card", () => {
