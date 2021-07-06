@@ -50,13 +50,12 @@ describe("Card", () => {
     const c2 = c1.copy();
     expect(c1.mark).toBe(c2.mark);
     expect(c1.cardNumber).toBe(c2.cardNumber);
-    expect(c1.isWildcard()).toBe(c2.isWildcard());
   });
 
   it("Can flag as a wildcard and check its wildcard status", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 3);
-    expect(c1.isWildcard()).toBeFalsy();
-    c1.flagAsWildcard();
-    expect(c1.isWildcard()).toBeTruthy();
+    const c1r = c1.flagAsWildcard();
+    expect(c1.mark).toBe(Card.CardMark.WILD);
+    expect(c1).toBe(c1r);
   });
 });

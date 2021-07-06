@@ -36,29 +36,25 @@ describe("enumerate", () => {
   describe("with same numbered pair with jokers", () => {
     it("returns DiscardPair of the given cards, wildcarding jokers correctly", () => {
       const c1 = new Card.Card(Card.CardMark.HEARTS, 7);
+      const c1w = new Card.Card(Card.CardMark.WILD, 7);
       const c2 = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
       const dps = e.enumerate(c1, c1, c2);
       expect(dps.length).toBe(1);
       const dp = dps[0];
-      expect(dp["cards"]).toStrictEqual([c1, c1, c1]);
+      expect(dp["cards"]).toStrictEqual([c1, c1, c1w]);
     });
   });
 
   describe("with one numbered card and two jokers", () => {
     it("returns DiscardPair instances for possible wildcard patterns", () => {
-      const h5w = new Card.Card(Card.CardMark.HEARTS, 5);
-      h5w.flagAsWildcard();
-      const h6w = new Card.Card(Card.CardMark.HEARTS, 6);
-      h6w.flagAsWildcard();
+      const h5w = new Card.Card(Card.CardMark.WILD, 5);
+      const h6w = new Card.Card(Card.CardMark.WILD, 6);
       const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
-      const h7w = new Card.Card(Card.CardMark.HEARTS, 7);
-      h7w.flagAsWildcard();
-      const h8w = new Card.Card(Card.CardMark.HEARTS, 8);
-      h8w.flagAsWildcard();
-      const h9w = new Card.Card(Card.CardMark.HEARTS, 9);
-      h9w.flagAsWildcard();
+      const h7w = new Card.Card(Card.CardMark.WILD, 7);
+      const h8w = new Card.Card(Card.CardMark.WILD, 8);
+      const h9w = new Card.Card(Card.CardMark.WILD, 9);
       const joker = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
@@ -72,8 +68,7 @@ describe("enumerate", () => {
 
     it("uses jokers for connecting kaidan", () => {
       const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
-      const d8w = new Card.Card(Card.CardMark.DIAMONDS, 8);
-      d8w.flagAsWildcard();
+      const d8w = new Card.Card(Card.CardMark.WILD, 8);
       const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
       const joker = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
@@ -84,14 +79,11 @@ describe("enumerate", () => {
     });
 
     it("uses jokers for connecting kaidan and enumerate all patterns for remaining jokers", () => {
-      const h6w = new Card.Card(Card.CardMark.HEARTS, 6);
-      h6w.flagAsWildcard();
+      const h6w = new Card.Card(Card.CardMark.WILD, 6);
       const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
-      const d8w = new Card.Card(Card.CardMark.DIAMONDS, 8);
-      d8w.flagAsWildcard();
+      const d8w = new Card.Card(Card.CardMark.WILD, 8);
       const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
-      const h10w = new Card.Card(Card.CardMark.HEARTS, 10);
-      h10w.flagAsWildcard();
+      const h10w = new Card.Card(Card.CardMark.WILD, 10);
       const joker = new Card.Card(Card.CardMark.JOKER);
       const d = Discard.CreateDiscardPairForTest();
       const e = new Discard.DiscardPairEnumerator(d, false);
@@ -151,8 +143,7 @@ describe("hasCardWithNumber", () => {
 describe("fillMissingKaidanCards", () => {
   it("use one joker", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 7);
-    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
-    wc1.flagAsWildcard();
+    const wc1 = new Card.Card(Card.CardMark.WILD, 8);
     const c2 = new Card.Card(Card.CardMark.SPADES, 9);
     const joker = new Card.Card(Card.CardMark.JOKER);
     const d = Discard.CreateDiscardPairForTest();
@@ -165,10 +156,8 @@ describe("fillMissingKaidanCards", () => {
 
   it("use two jokers", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 7);
-    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
-    wc1.flagAsWildcard();
-    const wc2 = new Card.Card(Card.CardMark.DIAMONDS, 9);
-    wc2.flagAsWildcard();
+    const wc1 = new Card.Card(Card.CardMark.WILD, 8);
+    const wc2 = new Card.Card(Card.CardMark.WILD, 9);
     const c2 = new Card.Card(Card.CardMark.SPADES, 10);
     const joker = new Card.Card(Card.CardMark.JOKER);
     const d = Discard.CreateDiscardPairForTest();
@@ -181,10 +170,8 @@ describe("fillMissingKaidanCards", () => {
 
   it("use two jokers and another joker remains", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 7);
-    const wc1 = new Card.Card(Card.CardMark.DIAMONDS, 8);
-    wc1.flagAsWildcard();
-    const wc2 = new Card.Card(Card.CardMark.DIAMONDS, 9);
-    wc2.flagAsWildcard();
+    const wc1 = new Card.Card(Card.CardMark.WILD, 8);
+    const wc2 = new Card.Card(Card.CardMark.WILD, 9);
     const c2 = new Card.Card(Card.CardMark.SPADES, 10);
     const joker = new Card.Card(Card.CardMark.JOKER);
     const d = Discard.CreateDiscardPairForTest();

@@ -589,9 +589,8 @@ export class DiscardPairEnumerator {
       const cds = this.filterJokers();
       // Just for symplicity, use the first element as joker's wildcard target.
       const wc = cds[0];
-      wc.flagAsWildcard();
       for (let i = 0; i < this.countJokers(); i++) {
-        cds.push(wc.copy());
+        cds.push(wc.copy().flagAsWildcard());
       }
       return [new DiscardPairImple(cds)];
     }
