@@ -82,6 +82,24 @@ describe("enumerate", () => {
       expect(dps.length).toBe(1);
       expect(dps[0]["cards"]).toStrictEqual([h7, d8w, h9]);
     });
+
+    it("uses jokers for connecting kaidan and enumerate all patterns for remaining jokers", () => {
+      const h6w = new Card.Card(Card.CardMark.HEARTS, 6);
+      h6w.flagAsWildcard();
+      const h7 = new Card.Card(Card.CardMark.HEARTS, 7);
+      const d8w = new Card.Card(Card.CardMark.DIAMONDS, 8);
+      d8w.flagAsWildcard();
+      const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
+      const h10w = new Card.Card(Card.CardMark.HEARTS, 10);
+      h10w.flagAsWildcard();
+      const joker = new Card.Card(Card.CardMark.JOKER);
+      const d = Discard.CreateDiscardPairForTest();
+      const e = new Discard.DiscardPairEnumerator(d, false);
+      const dps = e.enumerate(h7, h9, joker, joker);
+      expect(dps.length).toBe(2);
+      expect(dps[0]["cards"]).toStrictEqual([h6w, h7, d8w, h9]);
+      expect(dps[1]["cards"]).toStrictEqual([h7, d8w, h9, h10w]);
+    });
   });
 });
 
