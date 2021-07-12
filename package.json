@@ -1,6 +1,6 @@
 {
   "name": "dfg-simulator",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Daifugo card game simulation library",
   "main": "dist/index.js",
   "scripts": {
