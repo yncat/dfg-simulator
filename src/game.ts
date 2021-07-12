@@ -351,6 +351,10 @@ export class GameImple implements Game {
     if (!this.ruleConfig.jBack) {
       return;
     }
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
@@ -378,6 +382,9 @@ export class GameImple implements Game {
 
   private processYagiri(activePlayerControl: ActivePlayerControl) {
     if (!this.ruleConfig.yagiri) {
+      return false;
+    }
+    if (activePlayerControl.hasPassed()) {
       return false;
     }
     const dp = activePlayerControl.getDiscard();
