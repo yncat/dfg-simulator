@@ -368,6 +368,10 @@ export class GameImple implements Game {
     if (!this.ruleConfig.kakumei) {
       return;
     }
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+
     const dp = activePlayerControl.getDiscard();
     if (dp.count() >= 4) {
       this.invertStrength();
