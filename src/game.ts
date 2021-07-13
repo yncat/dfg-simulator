@@ -394,12 +394,17 @@ export class GameImple implements Game {
     const dp = activePlayerControl.getDiscard();
     if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
       this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
-      this.eventReceiver.onNagare();
-      this.processJBackReset();
+      this.processNagare();
       this.activePlayerActionCount++;
       return true;
     }
     return false;
+  }
+
+  private processNagare(){
+    this.eventReceiver.onNagare();
+    this.processJBackReset();
+    this.lastDiscardPair=Discard.createNullDiscardPair();
   }
 
   private processJBackReset() {
@@ -426,8 +431,7 @@ export class GameImple implements Game {
         this.players[this.activePlayerIndex].identifier ==
         this.lastDiscarderIdentifier
       ) {
-        this.eventReceiver.onNagare();
-        this.processJBackReset();
+        this.processNagare();
       }
       if (
         this.players[this.activePlayerIndex].rank.getRankType() ==
