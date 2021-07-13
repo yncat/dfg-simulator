@@ -199,9 +199,7 @@ describe("checkSelectability", () => {
         );
         const d = Discard.createNullDiscardPair();
         const p = new Discard.DiscardPlanner(h, d, false);
-        expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
-        );
+        p.select(0);
         expect(p.checkSelectability(1)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );

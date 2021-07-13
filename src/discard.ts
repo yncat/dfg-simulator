@@ -367,7 +367,7 @@ export class DiscardPlanner {
       return SelectabilityCheckResult.SELECTABLE;
     }
 
-    if (this.lastDiscardPair.isKaidan()) {
+    if (this.lastDiscardPair.isKaidan() || this.lastDiscardPair.isNull()) {
       if (this.onlyJokersSelected()) {
         // We have to search for possible caidan combinations in this case.
         let cn = this.lastDiscardPair.calcCardNumber(this.strengthInverted);
