@@ -190,6 +190,26 @@ describe("checkSelectability", () => {
         );
       });
 
+      it("returns SELECTABLE when the last discard is null and tried a kaidan combination", () => {
+        const h = new Hand.Hand();
+        h.give(
+          new Card.Card(Card.CardMark.SPADES, 3),
+          new Card.Card(Card.CardMark.SPADES, 4),
+          new Card.Card(Card.CardMark.SPADES, 5)
+        );
+        const d = Discard.createNullDiscardPair();
+        const p = new Discard.DiscardPlanner(h, d, false);
+        expect(p.checkSelectability(0)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+        expect(p.checkSelectability(2)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+      });
+
       it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards", () => {
         const h = new Hand.Hand();
         h.give(
