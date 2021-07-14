@@ -103,6 +103,19 @@ describe("countCardWithSpecifiedNumber", () => {
   });
 });
 
+describe("countCardWithSpecifiedMarkAndNumber", () => {
+  it("can count cards which have specified mark and card number", () => {
+    const h1 = new Hand.Hand();
+    const h2 = new Hand.Hand();
+    h2.give(
+      new Card.Card(Card.CardMark.SPADES, 4),
+      new Card.Card(Card.CardMark.DIAMONDS, 4),
+    );
+    expect(h1.countCardsWithSpecifiedMarkAndNumber(Card.CardMark.SPADES, 4)).toBe(0);
+    expect(h2.countCardsWithSpecifiedMarkAndNumber(Card.CardMark.SPADES, 4)).toBe(1);
+  });
+});
+
 describe("countJokers", () => {
   it("can count jokers", () => {
     const h1 = new Hand.Hand();
