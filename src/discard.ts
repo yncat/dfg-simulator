@@ -283,7 +283,7 @@ export class DiscardPlanner {
         );
         let found = false;
         for (let i = 0; i < nums.length; i++) {
-          if (this.countSequencialCardsFrom(nums[i]) >= lastDiscardPairCount) {
+          if (this.isKaidanPossibleFromSpecifiedCardNumber(nums[i], lastDiscardPairCount)) {
             found = true;
             break;
           } // if
@@ -294,7 +294,7 @@ export class DiscardPlanner {
       } else {
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
         // search for starting point of the sequence
-        let s = this.findKaidanStartingPoint(selectingCard.cardNumber);
+        let s = this.findKaidanStartingPoint(selectingCard);
         // Clip the value to the last discard + 1 strength
         const clip = CalcFunctions.calcStrongerCardNumber(
           lastDiscardPairCardNumber,
@@ -307,7 +307,7 @@ export class DiscardPlanner {
           s = clip;
         }
         let found = false;
-        if (this.countSequencialCardsFrom(s) >= lastDiscardPairCount) {
+        if (this.countSequencialCardsFrom(selectingCard.mark,s) >= lastDiscardPairCount) {
           found = true;
         }
 
@@ -353,6 +353,18 @@ export class DiscardPlanner {
     return SelectabilityCheckResult.SELECTABLE;
   }
 
+  private isKaidanPossibleFromSpecifiedCardNumber(cardNumber:number, lastDiscardPairCount:number){
+    // checks if kaidan of [lastDiscardPairCount] cards is possible from the specified card number.
+    // This function checks for all marks.
+    const marks = [Card.CardMark.CLUBS, Card.CardMark.DIAMONDS, Card.CardMark.HEARTS, Card.CardMark.SPADES];
+    for(let i=0;i<marks.length;i++){
+      if(this.countSequencialCardsFrom(marks[i],cardNumber)>=lastDiscardPairCount){
+        return true;
+      }
+    }
+    return false;
+  }
+
   private checkMultiple(index: number) {
     const lastDiscardCount = this.lastDiscardPair.count();
     const selectingCard = this.hand.cards[index];
@@ -381,8 +393,8 @@ export class DiscardPlanner {
             break;
           }
           if (
-            this.countSequencialCardsFrom(stronger) >= lastDiscardCount &&
-            this.isConnectedByKaidan(stronger, selectingCard.cardNumber)
+            this.countSequencialCardsFrom(selectingCard.mark, stronger) >= lastDiscardCount &&
+            this.isConnectedByKaidan(stronger, selectingCard)
           ) {
             found = true;
             break;
@@ -397,7 +409,7 @@ export class DiscardPlanner {
         const wc = this.findWeakestSelectedCard();
         // OK if the selecting card is connected by kaidan with the previous selection.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
-        return this.isConnectedByKaidan(wc.cardNumber, selectingCard.cardNumber)
+        return this.isConnectedByKaidan(wc.cardNumber, selectingCard)
           ? SelectabilityCheckResult.SELECTABLE
           : SelectabilityCheckResult.NOT_SELECTABLE;
       }
@@ -440,9 +452,10 @@ export class DiscardPlanner {
     return cards[0].cardNumber == cardNumber;
   }
 
-  private countSequencialCardsFrom(cardNumber: number) {
+  private countSequencialCardsFrom(cardMark:Card.CardMark, cardNumber: number) {
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
+    // This function is used for checking kaidan combinations, so returns false when card marks are different.
     // This function considers jokers in the hand. When one of the required cards is not found, it tries to substitute a joker instead.
     let ret = 0;
     let str = CalcFunctions.convertCardNumberIntoStrength(cardNumber);
@@ -452,7 +465,8 @@ export class DiscardPlanner {
         break;
       }
       if (
-        this.hand.countCardsWithSpecifiedNumber(
+        this.hand.countCardsWithSpecifiedMarkAndNumber(
+          cardMark,
           CalcFunctions.convertStrengthIntoCardNumber(str)
         ) == 0
       ) {
@@ -467,14 +481,14 @@ export class DiscardPlanner {
     return ret;
   }
 
-  private findKaidanStartingPoint(cardNumber: number) {
-    // Find the starting point of kaidan which can include the given card number.
+  private findKaidanStartingPoint(card: Card.Card) {
+    // Find the starting point of kaidan which can include the given card.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
     let jokers = this.hand.countJokers();
-    let start = cardNumber;
+    let start = card.cardNumber;
     let cn: number | null = start;
     while (true) {
-      if (this.hand.countCardsWithSpecifiedNumber(cn) == 0) {
+      if (this.hand.countCardsWithSpecifiedMarkAndNumber(card.mark, cn) == 0) {
         if (jokers == 0) {
           break;
         }
@@ -491,9 +505,10 @@ export class DiscardPlanner {
 
   private isConnectedByKaidan(
     startCardNumber: number,
-    targetCardNumber: number
+    targetCard:Card.Card
   ) {
     // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
+    // If the scanned card's mark is different from targetCard.cardNumber, cancels searching and returns false.
     // If start and target aren't connected by kaidan, returns false.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
     let jokers = this.hand.countJokers();
@@ -501,13 +516,13 @@ export class DiscardPlanner {
     let cn: number | null = start;
     let connected = false;
     while (true) {
-      if (this.hand.countCardsWithSpecifiedNumber(cn) == 0) {
+      if (this.hand.countCardsWithSpecifiedMarkAndNumber(targetCard.mark, cn) == 0) {
         if (jokers == 0) {
           break;
         }
         jokers--; // Joker substituted.
       }
-      if (cn == targetCardNumber) {
+      if (cn == targetCard.cardNumber) {
         connected = true;
         break;
       }
