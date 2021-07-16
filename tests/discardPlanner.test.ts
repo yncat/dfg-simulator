@@ -554,6 +554,81 @@ describe("CountSelectedJokers", () => {
   });
 });
 
+describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
+  describe("returns true when kaidan is possible from the specified card number (clubs)", () => {
+    const c6 = new Card.Card(Card.CardMark.CLUBS, 6);
+    const c7 = new Card.Card(Card.CardMark.CLUBS, 7);
+    const c8 = new Card.Card(Card.CardMark.CLUBS, 8);
+    const c9 = new Card.Card(Card.CardMark.CLUBS, 9);
+    const h1 = new Hand.Hand();
+    h1.give(c6, c7, c8, c9);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
+  });
+
+  describe("returns true when kaidan is possible from the specified card number (diamonds)", () => {
+    const dm6 = new Card.Card(Card.CardMark.DIAMONDS, 6);
+    const dm7 = new Card.Card(Card.CardMark.DIAMONDS, 7);
+    const dm8 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    const dm9 = new Card.Card(Card.CardMark.DIAMONDS, 9);
+    const h1 = new Hand.Hand();
+    h1.give(dm6, dm7, dm8, dm9);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
+  });
+
+  describe("returns true when kaidan is possible from the specified card number (hearts)", () => {
+    const ht6 = new Card.Card(Card.CardMark.HEARTS, 6);
+    const ht7 = new Card.Card(Card.CardMark.HEARTS, 7);
+    const ht8 = new Card.Card(Card.CardMark.HEARTS, 8);
+    const ht9 = new Card.Card(Card.CardMark.HEARTS, 9);
+    const h1 = new Hand.Hand();
+    h1.give(ht6, ht7, ht8, ht9);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
+  });
+
+  describe("returns true when kaidan is possible from the specified card number (spades)", () => {
+    const s6 = new Card.Card(Card.CardMark.SPADES, 6);
+    const s7 = new Card.Card(Card.CardMark.SPADES, 7);
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const h1 = new Hand.Hand();
+    h1.give(s6, s7, s8, s9);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
+  });
+
+  describe("returns false when kaidan is possible but less than the specified card count", () => {
+    const s6 = new Card.Card(Card.CardMark.SPADES, 6);
+    const s7 = new Card.Card(Card.CardMark.SPADES, 7);
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const h1 = new Hand.Hand();
+    h1.give(s6, s7, s8, s9);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 5)).toBeFalsy();
+  });
+
+  describe("returns true when kaidan is possible by substituting a joker", () => {
+    const s6 = new Card.Card(Card.CardMark.SPADES, 6);
+    const s7 = new Card.Card(Card.CardMark.SPADES, 7);
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const h1 = new Hand.Hand();
+    h1.give(s6, s7, s8, s9, joker);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 5)).toBeTruthy();
+  });
+});
+
 describe("countSequencialCardsFrom", () => {
   it("can count sequencial cards with same mark", () => {
     const h1 = new Hand.Hand();
@@ -575,6 +650,18 @@ describe("countSequencialCardsFrom", () => {
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
     expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
     expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(3);
+  });
+
+  it("do not count when marks are different from the start", () => {
+    const h1 = new Hand.Hand();
+    h1.give(
+      new Card.Card(Card.CardMark.SPADES, 4),
+      new Card.Card(Card.CardMark.HEARTS, 5),
+      new Card.Card(Card.CardMark.SPADES, 6)
+    );
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
@@ -730,6 +817,19 @@ describe("isConnectedByKaidan", () => {
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
     expect(p1["isConnectedByKaidan"](8, s11)).toBe(true);
+  });
+
+  it("returns false when the specified two cards are connected but marks are different", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
+    const h1 = new Hand.Hand();
+    h1.give(s8, h9, s10, s11);
+    const d1 = Discard.CreateDiscardPairForTest();
+    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    expect(p1["isConnectedByKaidan"](8, s11)).toBe(false);
+    expect(p1["isConnectedByKaidan"](9, s11)).toBe(false);
   });
 
   it("returns false when start and target are not directly connected by kaidan", () => {
