@@ -283,7 +283,12 @@ export class DiscardPlanner {
         );
         let found = false;
         for (let i = 0; i < nums.length; i++) {
-          if (this.isKaidanPossibleFromSpecifiedCardNumber(nums[i], lastDiscardPairCount)) {
+          if (
+            this.isKaidanPossibleFromSpecifiedCardNumber(
+              nums[i],
+              lastDiscardPairCount
+            )
+          ) {
             found = true;
             break;
           } // if
@@ -307,7 +312,10 @@ export class DiscardPlanner {
           s = clip;
         }
         let found = false;
-        if (this.countSequencialCardsFrom(selectingCard.mark,s) >= lastDiscardPairCount) {
+        if (
+          this.countSequencialCardsFrom(selectingCard.mark, s) >=
+          lastDiscardPairCount
+        ) {
           found = true;
         }
 
@@ -353,12 +361,23 @@ export class DiscardPlanner {
     return SelectabilityCheckResult.SELECTABLE;
   }
 
-  private isKaidanPossibleFromSpecifiedCardNumber(cardNumber:number, lastDiscardPairCount:number){
+  private isKaidanPossibleFromSpecifiedCardNumber(
+    cardNumber: number,
+    lastDiscardPairCount: number
+  ) {
     // checks if kaidan of [lastDiscardPairCount] cards is possible from the specified card number.
     // This function checks for all marks.
-    const marks = [Card.CardMark.CLUBS, Card.CardMark.DIAMONDS, Card.CardMark.HEARTS, Card.CardMark.SPADES];
-    for(let i=0;i<marks.length;i++){
-      if(this.countSequencialCardsFrom(marks[i],cardNumber)>=lastDiscardPairCount){
+    const marks = [
+      Card.CardMark.CLUBS,
+      Card.CardMark.DIAMONDS,
+      Card.CardMark.HEARTS,
+      Card.CardMark.SPADES,
+    ];
+    for (let i = 0; i < marks.length; i++) {
+      if (
+        this.countSequencialCardsFrom(marks[i], cardNumber) >=
+        lastDiscardPairCount
+      ) {
         return true;
       }
     }
@@ -393,7 +412,8 @@ export class DiscardPlanner {
             break;
           }
           if (
-            this.countSequencialCardsFrom(selectingCard.mark, stronger) >= lastDiscardCount &&
+            this.countSequencialCardsFrom(selectingCard.mark, stronger) >=
+              lastDiscardCount &&
             this.isConnectedByKaidan(stronger, selectingCard)
           ) {
             found = true;
@@ -452,7 +472,10 @@ export class DiscardPlanner {
     return cards[0].cardNumber == cardNumber;
   }
 
-  private countSequencialCardsFrom(cardMark:Card.CardMark, cardNumber: number) {
+  private countSequencialCardsFrom(
+    cardMark: Card.CardMark,
+    cardNumber: number
+  ) {
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
     // This function is used for checking kaidan combinations, so returns false when card marks are different.
@@ -503,10 +526,7 @@ export class DiscardPlanner {
     return start;
   }
 
-  private isConnectedByKaidan(
-    startCardNumber: number,
-    targetCard:Card.Card
-  ) {
+  private isConnectedByKaidan(startCardNumber: number, targetCard: Card.Card) {
     // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
     // If the scanned card's mark is different from targetCard.cardNumber, cancels searching and returns false.
     // If start and target aren't connected by kaidan, returns false.
@@ -516,7 +536,9 @@ export class DiscardPlanner {
     let cn: number | null = start;
     let connected = false;
     while (true) {
-      if (this.hand.countCardsWithSpecifiedMarkAndNumber(targetCard.mark, cn) == 0) {
+      if (
+        this.hand.countCardsWithSpecifiedMarkAndNumber(targetCard.mark, cn) == 0
+      ) {
         if (jokers == 0) {
           break;
         }

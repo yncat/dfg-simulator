@@ -401,10 +401,10 @@ export class GameImple implements Game {
     return false;
   }
 
-  private processNagare(){
+  private processNagare() {
     this.eventReceiver.onNagare();
     this.processJBackReset();
-    this.lastDiscardPair=Discard.createNullDiscardPair();
+    this.lastDiscardPair = Discard.createNullDiscardPair();
   }
 
   private processJBackReset() {

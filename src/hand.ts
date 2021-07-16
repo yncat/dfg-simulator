@@ -36,9 +36,12 @@ export class Hand {
     }).length;
   }
 
-  public countCardsWithSpecifiedMarkAndNumber(cardMark:Card.CardMark, cardNumber: number): number {
+  public countCardsWithSpecifiedMarkAndNumber(
+    cardMark: Card.CardMark,
+    cardNumber: number
+  ): number {
     return this.cards.filter((val) => {
-      return val.mark==cardMark && val.cardNumber == cardNumber;
+      return val.mark == cardMark && val.cardNumber == cardNumber;
     }).length;
   }
 
