@@ -324,13 +324,13 @@ describe("checkSelectability", () => {
         const h = new Hand.Hand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
-          new Card.Card(Card.CardMark.DIAMONDS, 5),
+          new Card.Card(Card.CardMark.SPADES, 5),
           new Card.Card(Card.CardMark.JOKER)
         );
         const d = Discard.CreateDiscardPairForTest(
           new Card.Card(Card.CardMark.SPADES, 3),
-          new Card.Card(Card.CardMark.CLUBS, 4),
-          new Card.Card(Card.CardMark.HEARTS, 5)
+          new Card.Card(Card.CardMark.SPADES, 4),
+          new Card.Card(Card.CardMark.SPADES, 5)
         );
         const p = new Discard.DiscardPlanner(h, d, false);
         p.select(2);
@@ -366,13 +366,13 @@ describe("checkSelectability", () => {
         const h = new Hand.Hand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
-          new Card.Card(Card.CardMark.DIAMONDS, 5),
-          new Card.Card(Card.CardMark.HEARTS, 6)
+          new Card.Card(Card.CardMark.SPADES, 5),
+          new Card.Card(Card.CardMark.SPADES, 6)
         );
         const d = Discard.CreateDiscardPairForTest(
           new Card.Card(Card.CardMark.SPADES, 3),
-          new Card.Card(Card.CardMark.CLUBS, 4),
-          new Card.Card(Card.CardMark.HEARTS, 5)
+          new Card.Card(Card.CardMark.SPADES, 4),
+          new Card.Card(Card.CardMark.SPADES, 5)
         );
         const p = new Discard.DiscardPlanner(h, d, false);
         p.select(0);
@@ -409,12 +409,12 @@ describe("checkSelectability", () => {
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.JOKER),
-          new Card.Card(Card.CardMark.HEARTS, 6)
+          new Card.Card(Card.CardMark.SPADES, 6)
         );
         const d = Discard.CreateDiscardPairForTest(
           new Card.Card(Card.CardMark.SPADES, 3),
-          new Card.Card(Card.CardMark.CLUBS, 4),
-          new Card.Card(Card.CardMark.HEARTS, 5)
+          new Card.Card(Card.CardMark.SPADES, 4),
+          new Card.Card(Card.CardMark.SPADES, 5)
         );
         const p = new Discard.DiscardPlanner(h, d, false);
         p.select(0);
@@ -555,7 +555,7 @@ describe("CountSelectedJokers", () => {
 });
 
 describe("countSequencialCardsFrom", () => {
-  it("can count sequencial cards", () => {
+  it("can count sequencial cards with same mark", () => {
     const h1 = new Hand.Hand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
     const d1 = Discard.CreateDiscardPairForTest();
@@ -572,9 +572,9 @@ describe("countSequencialCardsFrom", () => {
     );
     const d3 = Discard.CreateDiscardPairForTest();
     const p3 = new Discard.DiscardPlanner(h3, d3, false);
-    expect(p1["countSequencialCardsFrom"](4)).toBe(0);
-    expect(p2["countSequencialCardsFrom"](4)).toBe(1);
-    expect(p3["countSequencialCardsFrom"](4)).toBe(3);
+    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
+    expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
+    expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(3);
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
@@ -598,9 +598,9 @@ describe("countSequencialCardsFrom", () => {
     );
     const d3 = Discard.CreateDiscardPairForTest();
     const p3 = new Discard.DiscardPlanner(h3, d3, true);
-    expect(p1["countSequencialCardsFrom"](4)).toBe(0);
-    expect(p2["countSequencialCardsFrom"](4)).toBe(2);
-    expect(p3["countSequencialCardsFrom"](6)).toBe(3);
+    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
+    expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2);
+    expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 6)).toBe(3);
   });
 
   it("can count sequencial cards by substituting jokers", () => {
@@ -613,42 +613,41 @@ describe("countSequencialCardsFrom", () => {
     );
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["countSequencialCardsFrom"](4)).toBe(2); // 2 jokers substituted
-    expect(p1["countSequencialCardsFrom"](8)).toBe(4); // 8, joker, joker, 11
+    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2); // 2 jokers substituted
+    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 8)).toBe(4); // 8, joker, joker, 11
   });
 });
 
 describe("findKaidanStartingPoint", () => {
   it("can find the starting point", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
-    h1.give(
-      new Card.Card(Card.CardMark.SPADES, 8),
-      new Card.Card(Card.CardMark.SPADES, 9),
-      new Card.Card(Card.CardMark.SPADES, 10),
-      new Card.Card(Card.CardMark.SPADES, 11)
-    );
+    h1.give(s8, s9, s10, s11);
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["findKaidanStartingPoint"](8)).toBe(8);
-    expect(p1["findKaidanStartingPoint"](9)).toBe(8);
-    expect(p1["findKaidanStartingPoint"](10)).toBe(8);
-    expect(p1["findKaidanStartingPoint"](11)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s8)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s9)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s10)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s11)).toBe(8);
   });
 
   it("can find the starting point when jokers are included", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
-    h1.give(
-      new Card.Card(Card.CardMark.SPADES, 8),
-      new Card.Card(Card.CardMark.JOKER),
-      new Card.Card(Card.CardMark.SPADES, 10),
-      new Card.Card(Card.CardMark.SPADES, 11)
-    );
+    h1.give(s8, joker, s10, s11);
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["findKaidanStartingPoint"](8)).toBe(7); // Joker is wildcarded as 7
-    expect(p1["findKaidanStartingPoint"](9)).toBe(8);
-    expect(p1["findKaidanStartingPoint"](10)).toBe(8);
-    expect(p1["findKaidanStartingPoint"](11)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s8)).toBe(7); // Joker is wildcarded as 7
+    expect(p1["findKaidanStartingPoint"](s9)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s10)).toBe(8);
+    expect(p1["findKaidanStartingPoint"](s11)).toBe(8);
   });
 });
 
@@ -722,43 +721,40 @@ describe("onlyJokersSelected", () => {
 
 describe("isConnectedByKaidan", () => {
   it("returns true when the specified two cards are connected by kaidan", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
-    h1.give(
-      new Card.Card(Card.CardMark.SPADES, 8),
-      new Card.Card(Card.CardMark.SPADES, 9),
-      new Card.Card(Card.CardMark.SPADES, 10),
-      new Card.Card(Card.CardMark.SPADES, 11)
-    );
+    h1.give(s8, s9, s10, s11);
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["isConnectedByKaidan"](8, 11)).toBe(true);
+    expect(p1["isConnectedByKaidan"](8, s11)).toBe(true);
   });
 
   it("returns false when start and target are not directly connected by kaidan", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
-    h1.give(
-      new Card.Card(Card.CardMark.SPADES, 8),
-      new Card.Card(Card.CardMark.SPADES, 9),
-      new Card.Card(Card.CardMark.SPADES, 10),
-      new Card.Card(Card.CardMark.SPADES, 11)
-    );
+    h1.give(s8, s9, s10, s11);
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["isConnectedByKaidan"](7, 11)).toBe(false);
+    expect(p1["isConnectedByKaidan"](7, s11)).toBe(false);
   });
 
   it("can substitute jokers", () => {
+    const s8 = new Card.Card(Card.CardMark.SPADES, 8);
+    const s9 = new Card.Card(Card.CardMark.SPADES, 9);
+    const s10 = new Card.Card(Card.CardMark.SPADES, 10);
+    const s11 = new Card.Card(Card.CardMark.SPADES, 11);
+    const joker = new Card.Card(Card.CardMark.JOKER);
     const h1 = new Hand.Hand();
-    h1.give(
-      new Card.Card(Card.CardMark.SPADES, 8),
-      new Card.Card(Card.CardMark.SPADES, 9),
-      new Card.Card(Card.CardMark.SPADES, 10),
-      new Card.Card(Card.CardMark.SPADES, 11),
-      new Card.Card(Card.CardMark.JOKER)
-    );
+    h1.give(s8, s9, s10, s11, joker);
     const d1 = Discard.CreateDiscardPairForTest();
     const p1 = new Discard.DiscardPlanner(h1, d1, false);
-    expect(p1["isConnectedByKaidan"](7, 11)).toBe(true);
+    expect(p1["isConnectedByKaidan"](7, s11)).toBe(true);
   });
 });
 
