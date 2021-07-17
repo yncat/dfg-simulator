@@ -100,6 +100,33 @@ export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
   return new DiscardPairImple(cards);
 }
 
+// It should be discardPile, but DiscardPile is close to DiscardPair in string distance...
+class DiscardStack implements DiscardStack {
+  discardPairs: DiscardPair[];
+  constructor() {
+    this.discardPairs = [];
+    this.clear();
+  }
+  public push(discardPair: DiscardPair): void {
+    this.discardPairs.push(discardPair);
+  }
+  public last(): DiscardPair {
+    return this.discardPairs[this.discardPairs.length - 1];
+  }
+  public secondToLast(): DiscardPair {
+    return this.discardPairs.length >= 2
+      ? this.discardPairs[this.discardPairs.length - 2]
+      : createNullDiscardPair();
+  }
+  public clear(): void {
+    this.discardPairs = [createNullDiscardPair()];
+  }
+}
+
+export function createDiscardStack(): DiscardStack {
+  return new DiscardStack();
+}
+
 // card selectable result
 export const SelectabilityCheckResult = {
   SELECTABLE: 0,
