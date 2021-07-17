@@ -31,7 +31,7 @@ export type GameInitParams = {
   players: Player.Player[];
   activePlayerIndex: number;
   activePlayerActionCount: number;
-  lastDiscardPair: Discard.DiscardPair;
+  discardStack: Discard.DiscardStack;
   lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   agariPlayerIdentifiers: string[];
@@ -61,7 +61,7 @@ export function createGame(
     players: shuffledPlayers,
     activePlayerIndex: 0,
     activePlayerActionCount: 0,
-    lastDiscardPair: Discard.createNullDiscardPair(),
+    discardStack: Discard.createDiscardStack(),
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
@@ -137,7 +137,7 @@ export class GameImple implements Game {
   private turnCount: number;
   private activePlayerIndex: number;
   private activePlayerActionCount: number;
-  private lastDiscardPair: Discard.DiscardPair;
+  private discardStack: Discard.DiscardStack;
   private lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
@@ -152,7 +152,7 @@ export class GameImple implements Game {
     this.turnCount = 1;
     this.activePlayerIndex = params.activePlayerIndex;
     this.activePlayerActionCount = params.activePlayerActionCount;
-    this.lastDiscardPair = params.lastDiscardPair;
+    this.discardStack = params.discardStack;
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
@@ -166,11 +166,11 @@ export class GameImple implements Game {
   public startActivePlayerControl(): ActivePlayerControl {
     const dp = new Discard.DiscardPlanner(
       this.players[this.activePlayerIndex].hand,
-      this.lastDiscardPair,
+      this.discardStack,
       this.strengthInverted
     );
     const dpe = new Discard.DiscardPairEnumerator(
-      this.lastDiscardPair,
+      this.discardStack,
       this.strengthInverted
     );
     return new ActivePlayerControlImple(
@@ -328,13 +328,13 @@ export class GameImple implements Game {
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
-    this.lastDiscardPair = activePlayerControl.getDiscard();
+    this.discardStack.push(activePlayerControl.getDiscard());
     this.lastDiscarderIdentifier = this.players[
       this.activePlayerIndex
     ].identifier;
     this.eventReceiver.onDiscard(
       this.lastDiscarderIdentifier,
-      this.lastDiscardPair
+      this.discardStack.last()
     );
   }
 
@@ -404,7 +404,7 @@ export class GameImple implements Game {
   private processNagare() {
     this.eventReceiver.onNagare();
     this.processJBackReset();
-    this.lastDiscardPair = Discard.createNullDiscardPair();
+    this.discardStack.clear();
   }
 
   private processJBackReset() {

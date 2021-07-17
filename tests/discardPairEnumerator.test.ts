@@ -1,19 +1,28 @@
 import * as Card from "../src/card";
 import * as Discard from "../src/discard";
 
+function createDiscardStackFixture(
+  ...cards: Card.Card[]
+): Discard.DiscardStack {
+  const dp = Discard.CreateDiscardPairForTest(...cards);
+  const ds = Discard.createDiscardStack();
+  ds.push(dp);
+  return ds;
+}
+
 describe("enumerate", () => {
   it("returns blank array when nothing is selected", () => {
-    const d = Discard.CreateDiscardPairForTest();
+    const ds = Discard.createDiscardStack();
     expect(
-      new Discard.DiscardPairEnumerator(d, false).enumerate()
+      new Discard.DiscardPairEnumerator(ds, false).enumerate()
     ).toStrictEqual([]);
   });
 
   describe("with same numbered pair", () => {
     it("returns DiscardPair of the given cards", () => {
       const c = new Card.Card(Card.CardMark.HEARTS, 7);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(c, c, c);
       expect(dps.length).toBe(1);
       const dp = dps[0];
@@ -24,8 +33,8 @@ describe("enumerate", () => {
   describe("with jokers only", () => {
     it("returns DiscardPair of the given jokers", () => {
       const c = new Card.Card(Card.CardMark.JOKER);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(c, c, c);
       expect(dps.length).toBe(1);
       const dp = dps[0];
@@ -38,8 +47,8 @@ describe("enumerate", () => {
       const c1 = new Card.Card(Card.CardMark.HEARTS, 7);
       const c1w = new Card.Card(Card.CardMark.WILD, 7);
       const c2 = new Card.Card(Card.CardMark.JOKER);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(c1, c1, c2);
       expect(dps.length).toBe(1);
       const dp = dps[0];
@@ -56,8 +65,8 @@ describe("enumerate", () => {
       const h8w = new Card.Card(Card.CardMark.WILD, 8);
       const h9w = new Card.Card(Card.CardMark.WILD, 9);
       const joker = new Card.Card(Card.CardMark.JOKER);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, joker, joker);
       expect(dps.length).toBe(4);
       expect(dps[0]["cards"]).toStrictEqual([h5w, h6w, h7]);
@@ -71,8 +80,8 @@ describe("enumerate", () => {
       const d8w = new Card.Card(Card.CardMark.WILD, 8);
       const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
       const joker = new Card.Card(Card.CardMark.JOKER);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, h9, joker);
       expect(dps.length).toBe(1);
       expect(dps[0]["cards"]).toStrictEqual([h7, d8w, h9]);
@@ -85,8 +94,8 @@ describe("enumerate", () => {
       const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
       const h10w = new Card.Card(Card.CardMark.WILD, 10);
       const joker = new Card.Card(Card.CardMark.JOKER);
-      const d = Discard.CreateDiscardPairForTest();
-      const e = new Discard.DiscardPairEnumerator(d, false);
+      const ds = Discard.createDiscardStack();
+      const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, h9, joker, joker);
       expect(dps.length).toBe(2);
       expect(dps[0]["cards"]).toStrictEqual([h6w, h7, d8w, h9]);
@@ -97,8 +106,8 @@ describe("enumerate", () => {
 
 describe("countJokers", () => {
   it("can count jokers", () => {
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [
       new Card.Card(Card.CardMark.SPADES, 7),
       new Card.Card(Card.CardMark.JOKER),
@@ -111,8 +120,8 @@ describe("countJokers", () => {
 describe("filterJokers", () => {
   it("can filter jokers", () => {
     const c = new Card.Card(Card.CardMark.SPADES, 7);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [
       c,
       new Card.Card(Card.CardMark.JOKER),
@@ -125,16 +134,16 @@ describe("filterJokers", () => {
 describe("hasCardWithNumber", () => {
   it("returns true when the specified card is in list", () => {
     const c = new Card.Card(Card.CardMark.SPADES, 7);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [c];
     expect(e["hasCardWithNumber"](7)).toBeTruthy();
   });
 
   it("returns false when the specified card is not in list", () => {
     const c = new Card.Card(Card.CardMark.SPADES, 7);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [c];
     expect(e["hasCardWithNumber"](9)).toBeFalsy();
   });
@@ -146,8 +155,8 @@ describe("fillMissingKaidanCards", () => {
     const wc1 = new Card.Card(Card.CardMark.WILD, 8);
     const c2 = new Card.Card(Card.CardMark.SPADES, 9);
     const joker = new Card.Card(Card.CardMark.JOKER);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [c1, c2, joker];
     const jokers = e["fillMissingKaidanCards"](1, 7, 9);
     expect(jokers).toBe(0);
@@ -160,8 +169,8 @@ describe("fillMissingKaidanCards", () => {
     const wc2 = new Card.Card(Card.CardMark.WILD, 9);
     const c2 = new Card.Card(Card.CardMark.SPADES, 10);
     const joker = new Card.Card(Card.CardMark.JOKER);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [c1, c2, joker, joker];
     const jokers = e["fillMissingKaidanCards"](2, 7, 10);
     expect(jokers).toBe(0);
@@ -174,8 +183,8 @@ describe("fillMissingKaidanCards", () => {
     const wc2 = new Card.Card(Card.CardMark.WILD, 9);
     const c2 = new Card.Card(Card.CardMark.SPADES, 10);
     const joker = new Card.Card(Card.CardMark.JOKER);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [c1, c2, joker, joker, joker];
     const jokers = e["fillMissingKaidanCards"](3, 7, 10);
     expect(jokers).toBe(1);
@@ -185,8 +194,8 @@ describe("fillMissingKaidanCards", () => {
 
 describe("hasSameNumberedCards", () => {
   it("returns true when there is at least one pair of same numbered cards", () => {
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [
       new Card.Card(Card.CardMark.SPADES, 6),
       new Card.Card(Card.CardMark.DIAMONDS, 6),
@@ -195,8 +204,8 @@ describe("hasSameNumberedCards", () => {
   });
 
   it("returns false when there is no same numbered cards", () => {
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [
       new Card.Card(Card.CardMark.SPADES, 6),
       new Card.Card(Card.CardMark.DIAMONDS, 2),
@@ -207,8 +216,8 @@ describe("hasSameNumberedCards", () => {
 
 describe("calcKaidanRange", () => {
   it("returns the weakest and strongest card numbers in the kaidan", () => {
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
     e["selectedCards"] = [
       new Card.Card(Card.CardMark.SPADES, 6),
       new Card.Card(Card.CardMark.DIAMONDS, 7),
@@ -278,59 +287,59 @@ describe("prune", () => {
   it("returns all pairs if the last discard pair is empty", () => {
     const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
     const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
-    const d = Discard.CreateDiscardPairForTest();
-    const e = new Discard.DiscardPairEnumerator(d, false);
-    const ds: Discard.DiscardPair[] = [
+    const ds = Discard.createDiscardStack();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
+    const dps: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h5, h5),
       Discard.CreateDiscardPairForTest(h6, h6),
     ];
-    expect(e["prune"](ds, d)).toStrictEqual(ds);
+    expect(e["prune"](dps, ds)).toStrictEqual(dps);
   });
 
   it("can prune pairs which do not satisfy cards count", () => {
     const h4 = new Card.Card(Card.CardMark.HEARTS, 4);
     const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
     const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
-    const d = Discard.CreateDiscardPairForTest(h4, h4);
-    const e = new Discard.DiscardPairEnumerator(d, false);
-    const ds: Discard.DiscardPair[] = [
+    const ds = createDiscardStackFixture(h4, h4);
+    const e = new Discard.DiscardPairEnumerator(ds, false);
+    const dps: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h5, h5),
       Discard.CreateDiscardPairForTest(h6),
     ];
     const dsw: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h5, h5),
     ];
-    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
   });
 
   it("can prune pairs which do not match standard or kaidan condition", () => {
     const h4 = new Card.Card(Card.CardMark.HEARTS, 4);
     const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
     const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
-    const d = Discard.CreateDiscardPairForTest(h4, h4);
-    const e = new Discard.DiscardPairEnumerator(d, false);
-    const ds: Discard.DiscardPair[] = [
+    const ds = createDiscardStackFixture(h4, h4);
+    const e = new Discard.DiscardPairEnumerator(ds, false);
+    const dps: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h5, h5),
       Discard.CreateDiscardPairForTest(h5, h6),
     ];
     const dsw: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h5, h5),
     ];
-    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
   });
 
   it("can prune pairs which is not stronger", () => {
     const h5 = new Card.Card(Card.CardMark.HEARTS, 5);
     const h6 = new Card.Card(Card.CardMark.HEARTS, 6);
-    const d = Discard.CreateDiscardPairForTest(h5, h5);
-    const e = new Discard.DiscardPairEnumerator(d, false);
-    const ds: Discard.DiscardPair[] = [
+    const ds = createDiscardStackFixture(h5, h5);
+    const e = new Discard.DiscardPairEnumerator(ds, false);
+    const dps: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h6, h6),
       Discard.CreateDiscardPairForTest(h5, h5),
     ];
     const dsw: Discard.DiscardPair[] = [
       Discard.CreateDiscardPairForTest(h6, h6),
     ];
-    expect(e["prune"](ds, d)).toStrictEqual(dsw);
+    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
   });
 });

@@ -2,11 +2,20 @@ import * as Card from "../src/card";
 import * as Discard from "../src/discard";
 import * as Hand from "../src/hand";
 
+function createDiscardStackFixture(
+  ...cards: Card.Card[]
+): Discard.DiscardStack {
+  const dp = Discard.CreateDiscardPairForTest(...cards);
+  const ds = Discard.createDiscardStack();
+  ds.push(dp);
+  return ds;
+}
+
 describe("DiscardPlanner", () => {
   it("can be instantiated", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     expect(p).toBeTruthy();
   });
 });
@@ -15,8 +24,8 @@ describe("checkSelectability", () => {
   it("returns NOT_SELECTABLE when index is out of range", () => {
     const h = new Hand.Hand();
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     expect(p.checkSelectability(-1)).toBe(
       Discard.SelectabilityCheckResult.NOT_SELECTABLE
     );
@@ -29,8 +38,8 @@ describe("checkSelectability", () => {
     it("returns SELECTABLE when the last discard is null", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
-      const d = Discard.CreateDiscardPairForTest();
-      const p = new Discard.DiscardPlanner(h, d, false);
+      const ds = Discard.createDiscardStack();
+      const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.SELECTABLE
       );
@@ -39,9 +48,7 @@ describe("checkSelectability", () => {
     it("returns SELECTABLE when checking a 3 of spades and the last discard is a joker", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
-      const d = Discard.CreateDiscardPairForTest(
-        new Card.Card(Card.CardMark.JOKER)
-      );
+      const d = createDiscardStackFixture(new Card.Card(Card.CardMark.JOKER));
       const p = new Discard.DiscardPlanner(h, d, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.SELECTABLE
@@ -51,10 +58,10 @@ describe("checkSelectability", () => {
     it("returns SELECTABLE when checking a single joker and the last discard is an weaker card", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.JOKER));
-      const d = Discard.CreateDiscardPairForTest(
+      const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.CLUBS, 2)
       );
-      const p = new Discard.DiscardPlanner(h, d, false);
+      const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.SELECTABLE
       );
@@ -63,10 +70,10 @@ describe("checkSelectability", () => {
     it("returns NOT_SELECTABLE when checking a single joker and the last discard is also a joker", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.JOKER));
-      const d = Discard.CreateDiscardPairForTest(
+      const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.CLUBS, 2)
       );
-      const p = new Discard.DiscardPlanner(h, d, false);
+      const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.SELECTABLE
       );
@@ -75,10 +82,10 @@ describe("checkSelectability", () => {
     it("returns NOT_SELECTABLE when checking a single card and the last discard is stronger", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
-      const d = Discard.CreateDiscardPairForTest(
+      const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.SPADES, 2)
       );
-      const p = new Discard.DiscardPlanner(h, d, false);
+      const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.NOT_SELECTABLE
       );
@@ -87,10 +94,8 @@ describe("checkSelectability", () => {
     it("returns NOT_SELECTABLE when checking a single card and the last discard is a single joker", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.JOKER));
-      const d = Discard.CreateDiscardPairForTest(
-        new Card.Card(Card.CardMark.JOKER)
-      );
-      const p = new Discard.DiscardPlanner(h, d, false);
+      const ds = createDiscardStackFixture(new Card.Card(Card.CardMark.JOKER));
+      const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.NOT_SELECTABLE
       );
@@ -103,11 +108,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -119,11 +124,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -135,7 +140,7 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const d = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 8),
           new Card.Card(Card.CardMark.SPADES, 8)
         );
@@ -148,11 +153,11 @@ describe("checkSelectability", () => {
       it("returns NOT_SELECTABLE when the last discard is two-card pair and you have one of the checking stronger cards only", () => {
         const h = new Hand.Hand();
         h.give(new Card.Card(Card.CardMark.SPADES, 6));
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.NOT_SELECTABLE
         );
@@ -164,11 +169,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -180,11 +185,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 2),
           new Card.Card(Card.CardMark.SPADES, 2)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -197,8 +202,8 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const d = Discard.createNullDiscardPair();
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const ds = Discard.createDiscardStack();
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
@@ -215,12 +220,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 5),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -239,12 +244,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 5),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -263,12 +268,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -288,11 +293,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.HEARTS, 5),
           new Card.Card(Card.CardMark.DIAMONDS, 5)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.CLUBS, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
@@ -306,11 +311,11 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.DIAMONDS, 5),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.CLUBS, 4)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
         expect(p.checkSelectability(1)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
@@ -327,12 +332,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 5),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
@@ -350,12 +355,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.HEARTS, 10),
           new Card.Card(Card.CardMark.JOKER)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.CLUBS, 4),
           new Card.Card(Card.CardMark.HEARTS, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(3);
         expect(p.checkSelectability(2)).toBe(
           Discard.SelectabilityCheckResult.NOT_SELECTABLE
@@ -369,12 +374,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.SPADES, 5),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
@@ -392,12 +397,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.HEARTS, 6),
           new Card.Card(Card.CardMark.CLUBS, 8)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.CLUBS, 4),
           new Card.Card(Card.CardMark.HEARTS, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(3)).toBe(
           Discard.SelectabilityCheckResult.NOT_SELECTABLE
@@ -411,12 +416,12 @@ describe("checkSelectability", () => {
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.SPADES, 6)
         );
-        const d = Discard.CreateDiscardPairForTest(
+        const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
         );
-        const p = new Discard.DiscardPlanner(h, d, false);
+        const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         p.select(1);
         expect(p.checkSelectability(2)).toBe(
@@ -431,10 +436,10 @@ describe("checkSelectability", () => {
     it("returns SELECTABLE when checking a single card and the last discard is weaker", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
-      const d = Discard.CreateDiscardPairForTest(
+      const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.SPADES, 2)
       );
-      const p = new Discard.DiscardPlanner(h, d, true);
+      const p = new Discard.DiscardPlanner(h, ds, true);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.SELECTABLE
       );
@@ -445,8 +450,8 @@ describe("checkSelectability", () => {
 describe("isSelected", () => {
   it("returns true when the card at specified index is selected", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     p.select(0);
     expect(p.isSelected(0)).toBeTruthy();
@@ -454,16 +459,16 @@ describe("isSelected", () => {
 
   it("returns false when the card at specified index is not selected", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.isSelected(0)).toBeFalsy();
   });
 
   it("returns false when index is out of range", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.isSelected(-1)).toBeFalsy();
     expect(p.isSelected(91724683)).toBeFalsy();
@@ -473,16 +478,16 @@ describe("isSelected", () => {
 describe("select", () => {
   it("returns SUCCESS when successfully selected a card", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when the card is already selected", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
     expect(p.select(0)).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
@@ -490,8 +495,8 @@ describe("select", () => {
 
   it("returns NOT_SELECTABLE when the index is out of range", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.select(-1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
     expect(p.select(1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
@@ -501,8 +506,8 @@ describe("select", () => {
 describe("deselect", () => {
   it("returns SUCCESS when successfully deselected a card", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
     expect(p.deselect(0)).toBe(Discard.CardDeselectResult.SUCCESS);
@@ -510,16 +515,16 @@ describe("deselect", () => {
 
   it("returns ALREADY_DESELECTED when the card is not selected", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.deselect(0)).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
   });
 
   it("returns NOT_DESELECTABLE when the index is out of range", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.deselect(-1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
     expect(p.deselect(1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
@@ -529,8 +534,8 @@ describe("deselect", () => {
 describe("CountSelectedCards", () => {
   it("can count selected cards", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(p.countSelectedCards()).toBe(0);
     expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
@@ -541,8 +546,8 @@ describe("CountSelectedCards", () => {
 describe("CountSelectedJokers", () => {
   it("can count selected jokers", () => {
     const h = new Hand.Hand();
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(
       new Card.Card(Card.CardMark.JOKER),
       new Card.Card(Card.CardMark.JOKER),
@@ -562,8 +567,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const c9 = new Card.Card(Card.CardMark.CLUBS, 9);
     const h1 = new Hand.Hand();
     h1.give(c6, c7, c8, c9);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
   });
 
@@ -574,8 +579,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const dm9 = new Card.Card(Card.CardMark.DIAMONDS, 9);
     const h1 = new Hand.Hand();
     h1.give(dm6, dm7, dm8, dm9);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
   });
 
@@ -586,8 +591,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const ht9 = new Card.Card(Card.CardMark.HEARTS, 9);
     const h1 = new Hand.Hand();
     h1.give(ht6, ht7, ht8, ht9);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
   });
 
@@ -598,8 +603,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const h1 = new Hand.Hand();
     h1.give(s6, s7, s8, s9);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 4)).toBeTruthy();
   });
 
@@ -610,8 +615,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const h1 = new Hand.Hand();
     h1.give(s6, s7, s8, s9);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 5)).toBeFalsy();
   });
 
@@ -623,8 +628,8 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const joker = new Card.Card(Card.CardMark.JOKER);
     const h1 = new Hand.Hand();
     h1.give(s6, s7, s8, s9, joker);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 5)).toBeTruthy();
   });
 });
@@ -633,20 +638,20 @@ describe("countSequencialCardsFrom", () => {
   it("can count sequencial cards with same mark", () => {
     const h1 = new Hand.Hand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     const h2 = new Hand.Hand();
     h2.give(new Card.Card(Card.CardMark.SPADES, 4));
-    const d2 = Discard.CreateDiscardPairForTest();
-    const p2 = new Discard.DiscardPlanner(h2, d2, false);
+    const ds2 = Discard.createDiscardStack();
+    const p2 = new Discard.DiscardPlanner(h2, ds2, false);
     const h3 = new Hand.Hand();
     h3.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.SPADES, 5),
       new Card.Card(Card.CardMark.SPADES, 6)
     );
-    const d3 = Discard.CreateDiscardPairForTest();
-    const p3 = new Discard.DiscardPlanner(h3, d3, false);
+    const ds3 = Discard.createDiscardStack();
+    const p3 = new Discard.DiscardPlanner(h3, ds3, false);
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
     expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
     expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(3);
@@ -659,32 +664,32 @@ describe("countSequencialCardsFrom", () => {
       new Card.Card(Card.CardMark.HEARTS, 5),
       new Card.Card(Card.CardMark.SPADES, 6)
     );
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
     const h1 = new Hand.Hand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, true);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, true);
     const h2 = new Hand.Hand();
     h2.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.SPADES, 3),
       new Card.Card(Card.CardMark.SPADES, 2)
     );
-    const d2 = Discard.CreateDiscardPairForTest();
-    const p2 = new Discard.DiscardPlanner(h2, d2, true);
+    const ds2 = Discard.createDiscardStack();
+    const p2 = new Discard.DiscardPlanner(h2, ds2, true);
     const h3 = new Hand.Hand();
     h3.give(
       new Card.Card(Card.CardMark.SPADES, 6),
       new Card.Card(Card.CardMark.SPADES, 5),
       new Card.Card(Card.CardMark.SPADES, 4)
     );
-    const d3 = Discard.CreateDiscardPairForTest();
-    const p3 = new Discard.DiscardPlanner(h3, d3, true);
+    const ds3 = Discard.createDiscardStack();
+    const p3 = new Discard.DiscardPlanner(h3, ds3, true);
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
     expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2);
     expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 6)).toBe(3);
@@ -698,8 +703,8 @@ describe("countSequencialCardsFrom", () => {
       new Card.Card(Card.CardMark.JOKER),
       new Card.Card(Card.CardMark.SPADES, 11)
     );
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2); // 2 jokers substituted
     expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 8)).toBe(4); // 8, joker, joker, 11
   });
@@ -713,8 +718,8 @@ describe("findKaidanStartingPoint", () => {
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(s8, s9, s10, s11);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["findKaidanStartingPoint"](s8)).toBe(8);
     expect(p1["findKaidanStartingPoint"](s9)).toBe(8);
     expect(p1["findKaidanStartingPoint"](s10)).toBe(8);
@@ -729,8 +734,8 @@ describe("findKaidanStartingPoint", () => {
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(s8, joker, s10, s11);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["findKaidanStartingPoint"](s8)).toBe(7); // Joker is wildcarded as 7
     expect(p1["findKaidanStartingPoint"](s9)).toBe(8);
     expect(p1["findKaidanStartingPoint"](s10)).toBe(8);
@@ -746,8 +751,8 @@ describe("enumerateSelectedCards", () => {
     const c4 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(c1, c2, c3, c4);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(0);
     p1.select(1);
     const want = [c1, c2];
@@ -759,8 +764,8 @@ describe("isSameNumberFromPreviouslySelected", () => {
   it("can detect whether selecting card has same card number from the previously selected cards", () => {
     const h1 = new Hand.Hand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(0);
     expect(p1["isSameNumberFromPreviouslySelected"](8)).toBeTruthy();
     expect(p1["isSameNumberFromPreviouslySelected"](9)).toBeFalsy();
@@ -772,8 +777,8 @@ describe("isSameNumberFromPreviouslySelected", () => {
       new Card.Card(Card.CardMark.SPADES, 8),
       new Card.Card(Card.CardMark.JOKER)
     );
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(0);
     p1.select(1);
     expect(p1["isSameNumberFromPreviouslySelected"](8)).toBeTruthy();
@@ -788,8 +793,8 @@ describe("onlyJokersSelected", () => {
       new Card.Card(Card.CardMark.SPADES, 8),
       new Card.Card(Card.CardMark.JOKER)
     );
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(0);
     expect(p1["onlyJokersSelected"]()).toBeFalsy();
     p1.select(1);
@@ -800,8 +805,8 @@ describe("onlyJokersSelected", () => {
 
   it("returns false when the selection is empty", () => {
     const h1 = new Hand.Hand();
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["onlyJokersSelected"]()).toBeFalsy();
   });
 });
@@ -814,8 +819,8 @@ describe("isConnectedByKaidan", () => {
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(s8, s9, s10, s11);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isConnectedByKaidan"](8, s11)).toBe(true);
   });
 
@@ -826,8 +831,8 @@ describe("isConnectedByKaidan", () => {
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(s8, h9, s10, s11);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isConnectedByKaidan"](8, s11)).toBe(false);
     expect(p1["isConnectedByKaidan"](9, s11)).toBe(false);
   });
@@ -839,8 +844,8 @@ describe("isConnectedByKaidan", () => {
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const h1 = new Hand.Hand();
     h1.give(s8, s9, s10, s11);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isConnectedByKaidan"](7, s11)).toBe(false);
   });
 
@@ -852,8 +857,8 @@ describe("isConnectedByKaidan", () => {
     const joker = new Card.Card(Card.CardMark.JOKER);
     const h1 = new Hand.Hand();
     h1.give(s8, s9, s10, s11, joker);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isConnectedByKaidan"](7, s11)).toBe(true);
   });
 });
@@ -866,8 +871,8 @@ describe("findWeakestSelectedCard", () => {
     const c4 = new Card.Card(Card.CardMark.SPADES, 10);
     const h1 = new Hand.Hand();
     h1.give(c1, c2, c3, c4);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(1);
     p1.select(2);
     expect(p1["findWeakestSelectedCard"]()).toBe(c2);
@@ -881,8 +886,8 @@ describe("findWeakestSelectedCard", () => {
     const c5 = new Card.Card(Card.CardMark.JOKER);
     const h1 = new Hand.Hand();
     h1.give(c1, c2, c3, c4, c5);
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     p1.select(1);
     p1.select(2);
     p1.select(4);
@@ -891,8 +896,8 @@ describe("findWeakestSelectedCard", () => {
 
   it("throws an error when nothing could be retrieved", () => {
     const h1 = new Hand.Hand();
-    const d1 = Discard.CreateDiscardPairForTest();
-    const p1 = new Discard.DiscardPlanner(h1, d1, false);
+    const ds1 = Discard.createDiscardStack();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(() => {
       p1["findWeakestSelectedCard"]();
     }).toThrow(
@@ -909,8 +914,8 @@ describe("createDiscardPair", () => {
       new Card.Card(Card.CardMark.SPADES, 5),
       new Card.Card(Card.CardMark.SPADES, 5)
     );
-    const d = Discard.CreateDiscardPairForTest();
-    const p = new Discard.DiscardPlanner(h, d, false);
+    const ds = Discard.createDiscardStack();
+    const p = new Discard.DiscardPlanner(h, ds, false);
     p.select(0);
     p.select(1);
     expect(p.countSelectedCards()).toBe(2);

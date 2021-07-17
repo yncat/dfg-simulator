@@ -19,7 +19,7 @@ function createGameFixture() {
     players: [p1, p2, p3],
     activePlayerIndex: 0,
     activePlayerActionCount: 0,
-    lastDiscardPair: Discard.createNullDiscardPair(),
+    discardStack: Discard.createDiscardStack(),
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
@@ -74,7 +74,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -99,7 +99,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -124,7 +124,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -142,7 +142,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onDiscard).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([c2]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
-    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
@@ -158,7 +158,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -192,7 +192,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -226,7 +226,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -251,7 +251,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
     const ndp = Discard.CreateDiscardPairForTest(c1);
-    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
@@ -267,7 +267,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -309,7 +309,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -324,7 +324,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["lastDiscarderIdentifier"]).toBe("");
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
     const ndp = Discard.createNullDiscardPair();
-    expect(g["lastDiscardPair"]).toStrictEqual(ndp);
+    expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
@@ -340,7 +340,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 2,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -367,7 +367,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -394,7 +394,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 2,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -423,7 +423,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -459,7 +459,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -495,7 +495,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -531,7 +531,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -564,7 +564,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -597,7 +597,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -633,7 +633,7 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -664,7 +664,7 @@ describe("gameImple.isEnded", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -684,7 +684,7 @@ describe("gameImple.isEnded", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -715,7 +715,7 @@ describe("gameImple.isEnded", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
@@ -740,7 +740,7 @@ describe("gameImple.enumeratePlayerRanks", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -775,7 +775,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -802,7 +802,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -830,7 +830,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -857,7 +857,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 1,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -883,7 +883,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 2,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -915,7 +915,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3, p4],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
@@ -949,7 +949,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 0,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
@@ -989,7 +989,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       players: [p1, p2, p3],
       activePlayerIndex: 2,
       activePlayerActionCount: 0,
-      lastDiscardPair: Discard.createNullDiscardPair(),
+      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "a",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
@@ -1008,9 +1008,9 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
     const c2 = new Card.Card(Card.CardMark.HEARTS, 6);
     const h = new Hand.Hand();
     h.give(c1, c2);
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1025,9 +1025,9 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
 describe("ActivePlayerControlImple.checkCardSelectability", () => {
   it("returns SELECTABLE when DiscardPlanner returned SELECTABLE", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1047,9 +1047,9 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1069,9 +1069,9 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1093,9 +1093,9 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
 describe("ActivePlayerControl.isCardSelected", () => {
   it("returns what DiscardPlanner.isSelected returned", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1117,9 +1117,9 @@ describe("ActivePlayerControl.isCardSelected", () => {
 describe("ActivePlayerControlImple.selectCard", () => {
   it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1137,9 +1137,9 @@ describe("ActivePlayerControlImple.selectCard", () => {
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1157,9 +1157,9 @@ describe("ActivePlayerControlImple.selectCard", () => {
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1179,9 +1179,9 @@ describe("ActivePlayerControlImple.selectCard", () => {
 describe("ActivePlayerControlImple.deselectCard", () => {
   it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1199,9 +1199,9 @@ describe("ActivePlayerControlImple.deselectCard", () => {
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1219,9 +1219,9 @@ describe("ActivePlayerControlImple.deselectCard", () => {
 
   it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1241,9 +1241,9 @@ describe("ActivePlayerControlImple.deselectCard", () => {
 describe("ActivePlayerControlImple.countSelectedCards", () => {
   it("returns what discardPlanner returned", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1265,9 +1265,9 @@ describe("ActivePlayerControlImple.countSelectedCards", () => {
 describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
   it("returns what DiscardPairEnumerator returned", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1289,9 +1289,9 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
 describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () => {
   it("can set passed flag", () => {
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
       "abc",
@@ -1309,9 +1309,9 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
   it("can set discard pair", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
@@ -1334,9 +1334,9 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const h = new Hand.Hand();
-    const ldp = Discard.CreateDiscardPairForTest();
-    const dp = new Discard.DiscardPlanner(h, ldp, false);
-    const dpe = new Discard.DiscardPairEnumerator(ldp, false);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
