@@ -854,6 +854,10 @@ export class DiscardPairEnumerator {
     if (pair.count() != lastPair.count()) {
       return false;
     }
+    // 3 of spades after a single joker is allowed.
+    if(lastPair.count()==1 && lastPair.cards[0].isJoker() && pair.cards[0].mark==Card.CardMark.SPADES && pair.cards[0].cardNumber==3){
+      return true;
+    }
     if (pair.isKaidan() != lastPair.isKaidan()) {
       return false;
     }
@@ -867,6 +871,18 @@ export class DiscardPairEnumerator {
       return false;
     }
     return true;
+  }
+
+  private isSpecial3OfSpades(discardStack:DiscardStack) {
+    // Returns if the last discard is a 3 of spades which was used to negate a joker.
+    const ldp = discardStack.last();
+    const sldp = discardStack.secondToLast();
+    return (
+      ldp.count() == 1 &&
+      ldp.cards[0].isSameFrom(new Card.Card(Card.CardMark.SPADES, 3)) &&
+      sldp.count() == 1 &&
+      sldp.cards[0].isJoker()
+    );
   }
 
   private countJokers() {
