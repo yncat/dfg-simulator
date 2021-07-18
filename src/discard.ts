@@ -189,6 +189,12 @@ export class DiscardPlanner {
       return SelectabilityCheckResult.ALREADY_SELECTED;
     }
 
+    // A few common special cases
+    // After negating a joker with 3 of spades, no cards can be played further.
+    if (this.isSpecial3OfSpades()) {
+      return SelectabilityCheckResult.NOT_SELECTABLE;
+    }
+
     const cnt = this.countSelectedCards();
     let ret: SelectabilityCheckResult = SelectabilityCheckResult.SELECTABLE;
     if (cnt == 0) {
@@ -255,6 +261,18 @@ export class DiscardPlanner {
     return this.hand.cards.filter((v, i) => {
       return this.selected[i];
     });
+  }
+
+  private isSpecial3OfSpades() {
+    // Returns if the last discard is a 3 of spades which was used to negate a joker.
+    const ldp = this.discardStack.last();
+    const sldp = this.discardStack.secondToLast();
+    return (
+      ldp.count() == 1 &&
+      ldp.cards[0].isSameFrom(new Card.Card(Card.CardMark.SPADES, 3)) &&
+      sldp.count() == 1 &&
+      sldp.cards[0].isJoker()
+    );
   }
 
   private checkSingle(index: number): SelectabilityCheckResult {

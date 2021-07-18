@@ -55,6 +55,26 @@ describe("checkSelectability", () => {
       );
     });
 
+    it("returns NOT_SELECTABLE when the last discard is a 3 of spades which negated a joker", () => {
+      const h = new Hand.Hand();
+      h.give(new Card.Card(Card.CardMark.SPADES, 5));
+      h.give(new Card.Card(Card.CardMark.JOKER));
+      const ds = Discard.createDiscardStack();
+      ds.push(
+        Discard.CreateDiscardPairForTest(new Card.Card(Card.CardMark.JOKER))
+      );
+      ds.push(
+        Discard.CreateDiscardPairForTest(new Card.Card(Card.CardMark.SPADES, 3))
+      );
+      const p = new Discard.DiscardPlanner(h, ds, false);
+      expect(p.checkSelectability(0)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+    });
+
     it("returns SELECTABLE when checking a single joker and the last discard is an weaker card", () => {
       const h = new Hand.Hand();
       h.give(new Card.Card(Card.CardMark.JOKER));
@@ -631,6 +651,21 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isKaidanPossibleFromSpecifiedCardNumber"](6, 5)).toBeTruthy();
+  });
+});
+
+describe("isSpecial3OfSpades", () => {
+  it("returns true when the last discard is 3 of spades and the second to last discard pair is a joker", () => {
+    const ds1 = Discard.createDiscardStack();
+    ds1.push(
+      Discard.CreateDiscardPairForTest(new Card.Card(Card.CardMark.JOKER))
+    );
+    ds1.push(
+      Discard.CreateDiscardPairForTest(new Card.Card(Card.CardMark.SPADES, 3))
+    );
+    const h1 = new Hand.Hand();
+    const p1 = new Discard.DiscardPlanner(h1, ds1, false);
+    expect(p1["isSpecial3OfSpades"]).toBeTruthy();
   });
 });
 
