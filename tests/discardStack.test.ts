@@ -12,7 +12,6 @@ describe("DiscardStack", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
     const ds = Discard.createDiscardStack();
-    const ndp = Discard.createNullDiscardPair();
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     ds.push(dp);
     expect(ds["discardPairs"].length).toBe(2);
@@ -23,7 +22,6 @@ describe("DiscardStack", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
     const ds = Discard.createDiscardStack();
-    const ndp = Discard.createNullDiscardPair();
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     ds.push(dp);
     expect(ds.last()).toStrictEqual(dp);
@@ -35,7 +33,6 @@ describe("DiscardStack", () => {
     const c3 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     const c4 = new Card.Card(Card.CardMark.CLUBS, 5);
     const ds = Discard.createDiscardStack();
-    const ndp = Discard.createNullDiscardPair();
     const dp1 = Discard.CreateDiscardPairForTest(c1, c2);
     const dp2 = Discard.CreateDiscardPairForTest(c3, c4);
     ds.push(dp1);
