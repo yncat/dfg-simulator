@@ -13,6 +13,7 @@ export interface DiscardPair {
   isNull: () => boolean;
   isKaidan: () => boolean;
   isSameFrom: (discardPair: DiscardPair) => boolean;
+  isOnlyJoker: () => boolean;
 }
 
 class DiscardPairImple implements DiscardPair {
@@ -77,6 +78,14 @@ class DiscardPairImple implements DiscardPair {
       }
     }
     return ok;
+  }
+
+  public isOnlyJoker(): boolean {
+    return (
+      this.cards.filter((val) => {
+        return !val.isJoker();
+      }).length == 0
+    );
   }
 
   private strengthsFromWeakest() {
@@ -865,6 +874,9 @@ export class DiscardPairEnumerator {
     }
     if (pair.isKaidan() != lastPair.isKaidan()) {
       return false;
+    }
+    if (pair.isOnlyJoker()) {
+      return true;
     }
     if (
       !CalcFunctions.isStrongEnough(

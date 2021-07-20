@@ -352,4 +352,18 @@ describe("prune", () => {
     const dsw: Discard.DiscardPair[] = [Discard.CreateDiscardPairForTest(s3)];
     expect(e["prune"](dps, ds)).toStrictEqual(dsw);
   });
+
+  it("does not prune a single joker after a 3 of spades when strength is inverted", () => {
+    const s3 = new Card.Card(Card.CardMark.SPADES, 3);
+    const joker = new Card.Card(Card.CardMark.JOKER);
+    const ds = createDiscardStackFixture(s3);
+    const e = new Discard.DiscardPairEnumerator(ds, true);
+    const dps: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(joker),
+    ];
+    const dsw: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(joker),
+    ];
+    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+  });
 });
