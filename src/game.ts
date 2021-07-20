@@ -631,7 +631,13 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public getDiscard(): Discard.DiscardPair {
     if (this.discardPair === null) {
-      throw new ActivePlayerControlError("cannot get discard when passed");
+      if (this.hasPassed()) {
+        throw new ActivePlayerControlError("cannot get discard when passed");
+      } else {
+        throw new ActivePlayerControlError(
+          "tried to get discard, but it was empty"
+        );
+      }
     }
     return this.discardPair;
   }
