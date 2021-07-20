@@ -35,6 +35,13 @@ export class Card {
   }
 
   public isSameFrom(anotherCard: Card): boolean {
+    // wildcards are treeted as joker, too.
+    if(this.isJoker() && anotherCard.mark==CardMark.WILD){
+      return true;
+    }
+    if(anotherCard.isJoker() && this.mark==CardMark.WILD){
+      return true;
+    }
     return (
       this.mark == anotherCard.mark && this.cardNumber == anotherCard.cardNumber
     );

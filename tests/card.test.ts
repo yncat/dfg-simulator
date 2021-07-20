@@ -36,6 +36,12 @@ describe("Card", () => {
     expect(c1.isSameFrom(c3)).toBeFalsy();
   });
 
+  it("Can identify wildcarded card as same from a joker", () => {
+    const c1 = new Card.Card(Card.CardMark.JOKER);
+    const c2 = new Card.Card(Card.CardMark.WILD, 3);
+    expect(c1.isSameFrom(c2)).toBeTruthy();
+  });
+
   it("Can identify joker", () => {
     const c1 = new Card.Card(Card.CardMark.JOKER);
     const c2 = new Card.Card(Card.CardMark.SPADES, 3);

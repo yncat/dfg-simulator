@@ -135,7 +135,7 @@ describe("countJokers", () => {
 });
 
 describe("take", () => {
-  describe("can take cards from the hand", () => {
+  it("can take cards from the hand", () => {
     const h = new Hand.Hand();
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 8);
@@ -148,5 +148,17 @@ describe("take", () => {
     h.take(c1, c22, c4);
     expect(h.cards.length).toBe(1);
     expect(h.cards).toStrictEqual([c3]);
+  });
+
+  it("can take a joker when wildcard is found", () => {
+    const h = new Hand.Hand();
+    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 7);
+    const c2 = new Card.Card(Card.CardMark.DIAMONDS, 8);
+    const c3 = new Card.Card(Card.CardMark.DIAMONDS, 9);
+    const c4 = new Card.Card(Card.CardMark.JOKER)
+    const c4w=new Card.Card(Card.CardMark.WILD,10);
+    h.give(c1, c2, c3,c4);
+    h.take(c1, c2, c3, c4w);
+    expect(h.cards.length).toBe(0);
   });
 });
