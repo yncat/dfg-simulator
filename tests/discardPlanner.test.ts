@@ -448,6 +448,20 @@ describe("checkSelectability", () => {
           Discard.SelectabilityCheckResult.SELECTABLE
         );
       });
+
+      it("returns NOT_SELECTABLE when the last discard is null, selecting a numbered card and trying to select not fully-sequenced card", () => {
+        const h = new Hand.Hand();
+        h.give(
+          new Card.Card(Card.CardMark.SPADES, 4),
+          new Card.Card(Card.CardMark.SPADES, 5)
+        );
+        const ds = Discard.createDiscardStack();
+        const p = new Discard.DiscardPlanner(h, ds, false);
+        p.select(0);
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        );
+      });
     });
   });
 

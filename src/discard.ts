@@ -377,7 +377,7 @@ export class DiscardPlanner {
           : SelectabilityCheckResult.NOT_SELECTABLE;
       }
     } else {
-      // kaidan?
+      // The last discard pair is not a kaidan.
       if (selectingCard.isJoker()) {
         // When using joker, other cards can be any card if it's stronger than the last discard
         const cn = ldp.calcCardNumber(this.strengthInverted);
@@ -483,7 +483,8 @@ export class DiscardPlanner {
         const wc = this.findWeakestSelectedCard();
         // OK if the selecting card is connected by kaidan with the previous selection.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
-        return this.isConnectedByKaidan(wc.cardNumber, selectingCard)
+        // More than 3 sequencial cards must be present for a valid kaidan.
+        return (this.isConnectedByKaidan(wc.cardNumber, selectingCard) && this.countSequencialCardsFrom(wc.mark,wc.cardNumber) >= 3)
           ? SelectabilityCheckResult.SELECTABLE
           : SelectabilityCheckResult.NOT_SELECTABLE;
       }
