@@ -1,4 +1,4 @@
-import * as CalcFunctions from "../src/calcFunctions";
+import * as Calculation from "../src/calculation";
 
 describe.each([
   [false, false, false],
@@ -7,7 +7,7 @@ describe.each([
   [true, true, false],
 ])("isStrengthInverted(jBack=%p, kakumei=%p)", (a, b, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.isStrengthInverted(a, b)).toBe(e);
+    expect(Calculation.isStrengthInverted(a, b)).toBe(e);
   });
 });
 
@@ -18,7 +18,7 @@ describe.each([
   [3, 2, true, 3],
 ])("findStrongerCardNumber(a:%i,b:%i,inverted:%p)", (a, b, c, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.findStrongerCardNumber(a, b, c)).toBe(e);
+    expect(Calculation.findStrongerCardNumber(a, b, c)).toBe(e);
   });
 });
 
@@ -32,7 +32,7 @@ describe.each([
   [4, 3, true, true],
 ])("is strong enough? (last=%i, new=%i, inverted=%p)", (a, b, c, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.isStrongEnough(a, b, c)).toBe(e);
+    expect(Calculation.isStrongEnough(a, b, c)).toBe(e);
   });
 });
 
@@ -53,7 +53,7 @@ describe.each([
   [13, 13],
 ])("convertCardNumberToStrength (%i)", (a, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.convertCardNumberIntoStrength(a)).toBe(e);
+    expect(Calculation.convertCardNumberIntoStrength(a)).toBe(e);
   });
 });
 
@@ -74,7 +74,7 @@ describe.each([
   [13, 13],
 ])("convertCardNumberToStrength (%i)", (a, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.convertCardNumberIntoStrength(a)).toBe(e);
+    expect(Calculation.convertCardNumberIntoStrength(a)).toBe(e);
   });
 });
 
@@ -108,7 +108,7 @@ describe.each([
   [2, true, 1],
 ])("calcStrongerCardNumber (%i, inverted %p)", (a, b, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.calcStrongerCardNumber(a, b)).toBe(e);
+    expect(Calculation.calcStrongerCardNumber(a, b)).toBe(e);
   });
 });
 
@@ -142,7 +142,7 @@ describe.each([
   [2, true, null],
 ])("calcWeakerCardNumber (%i, inverted %p)", (a, b, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.calcWeakerCardNumber(a, b)).toBe(e);
+    expect(Calculation.calcWeakerCardNumber(a, b)).toBe(e);
   });
 });
 
@@ -152,7 +152,7 @@ describe.each([
   [2, 1, [1, 2]],
 ])("enumerateNumbersBetween(a=%i, b=%i)", (a, b, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.enumerateNumbersBetween(a, b)).toStrictEqual(e);
+    expect(Calculation.enumerateNumbersBetween(a, b)).toStrictEqual(e);
   });
 });
 
@@ -164,6 +164,6 @@ describe.each([
   [13, 3],
 ])("calcRequiredDeckCount when %i players will join", (a, e) => {
   it("returns expected value", () => {
-    expect(CalcFunctions.calcRequiredDeckCount(a)).toBe(e);
+    expect(Calculation.calcRequiredDeckCount(a)).toBe(e);
   });
 });

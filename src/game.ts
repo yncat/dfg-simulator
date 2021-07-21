@@ -9,7 +9,7 @@ import * as Event from "./event";
 import * as Rule from "./rule";
 import * as Deck from "./deck";
 import * as Discard from "./discard";
-import * as CalcFunctions from "./calcFunctions";
+import * as Calculation from "./calculation";
 import * as Legality from "./legality";
 
 export type PlayerRank = {
@@ -101,7 +101,7 @@ function shufflePlayers(players: Player.Player[]): Player.Player[] {
 }
 
 function prepareDecks(playerCount: number): Deck.Deck[] {
-  const deckCount = CalcFunctions.calcRequiredDeckCount(playerCount);
+  const deckCount = Calculation.calcRequiredDeckCount(playerCount);
   const decks: Deck.Deck[] = [];
   for (let i = 0; i < deckCount; i++) {
     const d = new Deck.Deck();
@@ -305,7 +305,7 @@ export class GameImple implements Game {
   private makeStartInfo() {
     this.eventReceiver.onInitialInfoProvided(
       this.players.length,
-      CalcFunctions.calcRequiredDeckCount(this.players.length)
+      Calculation.calcRequiredDeckCount(this.players.length)
     );
     for (let i = 0; i < this.players.length; i++) {
       this.eventReceiver.onCardsProvided(

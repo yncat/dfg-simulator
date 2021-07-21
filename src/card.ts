@@ -1,7 +1,7 @@
 /*
 Daifugo cards
 */
-import * as CalcFunctions from "./calcFunctions";
+import * as Calculation from "./calculation";
 
 // Marks
 export const CardMark = {
@@ -52,7 +52,7 @@ export class Card {
   }
 
   public calcStrength(): number {
-    return CalcFunctions.convertCardNumberIntoStrength(this.cardNumber);
+    return Calculation.convertCardNumberIntoStrength(this.cardNumber);
   }
 
   public copy(): Card {

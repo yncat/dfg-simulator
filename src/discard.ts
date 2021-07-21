@@ -3,7 +3,7 @@ Discard plan builder / checker
 */
 import * as Card from "./card";
 import { Hand } from "./hand";
-import * as CalcFunctions from "./calcFunctions";
+import * as Calculation from "./calculation";
 
 export interface DiscardPair {
   cards: Card.Card[];
@@ -51,7 +51,7 @@ class DiscardPairImple implements DiscardPair {
       if (a.cardNumber == b.cardNumber) {
         return 0;
       }
-      const stronger = CalcFunctions.findStrongerCardNumber(
+      const stronger = Calculation.findStrongerCardNumber(
         a.cardNumber,
         b.cardNumber,
         strengthInverted
@@ -109,7 +109,7 @@ class DiscardPairImple implements DiscardPair {
 
   private strengthsFromWeakest() {
     const strs: number[] = this.cards.map((cd: Card.Card) => {
-      return CalcFunctions.convertCardNumberIntoStrength(cd.cardNumber);
+      return Calculation.convertCardNumberIntoStrength(cd.cardNumber);
     });
     // sort: ascending
     strs.sort((a: number, b: number) => {
@@ -327,9 +327,9 @@ export class DiscardPlanner {
     }
 
     // check strength
-    const strongEnough = CalcFunctions.isStrongEnough(
+    const strongEnough = Calculation.isStrongEnough(
       ldp.calcStrength(),
-      CalcFunctions.convertCardNumberIntoStrength(selectingCard.cardNumber),
+      Calculation.convertCardNumberIntoStrength(selectingCard.cardNumber),
       this.strengthInverted
     );
     if (!strongEnough) {
@@ -349,7 +349,7 @@ export class DiscardPlanner {
     if (ldp.isKaidan()) {
       if (selectingCard.isJoker()) {
         // If selecting a joker, all kaidan combinations might be possible if it's stronger than the last discard pair
-        const nums = CalcFunctions.enumerateStrongerCardNumbers(
+        const nums = Calculation.enumerateStrongerCardNumbers(
           lastDiscardPairCardNumber,
           this.strengthInverted
         );
@@ -373,7 +373,7 @@ export class DiscardPlanner {
         // search for starting point of the sequence
         let s = this.findKaidanStartingPoint(selectingCard);
         // Clip the value to the last discard + 1 strength
-        const clip = CalcFunctions.calcStrongerCardNumber(
+        const clip = Calculation.calcStrongerCardNumber(
           lastDiscardPairCardNumber,
           this.strengthInverted
         );
@@ -400,7 +400,7 @@ export class DiscardPlanner {
       if (selectingCard.isJoker()) {
         // When using joker, other cards can be any card if it's stronger than the last discard
         const cn = ldp.calcCardNumber(this.strengthInverted);
-        const nums = CalcFunctions.enumerateStrongerCardNumbers(
+        const nums = Calculation.enumerateStrongerCardNumbers(
           cn,
           this.strengthInverted
         );
@@ -477,7 +477,7 @@ export class DiscardPlanner {
         let cn = ldp.calcCardNumber(this.strengthInverted);
         let found = false;
         while (true) {
-          const stronger = CalcFunctions.calcStrongerCardNumber(
+          const stronger = Calculation.calcStrongerCardNumber(
             cn,
             this.strengthInverted
           );
@@ -514,9 +514,9 @@ export class DiscardPlanner {
       const jokers = this.hand.countJokers();
       if (this.onlyJokersSelected()) {
         const ok =
-          CalcFunctions.isStrongEnough(
+          Calculation.isStrongEnough(
             ldp.calcStrength(),
-            CalcFunctions.convertCardNumberIntoStrength(
+            Calculation.convertCardNumberIntoStrength(
               selectingCard.cardNumber
             ),
             this.strengthInverted
@@ -556,7 +556,7 @@ export class DiscardPlanner {
     // This function is used for checking kaidan combinations, so returns false when card marks are different.
     // This function considers jokers in the hand. When one of the required cards is not found, it tries to substitute a joker instead.
     let ret = 0;
-    let str = CalcFunctions.convertCardNumberIntoStrength(cardNumber);
+    let str = Calculation.convertCardNumberIntoStrength(cardNumber);
     let jokers = this.hand.countJokers();
     while (true) {
       if (str == 2 || str == 16) {
@@ -565,7 +565,7 @@ export class DiscardPlanner {
       if (
         this.hand.countCardsWithSpecifiedMarkAndNumber(
           cardMark,
-          CalcFunctions.convertStrengthIntoCardNumber(str)
+          Calculation.convertStrengthIntoCardNumber(str)
         ) == 0
       ) {
         if (jokers == 0) {
@@ -593,7 +593,7 @@ export class DiscardPlanner {
         jokers--; // Joker substituted.
       }
       start = cn;
-      cn = CalcFunctions.calcWeakerCardNumber(start, this.strengthInverted);
+      cn = Calculation.calcWeakerCardNumber(start, this.strengthInverted);
       if (cn === null) {
         break;
       }
@@ -624,7 +624,7 @@ export class DiscardPlanner {
         break;
       }
       start = cn;
-      cn = CalcFunctions.calcStrongerCardNumber(start, this.strengthInverted);
+      cn = Calculation.calcStrongerCardNumber(start, this.strengthInverted);
       if (cn === null) {
         break;
       }
@@ -641,9 +641,9 @@ export class DiscardPlanner {
     cards.sort((a, b) => {
       return a.cardNumber == b.cardNumber
         ? 0
-        : CalcFunctions.isStrongEnough(
-            CalcFunctions.convertCardNumberIntoStrength(a.cardNumber),
-            CalcFunctions.convertCardNumberIntoStrength(b.cardNumber),
+        : Calculation.isStrongEnough(
+            Calculation.convertCardNumberIntoStrength(a.cardNumber),
+            Calculation.convertCardNumberIntoStrength(b.cardNumber),
             this.strengthInverted
           )
         ? -1
@@ -730,12 +730,12 @@ export class DiscardPairEnumerator {
     const weakerLst: number[] = [];
     const strongerLst: number[] = [];
     for (let i = 0; i < jokers; i++) {
-      const w = CalcFunctions.calcWeakerCardNumber(
+      const w = Calculation.calcWeakerCardNumber(
         weakerOffset,
         this.strengthInverted
       );
       if (w === null) {
-        const s = CalcFunctions.calcStrongerCardNumber(
+        const s = Calculation.calcStrongerCardNumber(
           strongerOffset,
           this.strengthInverted
         );
@@ -752,7 +752,7 @@ export class DiscardPairEnumerator {
       weakerOffset = w;
     }
     weakerLst.reverse(); // weakest element should be first
-    const ofs = CalcFunctions.calcStrongerCardNumber(
+    const ofs = Calculation.calcStrongerCardNumber(
       strongerOffset,
       this.strengthInverted
     );
@@ -816,7 +816,7 @@ export class DiscardPairEnumerator {
     let njokers = jokers;
     let ofs = weakestCardNumber;
     while (true) {
-      const next = CalcFunctions.calcStrongerCardNumber(
+      const next = Calculation.calcStrongerCardNumber(
         ofs,
         this.strengthInverted
       );
@@ -900,7 +900,7 @@ export class DiscardPairEnumerator {
       return true;
     }
     if (
-      !CalcFunctions.isStrongEnough(
+      !Calculation.isStrongEnough(
         lastPair.calcStrength(),
         pair.calcStrength(),
         this.strengthInverted
@@ -965,9 +965,9 @@ export class DiscardPairEnumerator {
     cds.sort((a, b) => {
       return a.cardNumber == b.cardNumber
         ? 0
-        : CalcFunctions.isStrongEnough(
-            CalcFunctions.convertCardNumberIntoStrength(a.cardNumber),
-            CalcFunctions.convertCardNumberIntoStrength(b.cardNumber),
+        : Calculation.isStrongEnough(
+            Calculation.convertCardNumberIntoStrength(a.cardNumber),
+            Calculation.convertCardNumberIntoStrength(b.cardNumber),
             this.strengthInverted
           )
         ? -1
@@ -1006,7 +1006,7 @@ class WildcardCombination {
     const s =
       this.strongerCardNumbers.length == 0
         ? this.strongerStartingPoint
-        : CalcFunctions.calcStrongerCardNumber(
+        : Calculation.calcStrongerCardNumber(
             this.strongerCardNumbers[this.strongerCardNumbers.length - 1],
             this.strengthInverted
           );
