@@ -128,3 +128,40 @@ describe("isOnlyJoker", () => {
     expect(dp.isOnlyJoker()).toBeFalsy();
   });
 });
+
+describe("countWithCondition", () => {
+  it("counts all cards when all conditions are null", () => {
+    const dp = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.CardMark.DIAMONDS, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 7)
+    );
+    expect(dp.countWithCondition(null, null)).toBe(2);
+  });
+
+  it("counts matched card (card mark)", () => {
+    const dp = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.CardMark.DIAMONDS, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 7),
+      new Card.Card(Card.CardMark.SPADES, 7)
+    );
+    expect(dp.countWithCondition(Card.CardMark.DIAMONDS, null)).toBe(2);
+  });
+
+  it("counts matched card (card number)", () => {
+    const dp = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.CardMark.DIAMONDS, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 7),
+      new Card.Card(Card.CardMark.SPADES, 7)
+    );
+    expect(dp.countWithCondition(null, 7)).toBe(2);
+  });
+
+  it("counts matched card (card mark and number)", () => {
+    const dp = Discard.CreateDiscardPairForTest(
+      new Card.Card(Card.CardMark.DIAMONDS, 6),
+      new Card.Card(Card.CardMark.DIAMONDS, 7),
+      new Card.Card(Card.CardMark.SPADES, 7)
+    );
+    expect(dp.countWithCondition(Card.CardMark.DIAMONDS, 7)).toBe(1);
+  });
+});

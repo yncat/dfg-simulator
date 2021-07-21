@@ -8,6 +8,7 @@ import * as CalcFunctions from "./calcFunctions";
 export interface DiscardPair {
   cards: Card.Card[];
   count: () => number;
+  countWithCondition:(mark:Card.CardMark | null, cardNumber:number | null)=>number;
   calcCardNumber: (strengthInverted: boolean) => number;
   calcStrength: () => number;
   isNull: () => boolean;
@@ -24,6 +25,18 @@ class DiscardPairImple implements DiscardPair {
 
   public count(): number {
     return this.cards.length;
+  }
+
+  public countWithCondition(mark:Card.CardMark | null, cardNumber:number|null):number{
+    return this.cards.filter((v)=>{
+      if(mark !==null && v.mark!==mark){
+        return false;
+      }
+      if(cardNumber !== null && v.cardNumber!==cardNumber){
+        return false;
+      }
+      return true;
+    }).length;
   }
 
   public calcCardNumber(strengthInverted: boolean): number {
