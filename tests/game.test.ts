@@ -23,6 +23,7 @@ function createGameFixture() {
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
+    penalizedPlayerIdentifiers: [],
     eventReceiver: createMockEventReceiver(),
     ruleConfig: Rule.createDefaultRuleConfig(),
   };
@@ -78,6 +79,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -103,6 +105,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -128,6 +131,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -162,6 +166,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -196,6 +201,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -220,7 +226,7 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
-    const p3 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
     const r = createMockEventReceiver();
     const params: Game.GameInitParams = {
       players: [p1, p2, p3],
@@ -230,6 +236,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -257,6 +264,52 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
   });
 
+  it("emits forbidden agari event when player's agari pair is forbidden one", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = new Card.Card(Card.CardMark.JOKER);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const r = createMockEventReceiver();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: r,
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    expect(dps[0].cards).toStrictEqual([c1]);
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(r.onDiscard).toHaveBeenCalled();
+    expect(r.onForbiddenAgari).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(r.onPlayerRankChanged.mock.calls[0][1]).toBe(
+      Rank.RankType.UNDETERMINED
+    );
+    expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(
+      Rank.RankType.DAIHINMIN
+    );
+    expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
+    expect(p1.hand.cards).toStrictEqual([]);
+    const ndp = Discard.CreateDiscardPairForTest(c1);
+    expect(g["discardStack"].last()).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual([]);
+    expect(g["penalizedPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
+  });
+
   it("determines rank, and emits agari / end event when player gets agari and only 1 player remains", () => {
     const p1 = Player.createPlayer("a");
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
@@ -271,6 +324,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -313,6 +367,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -344,6 +399,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -371,6 +427,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -398,6 +455,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -427,6 +485,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -463,6 +522,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -499,6 +559,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -535,6 +596,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -568,6 +630,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -601,6 +664,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -637,6 +701,7 @@ describe("Game.finishActivePlayerControl", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
     };
@@ -668,6 +733,7 @@ describe("gameImple.isEnded", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -688,6 +754,7 @@ describe("gameImple.isEnded", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -719,6 +786,7 @@ describe("gameImple.isEnded", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -744,6 +812,7 @@ describe("gameImple.enumeratePlayerRanks", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -779,6 +848,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -806,6 +876,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -834,6 +905,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -861,6 +933,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -887,6 +960,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -919,6 +993,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -953,6 +1028,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "",
       strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
@@ -993,6 +1069,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       lastDiscarderIdentifier: "a",
       strengthInverted: false,
       agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };

@@ -10,6 +10,7 @@ import * as Rule from "./rule";
 import * as Deck from "./deck";
 import * as Discard from "./discard";
 import * as CalcFunctions from "./calcFunctions";
+import * as Legality from "./legality";
 
 export type PlayerRank = {
   identifier: string;
@@ -35,6 +36,7 @@ export type GameInitParams = {
   lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   agariPlayerIdentifiers: string[];
+  penalizedPlayerIdentifiers: string[];
   eventReceiver: Event.EventReceiver;
   ruleConfig: Rule.RuleConfig;
 };
@@ -65,6 +67,7 @@ export function createGame(
     lastDiscarderIdentifier: "",
     strengthInverted: false,
     agariPlayerIdentifiers: [],
+    penalizedPlayerIdentifiers: [],
     eventReceiver: eventReceiver,
     ruleConfig: ruleConfig,
   };
@@ -141,6 +144,7 @@ export class GameImple implements Game {
   private lastDiscarderIdentifier: string;
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
+  private penalizedPlayerIdentifiers: string[];
   private gameEnded: boolean; // cach the game finish state for internal use
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
@@ -156,6 +160,7 @@ export class GameImple implements Game {
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
+    this.penalizedPlayerIdentifiers = params.penalizedPlayerIdentifiers;
     this.eventReceiver = params.eventReceiver;
     this.ruleConfig = params.ruleConfig;
     this.gameEnded = false;
@@ -466,16 +471,35 @@ export class GameImple implements Game {
   private processAgariCheck() {
     const p = this.players[this.activePlayerIndex];
     if (p.hand.count() == 0) {
-      this.eventReceiver.onAgari(p.identifier);
-      this.agariPlayerIdentifiers.push(p.identifier);
-      const pos = this.agariPlayerIdentifiers.length;
-      const ret = p.rank.determine(this.players.length, pos);
-      this.eventReceiver.onPlayerRankChanged(
-        p.identifier,
-        ret.before,
-        ret.after
-      );
+      if (
+        Legality.isForbiddenAgari(
+          this.discardStack.last(),
+          this.strengthInverted
+        )
+      ) {
+        this.processForbiddenAgari();
+        return;
+      }
+      this.processLegalAgari();
     }
+  }
+
+  private processLegalAgari() {
+    const p = this.players[this.activePlayerIndex];
+    this.eventReceiver.onAgari(p.identifier);
+    this.agariPlayerIdentifiers.push(p.identifier);
+    const pos = this.agariPlayerIdentifiers.length;
+    const ret = p.rank.determine(this.players.length, pos);
+    this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
+  }
+
+  private processForbiddenAgari() {
+    const p = this.players[this.activePlayerIndex];
+    this.eventReceiver.onForbiddenAgari(p.identifier);
+    const pos = this.players.length - this.penalizedPlayerIdentifiers.length;
+    const ret = p.rank.determine(this.players.length, pos);
+    this.penalizedPlayerIdentifiers.push(p.identifier);
+    this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
   }
 
   private processGameEndCheck() {

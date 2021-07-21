@@ -3,6 +3,7 @@ import { DiscardPair } from "./discard";
 
 type NagareCallback = () => void;
 type AgariCallback = (identifier: string) => void;
+type ForbiddenAgariCallback = (identifier: string) => void;
 type YagiriCallback = (identifier: string) => void;
 type JBackCallback = (identifier: string) => void;
 type KakumeiCallback = (identifier: string) => void;
@@ -28,6 +29,7 @@ type CardsProvidedCallback = (
 export interface EventReceiver {
   onNagare: NagareCallback;
   onAgari: AgariCallback;
+  onForbiddenAgari: ForbiddenAgariCallback;
   onYagiri: YagiriCallback;
   onJBack: JBackCallback;
   onKakumei: KakumeiCallback;
