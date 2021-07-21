@@ -8,7 +8,10 @@ import * as CalcFunctions from "./calcFunctions";
 export interface DiscardPair {
   cards: Card.Card[];
   count: () => number;
-  countWithCondition:(mark:Card.CardMark | null, cardNumber:number | null)=>number;
+  countWithCondition: (
+    mark: Card.CardMark | null,
+    cardNumber: number | null
+  ) => number;
   calcCardNumber: (strengthInverted: boolean) => number;
   calcStrength: () => number;
   isNull: () => boolean;
@@ -27,12 +30,15 @@ class DiscardPairImple implements DiscardPair {
     return this.cards.length;
   }
 
-  public countWithCondition(mark:Card.CardMark | null, cardNumber:number|null):number{
-    return this.cards.filter((v)=>{
-      if(mark !==null && v.mark!==mark){
+  public countWithCondition(
+    mark: Card.CardMark | null,
+    cardNumber: number | null
+  ): number {
+    return this.cards.filter((v) => {
+      if (mark !== null && v.mark !== mark) {
         return false;
       }
-      if(cardNumber !== null && v.cardNumber!==cardNumber){
+      if (cardNumber !== null && v.cardNumber !== cardNumber) {
         return false;
       }
       return true;
@@ -497,7 +503,8 @@ export class DiscardPlanner {
         // OK if the selecting card is connected by kaidan with the previous selection.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
         // More than 3 sequencial cards must be present for a valid kaidan.
-        return (this.isConnectedByKaidan(wc.cardNumber, selectingCard) && this.countSequencialCardsFrom(wc.mark,wc.cardNumber) >= 3)
+        return this.isConnectedByKaidan(wc.cardNumber, selectingCard) &&
+          this.countSequencialCardsFrom(wc.mark, wc.cardNumber) >= 3
           ? SelectabilityCheckResult.SELECTABLE
           : SelectabilityCheckResult.NOT_SELECTABLE;
       }
