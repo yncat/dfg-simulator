@@ -15,6 +15,6 @@ export {
   ActivePlayerControl,
 } from "./game";
 export { generateUniqueIdentifiers } from "./player";
-export { Hand } from "./hand";
+export { Hand, createHand } from "./hand";
 export { RankType } from "./rank";
 export { RuleConfig, createDefaultRuleConfig } from "./rule";

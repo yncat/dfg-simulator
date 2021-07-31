@@ -14,7 +14,7 @@ export interface Hand {
   sort:()=>void;
 }
 
-class HandImple {
+class HandImple implements Hand {
   cards: Card.Card[];
 
   constructor() {
