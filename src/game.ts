@@ -24,8 +24,9 @@ export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
   enumeratePlayerRanks: () => PlayerRank[];
+  enumeratePlayerIdentifiers: () => string[];
   isEnded: () => boolean;
-  findPlayerByIdentifier:(identifier:string)=>Player.Player;
+  findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
 }
 
@@ -221,13 +222,19 @@ export class GameImple implements Game {
     });
   }
 
+  public enumeratePlayerIdentifiers(): string[] {
+    return this.players.map((v) => {
+      return v.identifier;
+    });
+  }
+
   public isEnded(): boolean {
     return this.gameEnded;
   }
 
-  public findPlayerByIdentifier(identifier:string):Player.Player{
+  public findPlayerByIdentifier(identifier: string): Player.Player {
     const p = this.findPlayerOrNull(identifier);
-    if(p===null){
+    if (p === null) {
       throw new GameError("player " + identifier + " is not found");
     }
     return p;
@@ -322,12 +329,6 @@ export class GameImple implements Game {
         this.players[i].hand.count()
       );
     }
-  }
-
-  private enumeratePlayerIdentifiers() {
-    return this.players.map((v) => {
-      return v.identifier;
-    });
   }
 
   private enumerateHandCounts() {
