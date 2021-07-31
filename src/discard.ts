@@ -297,7 +297,7 @@ export class DiscardPlanner {
     const sldp = this.discardStack.secondToLast();
     return (
       ldp.count() == 1 &&
-      ldp.cards[0].isSameFrom(new Card.Card(Card.CardMark.SPADES, 3)) &&
+      ldp.cards[0].isSameFrom(Card.createCard(Card.CardMark.SPADES, 3)) &&
       sldp.count() == 1 &&
       sldp.cards[0].isJoker()
     );
@@ -781,12 +781,12 @@ export class DiscardPairEnumerator {
     const dps: DiscardPair[] = [];
     for (let i = 0; i < coms.length; i++) {
       const wcds = coms[i].weakerCardNumbers.map((v) => {
-        const c = new Card.Card(mark, v);
+        const c = Card.createCard(mark, v);
         c.flagAsWildcard();
         return c;
       });
       const scds = coms[i].strongerCardNumbers.map((v) => {
-        const c = new Card.Card(mark, v);
+        const c = Card.createCard(mark, v);
         c.flagAsWildcard();
         return c;
       });
@@ -836,7 +836,7 @@ export class DiscardPairEnumerator {
         }
         njokers--;
         this.removeJoker();
-        const wc = new Card.Card(Card.CardMark.DIAMONDS, ofs);
+        const wc = Card.createCard(Card.CardMark.DIAMONDS, ofs);
         wc.flagAsWildcard();
         this.selectedCards.push(wc);
       }
@@ -917,7 +917,7 @@ export class DiscardPairEnumerator {
     const sldp = discardStack.secondToLast();
     return (
       ldp.count() == 1 &&
-      ldp.cards[0].isSameFrom(new Card.Card(Card.CardMark.SPADES, 3)) &&
+      ldp.cards[0].isSameFrom(Card.createCard(Card.CardMark.SPADES, 3)) &&
       sldp.count() == 1 &&
       sldp.cards[0].isJoker()
     );

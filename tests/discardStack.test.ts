@@ -9,8 +9,8 @@ describe("DiscardStack", () => {
   });
 
   it("can push a new discard pair", () => {
-    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.CLUBS, 4);
     const ds = Discard.createDiscardStack();
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     ds.push(dp);
@@ -19,8 +19,8 @@ describe("DiscardStack", () => {
   });
 
   it("can retrieve the last pushed discard pair", () => {
-    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.CLUBS, 4);
     const ds = Discard.createDiscardStack();
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     ds.push(dp);
@@ -28,10 +28,10 @@ describe("DiscardStack", () => {
   });
 
   it("can retrieve the second to last pushed discard pair", () => {
-    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
-    const c3 = new Card.Card(Card.CardMark.DIAMONDS, 5);
-    const c4 = new Card.Card(Card.CardMark.CLUBS, 5);
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.CLUBS, 4);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c4 = Card.createCard(Card.CardMark.CLUBS, 5);
     const ds = Discard.createDiscardStack();
     const dp1 = Discard.CreateDiscardPairForTest(c1, c2);
     const dp2 = Discard.CreateDiscardPairForTest(c3, c4);
@@ -47,8 +47,8 @@ describe("DiscardStack", () => {
   });
 
   it("can clear the stacked discard pairs", () => {
-    const c1 = new Card.Card(Card.CardMark.DIAMONDS, 4);
-    const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.CLUBS, 4);
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     const ds = Discard.createDiscardStack();
     const ndp = Discard.createNullDiscardPair();

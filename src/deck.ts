@@ -10,23 +10,23 @@ export class Deck {
     this.cards = [];
     // Clubs 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.CardMark.CLUBS, i));
+      this.cards.push(Card.createCard(Card.CardMark.CLUBS, i));
     }
     // Diamonds 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.CardMark.DIAMONDS, i));
+      this.cards.push(Card.createCard(Card.CardMark.DIAMONDS, i));
     }
     // Hearts 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.CardMark.HEARTS, i));
+      this.cards.push(Card.createCard(Card.CardMark.HEARTS, i));
     }
     // Spades 1 to 13
     for (let i = 1; i < 14; i++) {
-      this.cards.push(new Card.Card(Card.CardMark.SPADES, i));
+      this.cards.push(Card.createCard(Card.CardMark.SPADES, i));
     }
     // Jokers
-    this.cards.push(new Card.Card(Card.CardMark.JOKER));
-    this.cards.push(new Card.Card(Card.CardMark.JOKER));
+    this.cards.push(Card.createCard(Card.CardMark.JOKER));
+    this.cards.push(Card.createCard(Card.CardMark.JOKER));
   }
 
   public shuffle(): void {
@@ -46,6 +46,6 @@ export class Deck {
 
   public draw(): Card.Card | null {
     const c = this.cards.pop();
-    return c instanceof Card.Card ? c : null;
+    return c ? c : null;
   }
 }

@@ -17,9 +17,19 @@ export type CardMark = typeof CardMark[keyof typeof CardMark];
 // Joker has cardNumber == 0
 export type CardNumber = number;
 
+export interface Card {
+  readonly mark: CardMark;
+  readonly cardNumber: number;
+  isSameFrom: (anotherCard: Card) => boolean;
+  isJoker: () => boolean;
+  calcStrength: () => number;
+  copy: () => Card;
+  flagAsWildcard: () => Card;
+}
+
 class InvalidCardError extends Error {}
 
-export class Card {
+export class CardImple implements Card {
   constructor(public mark: CardMark, public cardNumber: CardNumber = 0) {
     if (cardNumber < 0 || cardNumber > 13) {
       throw new InvalidCardError("card number range must be 0(joker) to 13");
@@ -56,11 +66,15 @@ export class Card {
   }
 
   public copy(): Card {
-    return new Card(this.mark, this.cardNumber);
+    return createCard(this.mark, this.cardNumber);
   }
 
   public flagAsWildcard(): Card {
     this.mark = CardMark.WILD;
     return this;
   }
+}
+
+export function createCard(mark:CardMark, cardNumber:number=0): Card {
+  return new CardImple(mark, cardNumber);
 }
