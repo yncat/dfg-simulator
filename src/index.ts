@@ -12,6 +12,7 @@ export {
   GameCreationError,
   DiscardResult,
   PlayerRank,
+  ActivePlayerControl,
 } from "./game";
 export { generateUniqueIdentifiers } from "./player";
 export { RankType } from "./rank";
