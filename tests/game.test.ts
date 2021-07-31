@@ -833,6 +833,48 @@ describe("gameImple.enumeratePlayerRanks", () => {
   });
 });
 
+describe("game.findPlayerByIdentifier", () => {
+  it("returns player with the specified identifier", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    expect(g.findPlayerByIdentifier("a")).toBe(p1);
+  });
+
+  it("throws an error when not found", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = new Game.GameImple(params);
+    expect(() => {
+      g.findPlayerByIdentifier("c");
+    }).toThrow("player c is not found");
+  });
+});
+
 describe("Game.kickPlayerByIdentifier", () => {
   it("throws an error when nonexistent player identifier is passed", () => {
     const p1 = Player.createPlayer("a");

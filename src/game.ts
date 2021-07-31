@@ -25,6 +25,7 @@ export interface Game {
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
   enumeratePlayerRanks: () => PlayerRank[];
   isEnded: () => boolean;
+  findPlayerByIdentifier:(identifier:string)=>Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
 }
 
@@ -222,6 +223,14 @@ export class GameImple implements Game {
 
   public isEnded(): boolean {
     return this.gameEnded;
+  }
+
+  public findPlayerByIdentifier(identifier:string):Player.Player{
+    const p = this.findPlayerOrNull(identifier);
+    if(p===null){
+      throw new GameError("player " + identifier + " is not found");
+    }
+    return p;
   }
 
   public kickPlayerByIdentifier(identifier: string): void {
