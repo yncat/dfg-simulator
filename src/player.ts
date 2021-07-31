@@ -3,7 +3,7 @@ Daifugo player
 */
 
 import { Rank } from "./rank";
-import { Hand } from "./hand";
+import { Hand, createHand } from "./hand";
 
 export function generateUniqueIdentifiers(count: number): string[] {
   const ret: string[] = [];
@@ -41,7 +41,7 @@ export class PlayerImple implements Player {
   public readonly identifier: string;
   constructor(identifier: string) {
     this.identifier = identifier;
-    this.hand = new Hand();
+    this.hand = createHand();
     this.rank = new Rank();
   }
 }

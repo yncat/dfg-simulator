@@ -3,7 +3,18 @@ Player's hand
 */
 import * as Card from "./card";
 
-export class Hand {
+export interface Hand {
+  readonly cards:Card.Card[];
+  give:(...cards: Card.Card[])=> void;
+  take:(...cards: Card.Card[])=> void;
+  count:()=>number;
+  countCardsWithSpecifiedNumber:(cardNumber: number)=> number;
+  countCardsWithSpecifiedMarkAndNumber:(cardMark: Card.CardMark,cardNumber: number)=> number;
+  countJokers:()=>number;
+  sort:()=>void;
+}
+
+class HandImple {
   cards: Card.Card[];
 
   constructor() {
@@ -66,4 +77,8 @@ export class Hand {
       return a.calcStrength() < b.calcStrength() ? -1 : 1;
     });
   }
+}
+
+export function createHand():Hand{
+  return new HandImple();
 }

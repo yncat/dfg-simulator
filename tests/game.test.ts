@@ -1148,7 +1148,7 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 5);
     const c2 = new Card.Card(Card.CardMark.HEARTS, 6);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2);
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
@@ -1166,7 +1166,7 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
 
 describe("ActivePlayerControlImple.checkCardSelectability", () => {
   it("returns SELECTABLE when DiscardPlanner returned SELECTABLE", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1188,7 +1188,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1210,7 +1210,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1234,7 +1234,7 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
 
 describe("ActivePlayerControl.isCardSelected", () => {
   it("returns what DiscardPlanner.isSelected returned", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1258,7 +1258,7 @@ describe("ActivePlayerControl.isCardSelected", () => {
 
 describe("ActivePlayerControlImple.selectCard", () => {
   it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1278,7 +1278,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1298,7 +1298,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1320,7 +1320,7 @@ describe("ActivePlayerControlImple.selectCard", () => {
 
 describe("ActivePlayerControlImple.deselectCard", () => {
   it("returns SUCCESS when DiscardPlanner returned SUCCESS", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1340,7 +1340,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1360,7 +1360,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
   });
 
   it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1382,7 +1382,7 @@ describe("ActivePlayerControlImple.deselectCard", () => {
 
 describe("ActivePlayerControlImple.countSelectedCards", () => {
   it("returns what discardPlanner returned", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1406,7 +1406,7 @@ describe("ActivePlayerControlImple.countSelectedCards", () => {
 
 describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
   it("returns what DiscardPairEnumerator returned", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1430,7 +1430,7 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
 
 describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () => {
   it("can set passed flag", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1450,7 +1450,7 @@ describe("ActivePlayerControlImple.pass and ActivePlayerControl.hasPassed", () =
 describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () => {
   it("can set discard pair", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);
@@ -1475,7 +1475,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
   it("cannot set discard when the specified discard pair does not exist on available ones", () => {
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 6);
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 7);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const dp = new Discard.DiscardPlanner(h, ds, false);
     const dpe = new Discard.DiscardPairEnumerator(ds, false);

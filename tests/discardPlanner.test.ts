@@ -13,7 +13,7 @@ function createDiscardStackFixture(
 
 describe("DiscardPlanner", () => {
   it("can be instantiated", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     expect(p).toBeTruthy();
@@ -22,7 +22,7 @@ describe("DiscardPlanner", () => {
 
 describe("checkSelectability", () => {
   it("returns NOT_SELECTABLE when index is out of range", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
@@ -36,7 +36,7 @@ describe("checkSelectability", () => {
 
   describe("checking a single card", () => {
     it("returns SELECTABLE when the last discard is null", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
       const ds = Discard.createDiscardStack();
       const p = new Discard.DiscardPlanner(h, ds, false);
@@ -46,7 +46,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns SELECTABLE when checking a 3 of spades and the last discard is a joker", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
       const d = createDiscardStackFixture(new Card.Card(Card.CardMark.JOKER));
       const p = new Discard.DiscardPlanner(h, d, false);
@@ -56,7 +56,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns NOT_SELECTABLE when the last discard is a 3 of spades which negated a joker", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.SPADES, 5));
       h.give(new Card.Card(Card.CardMark.JOKER));
       const ds = Discard.createDiscardStack();
@@ -76,7 +76,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns SELECTABLE when checking a single joker and the last discard is an weaker card", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.JOKER));
       const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.CLUBS, 2)
@@ -88,7 +88,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns NOT_SELECTABLE when checking a single joker and the last discard is also a joker", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.JOKER));
       const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.CLUBS, 2)
@@ -100,7 +100,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns NOT_SELECTABLE when checking a single card and the last discard is stronger", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
       const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.SPADES, 2)
@@ -112,7 +112,7 @@ describe("checkSelectability", () => {
     });
 
     it("returns NOT_SELECTABLE when checking a single card and the last discard is a single joker", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.JOKER));
       const ds = createDiscardStackFixture(new Card.Card(Card.CardMark.JOKER));
       const p = new Discard.DiscardPlanner(h, ds, false);
@@ -123,7 +123,7 @@ describe("checkSelectability", () => {
 
     describe("when the last discard pair is more than 2 pairs", () => {
       it("returns SELECTABLE when the last discard is two-card pair and you have a required pair of stronger cards", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.SPADES, 6)
@@ -139,7 +139,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is two-card pair and you have a stronger card and joker", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.JOKER)
@@ -155,7 +155,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns NOT_SELECTABLE when the last discard is two-card pair and you only have weaker pair", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 6),
           new Card.Card(Card.CardMark.SPADES, 6)
@@ -171,7 +171,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns NOT_SELECTABLE when the last discard is two-card pair and you have one of the checking stronger cards only", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(new Card.Card(Card.CardMark.SPADES, 6));
         const ds = createDiscardStackFixture(
           new Card.Card(Card.CardMark.SPADES, 4),
@@ -184,7 +184,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is two-card pair and you have two jokers 01", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.JOKER)
@@ -200,7 +200,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is two-card pair and you have two jokers 02", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.JOKER),
           new Card.Card(Card.CardMark.JOKER)
@@ -216,7 +216,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is null and tried a kaidan combination", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 3),
           new Card.Card(Card.CardMark.SPADES, 4),
@@ -234,7 +234,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5),
@@ -258,7 +258,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards including a joker", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5),
@@ -282,7 +282,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is a kaidan and you have stronger kaidan cards including a joker in the middle of the kaidan", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.JOKER),
@@ -308,7 +308,7 @@ describe("checkSelectability", () => {
 
     describe("checking the second card", () => {
       it("returns SELECTABLE when the last discard is two-card pair and selecting the same numberd cards from the previously selected one", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.HEARTS, 5),
           new Card.Card(Card.CardMark.DIAMONDS, 5)
@@ -325,7 +325,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is two-card pair, selecting a joker and trying to select stronger numbered card", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.DIAMONDS, 5),
@@ -346,7 +346,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is three-card kaidan, selecting a joker and trying to select stronger numbered card", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5),
@@ -368,7 +368,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns NOT_SELECTABLE when the last discard is three-card kaidan, selecting a joker and trying to select stronger but not sequenced numbered card", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.DIAMONDS, 5),
@@ -388,7 +388,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and trying to select sequenced numbered cards", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5),
@@ -410,7 +410,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns NOT_SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and trying to select stronger but not sequenced numbered cards", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.DIAMONDS, 5),
@@ -430,7 +430,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns SELECTABLE when the last discard is three-card kaidan, selecting a numbered card and joker, and trying to select not sequenced numbered card which can be sequenced by using the joker", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.JOKER),
@@ -450,7 +450,7 @@ describe("checkSelectability", () => {
       });
 
       it("returns NOT_SELECTABLE when the last discard is null, selecting a numbered card and trying to select not fully-sequenced card", () => {
-        const h = new Hand.Hand();
+        const h = Hand.createHand();
         h.give(
           new Card.Card(Card.CardMark.SPADES, 4),
           new Card.Card(Card.CardMark.SPADES, 5)
@@ -468,7 +468,7 @@ describe("checkSelectability", () => {
   describe("when strength is inverted", () => {
     // just testing that strength invert is correctly passed. Main logic tests are all above.
     it("returns SELECTABLE when checking a single card and the last discard is weaker", () => {
-      const h = new Hand.Hand();
+      const h = Hand.createHand();
       h.give(new Card.Card(Card.CardMark.SPADES, 3));
       const ds = createDiscardStackFixture(
         new Card.Card(Card.CardMark.SPADES, 2)
@@ -483,7 +483,7 @@ describe("checkSelectability", () => {
 
 describe("isSelected", () => {
   it("returns true when the card at specified index is selected", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -492,7 +492,7 @@ describe("isSelected", () => {
   });
 
   it("returns false when the card at specified index is not selected", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -500,7 +500,7 @@ describe("isSelected", () => {
   });
 
   it("returns false when index is out of range", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -511,7 +511,7 @@ describe("isSelected", () => {
 
 describe("select", () => {
   it("returns SUCCESS when successfully selected a card", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -519,7 +519,7 @@ describe("select", () => {
   });
 
   it("returns ALREADY_SELECTED when the card is already selected", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -528,7 +528,7 @@ describe("select", () => {
   });
 
   it("returns NOT_SELECTABLE when the index is out of range", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -539,7 +539,7 @@ describe("select", () => {
 
 describe("deselect", () => {
   it("returns SUCCESS when successfully deselected a card", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -548,7 +548,7 @@ describe("deselect", () => {
   });
 
   it("returns ALREADY_DESELECTED when the card is not selected", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -556,7 +556,7 @@ describe("deselect", () => {
   });
 
   it("returns NOT_DESELECTABLE when the index is out of range", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -567,7 +567,7 @@ describe("deselect", () => {
 
 describe("CountSelectedCards", () => {
   it("can count selected cards", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
@@ -579,7 +579,7 @@ describe("CountSelectedCards", () => {
 
 describe("CountSelectedJokers", () => {
   it("can count selected jokers", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(
@@ -599,7 +599,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const c7 = new Card.Card(Card.CardMark.CLUBS, 7);
     const c8 = new Card.Card(Card.CardMark.CLUBS, 8);
     const c9 = new Card.Card(Card.CardMark.CLUBS, 9);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(c6, c7, c8, c9);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -611,7 +611,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const dm7 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const dm8 = new Card.Card(Card.CardMark.DIAMONDS, 8);
     const dm9 = new Card.Card(Card.CardMark.DIAMONDS, 9);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(dm6, dm7, dm8, dm9);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -623,7 +623,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const ht7 = new Card.Card(Card.CardMark.HEARTS, 7);
     const ht8 = new Card.Card(Card.CardMark.HEARTS, 8);
     const ht9 = new Card.Card(Card.CardMark.HEARTS, 9);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(ht6, ht7, ht8, ht9);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -635,7 +635,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const s7 = new Card.Card(Card.CardMark.SPADES, 7);
     const s8 = new Card.Card(Card.CardMark.SPADES, 8);
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s6, s7, s8, s9);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -647,7 +647,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const s7 = new Card.Card(Card.CardMark.SPADES, 7);
     const s8 = new Card.Card(Card.CardMark.SPADES, 8);
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s6, s7, s8, s9);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -660,7 +660,7 @@ describe("isKaidanPossibleFromSpecifiedCardNumber", () => {
     const s8 = new Card.Card(Card.CardMark.SPADES, 8);
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const joker = new Card.Card(Card.CardMark.JOKER);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s6, s7, s8, s9, joker);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -677,7 +677,7 @@ describe("isSpecial3OfSpades", () => {
     ds1.push(
       Discard.CreateDiscardPairForTest(new Card.Card(Card.CardMark.SPADES, 3))
     );
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["isSpecial3OfSpades"]).toBeTruthy();
   });
@@ -685,15 +685,15 @@ describe("isSpecial3OfSpades", () => {
 
 describe("countSequencialCardsFrom", () => {
   it("can count sequencial cards with same mark", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    const h2 = new Hand.Hand();
+    const h2 = Hand.createHand();
     h2.give(new Card.Card(Card.CardMark.SPADES, 4));
     const ds2 = Discard.createDiscardStack();
     const p2 = new Discard.DiscardPlanner(h2, ds2, false);
-    const h3 = new Hand.Hand();
+    const h3 = Hand.createHand();
     h3.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.SPADES, 5),
@@ -707,7 +707,7 @@ describe("countSequencialCardsFrom", () => {
   });
 
   it("do not count when marks are different from the start", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.HEARTS, 5),
@@ -719,11 +719,11 @@ describe("countSequencialCardsFrom", () => {
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, true);
-    const h2 = new Hand.Hand();
+    const h2 = Hand.createHand();
     h2.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.SPADES, 3),
@@ -731,7 +731,7 @@ describe("countSequencialCardsFrom", () => {
     );
     const ds2 = Discard.createDiscardStack();
     const p2 = new Discard.DiscardPlanner(h2, ds2, true);
-    const h3 = new Hand.Hand();
+    const h3 = Hand.createHand();
     h3.give(
       new Card.Card(Card.CardMark.SPADES, 6),
       new Card.Card(Card.CardMark.SPADES, 5),
@@ -745,7 +745,7 @@ describe("countSequencialCardsFrom", () => {
   });
 
   it("can count sequencial cards by substituting jokers", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(
       new Card.Card(Card.CardMark.SPADES, 8),
       new Card.Card(Card.CardMark.JOKER),
@@ -765,7 +765,7 @@ describe("findKaidanStartingPoint", () => {
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, s9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -781,7 +781,7 @@ describe("findKaidanStartingPoint", () => {
     const joker = new Card.Card(Card.CardMark.JOKER);
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, joker, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -798,7 +798,7 @@ describe("enumerateSelectedCards", () => {
     const c2 = new Card.Card(Card.CardMark.SPADES, 9);
     const c3 = new Card.Card(Card.CardMark.SPADES, 10);
     const c4 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(c1, c2, c3, c4);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -811,7 +811,7 @@ describe("enumerateSelectedCards", () => {
 
 describe("isSameNumberFromPreviouslySelected", () => {
   it("can detect whether selecting card has same card number from the previously selected cards", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 8));
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -821,7 +821,7 @@ describe("isSameNumberFromPreviouslySelected", () => {
   });
 
   it("can exclude jokers", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(
       new Card.Card(Card.CardMark.SPADES, 8),
       new Card.Card(Card.CardMark.JOKER)
@@ -837,7 +837,7 @@ describe("isSameNumberFromPreviouslySelected", () => {
 
 describe("onlyJokersSelected", () => {
   it("can detect whether the selection only consists of jokers", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(
       new Card.Card(Card.CardMark.SPADES, 8),
       new Card.Card(Card.CardMark.JOKER)
@@ -853,7 +853,7 @@ describe("onlyJokersSelected", () => {
   });
 
   it("returns false when the selection is empty", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(p1["onlyJokersSelected"]()).toBeFalsy();
@@ -866,7 +866,7 @@ describe("isConnectedByKaidan", () => {
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, s9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -878,7 +878,7 @@ describe("isConnectedByKaidan", () => {
     const h9 = new Card.Card(Card.CardMark.HEARTS, 9);
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, h9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -891,7 +891,7 @@ describe("isConnectedByKaidan", () => {
     const s9 = new Card.Card(Card.CardMark.SPADES, 9);
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, s9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -904,7 +904,7 @@ describe("isConnectedByKaidan", () => {
     const s10 = new Card.Card(Card.CardMark.SPADES, 10);
     const s11 = new Card.Card(Card.CardMark.SPADES, 11);
     const joker = new Card.Card(Card.CardMark.JOKER);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(s8, s9, s10, s11, joker);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -918,7 +918,7 @@ describe("findWeakestSelectedCard", () => {
     const c2 = new Card.Card(Card.CardMark.SPADES, 9);
     const c3 = new Card.Card(Card.CardMark.SPADES, 10);
     const c4 = new Card.Card(Card.CardMark.SPADES, 10);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(c1, c2, c3, c4);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -933,7 +933,7 @@ describe("findWeakestSelectedCard", () => {
     const c3 = new Card.Card(Card.CardMark.SPADES, 10);
     const c4 = new Card.Card(Card.CardMark.SPADES, 10);
     const c5 = new Card.Card(Card.CardMark.JOKER);
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(c1, c2, c3, c4, c5);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
@@ -944,7 +944,7 @@ describe("findWeakestSelectedCard", () => {
   });
 
   it("throws an error when nothing could be retrieved", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
     expect(() => {
@@ -957,7 +957,7 @@ describe("findWeakestSelectedCard", () => {
 
 describe("createDiscardPair", () => {
   it("returns new discard pair", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(
       new Card.Card(Card.CardMark.SPADES, 5),
       new Card.Card(Card.CardMark.SPADES, 5),

@@ -3,20 +3,20 @@ import * as Hand from "../src/hand";
 
 describe("Hand", () => {
   it("Can be instantiated", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     expect(h).toBeTruthy();
   });
 });
 
 describe("giveCard", () => {
   it("Can give a single card", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(h.count()).toBe(1);
   });
 
   it("Can give multiple cards", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(
       new Card.Card(Card.CardMark.SPADES, 3),
       new Card.Card(Card.CardMark.DIAMONDS, 4)
@@ -29,7 +29,7 @@ describe("sort", () => {
   it("same marks and different numbers", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 3);
     const c2 = new Card.Card(Card.CardMark.SPADES, 4);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2);
     h.sort();
     expect(h.cards).toStrictEqual([c1, c2]);
@@ -38,7 +38,7 @@ describe("sort", () => {
   it("different marks", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 5);
     const c2 = new Card.Card(Card.CardMark.CLUBS, 4);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2);
     h.sort();
     expect(h.cards).toStrictEqual([c2, c1]);
@@ -47,7 +47,7 @@ describe("sort", () => {
   it("considers card strength", () => {
     const c1 = new Card.Card(Card.CardMark.SPADES, 3);
     const c2 = new Card.Card(Card.CardMark.CLUBS, 2);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2);
     h.sort();
     expect(h.cards).toStrictEqual([c1, c2]);
@@ -56,7 +56,7 @@ describe("sort", () => {
   it("with jokers", () => {
     const c1 = new Card.Card(Card.CardMark.JOKER);
     const c2 = new Card.Card(Card.CardMark.SPADES, 5);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2);
     h.sort();
     expect(h.cards).toStrictEqual([c2, c1]);
@@ -68,7 +68,7 @@ describe("sort", () => {
     const c3 = new Card.Card(Card.CardMark.SPADES, 12);
     const c4 = new Card.Card(Card.CardMark.HEARTS, 11);
     const c5 = new Card.Card(Card.CardMark.CLUBS, 10);
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     h.give(c1, c2, c3, c4, c5);
     h.sort();
     expect(h.cards).toStrictEqual([c5, c4, c3, c2, c1]);
@@ -77,10 +77,10 @@ describe("sort", () => {
 
 describe("count", () => {
   it("Can be counted", () => {
-    const h1 = new Hand.Hand();
+    const h1 = Hand.createHand();
     h1.give(new Card.Card(Card.CardMark.SPADES, 3));
     expect(h1.count()).toBe(1);
-    const h2 = new Hand.Hand();
+    const h2 = Hand.createHand();
     h2.give(
       new Card.Card(Card.CardMark.SPADES, 3),
       new Card.Card(Card.CardMark.DIAMONDS, 4)
@@ -91,8 +91,8 @@ describe("count", () => {
 
 describe("countCardWithSpecifiedNumber", () => {
   it("can count cards which have specified card number", () => {
-    const h1 = new Hand.Hand();
-    const h2 = new Hand.Hand();
+    const h1 = Hand.createHand();
+    const h2 = Hand.createHand();
     h2.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.DIAMONDS, 4),
@@ -105,8 +105,8 @@ describe("countCardWithSpecifiedNumber", () => {
 
 describe("countCardWithSpecifiedMarkAndNumber", () => {
   it("can count cards which have specified mark and card number", () => {
-    const h1 = new Hand.Hand();
-    const h2 = new Hand.Hand();
+    const h1 = Hand.createHand();
+    const h2 = Hand.createHand();
     h2.give(
       new Card.Card(Card.CardMark.SPADES, 4),
       new Card.Card(Card.CardMark.DIAMONDS, 4)
@@ -122,8 +122,8 @@ describe("countCardWithSpecifiedMarkAndNumber", () => {
 
 describe("countJokers", () => {
   it("can count jokers", () => {
-    const h1 = new Hand.Hand();
-    const h2 = new Hand.Hand();
+    const h1 = Hand.createHand();
+    const h2 = Hand.createHand();
     h2.give(
       new Card.Card(Card.CardMark.JOKER),
       new Card.Card(Card.CardMark.JOKER),
@@ -136,7 +136,7 @@ describe("countJokers", () => {
 
 describe("take", () => {
   it("can take cards from the hand", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 8);
     const c3 = new Card.Card(Card.CardMark.DIAMONDS, 9);
@@ -151,7 +151,7 @@ describe("take", () => {
   });
 
   it("can take a joker when wildcard is found", () => {
-    const h = new Hand.Hand();
+    const h = Hand.createHand();
     const c1 = new Card.Card(Card.CardMark.DIAMONDS, 7);
     const c2 = new Card.Card(Card.CardMark.DIAMONDS, 8);
     const c3 = new Card.Card(Card.CardMark.DIAMONDS, 9);
