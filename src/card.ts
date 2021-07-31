@@ -75,6 +75,6 @@ export class CardImple implements Card {
   }
 }
 
-export function createCard(mark:CardMark, cardNumber:number=0): Card {
+export function createCard(mark: CardMark, cardNumber = 0): Card {
   return new CardImple(mark, cardNumber);
 }

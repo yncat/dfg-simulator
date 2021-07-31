@@ -64,7 +64,9 @@ describe("checkSelectability", () => {
         Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER))
       );
       ds.push(
-        Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.SPADES, 3))
+        Discard.CreateDiscardPairForTest(
+          Card.createCard(Card.CardMark.SPADES, 3)
+        )
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
@@ -114,7 +116,9 @@ describe("checkSelectability", () => {
     it("returns NOT_SELECTABLE when checking a single card and the last discard is a single joker", () => {
       const h = Hand.createHand();
       h.give(Card.createCard(Card.CardMark.JOKER));
-      const ds = createDiscardStackFixture(Card.createCard(Card.CardMark.JOKER));
+      const ds = createDiscardStackFixture(
+        Card.createCard(Card.CardMark.JOKER)
+      );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
         Discard.SelectabilityCheckResult.NOT_SELECTABLE

@@ -4,14 +4,17 @@ Player's hand
 import * as Card from "./card";
 
 export interface Hand {
-  readonly cards:Card.Card[];
-  give:(...cards: Card.Card[])=> void;
-  take:(...cards: Card.Card[])=> void;
-  count:()=>number;
-  countCardsWithSpecifiedNumber:(cardNumber: number)=> number;
-  countCardsWithSpecifiedMarkAndNumber:(cardMark: Card.CardMark,cardNumber: number)=> number;
-  countJokers:()=>number;
-  sort:()=>void;
+  readonly cards: Card.Card[];
+  give: (...cards: Card.Card[]) => void;
+  take: (...cards: Card.Card[]) => void;
+  count: () => number;
+  countCardsWithSpecifiedNumber: (cardNumber: number) => number;
+  countCardsWithSpecifiedMarkAndNumber: (
+    cardMark: Card.CardMark,
+    cardNumber: number
+  ) => number;
+  countJokers: () => number;
+  sort: () => void;
 }
 
 class HandImple implements Hand {
@@ -79,6 +82,6 @@ class HandImple implements Hand {
   }
 }
 
-export function createHand():Hand{
+export function createHand(): Hand {
   return new HandImple();
 }

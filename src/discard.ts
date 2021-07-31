@@ -516,9 +516,7 @@ export class DiscardPlanner {
         const ok =
           Calculation.isStrongEnough(
             ldp.calcStrength(),
-            Calculation.convertCardNumberIntoStrength(
-              selectingCard.cardNumber
-            ),
+            Calculation.convertCardNumberIntoStrength(selectingCard.cardNumber),
             this.strengthInverted
           ) &&
           jokers +
