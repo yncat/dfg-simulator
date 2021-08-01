@@ -3,7 +3,14 @@ Daifugo card deck
 */
 import * as Card from "./card";
 
-export class Deck {
+export interface Deck{
+  cards:Card.Card[];
+  shuffle:()=>void;
+  count:()=>number;
+  draw:()=>Card.Card|null;
+}
+
+class DeckImple implements Deck{
   cards: Card.Card[];
 
   constructor() {
@@ -48,4 +55,8 @@ export class Deck {
     const c = this.cards.pop();
     return c ? c : null;
   }
+}
+
+export function createDeck():Deck{
+  return new DeckImple();
 }

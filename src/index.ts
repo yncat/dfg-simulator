@@ -1,4 +1,5 @@
 export { Card, CardMark, CardNumber, createCard } from "./card";
+export { Deck, createDeck } from "./deck";
 export { EventReceiver } from "./event";
 export {
   DiscardPair,
@@ -14,7 +15,7 @@ export {
   PlayerRank,
   ActivePlayerControl,
 } from "./game";
-export { generateUniqueIdentifiers } from "./player";
+export { createPlayer, generateUniqueIdentifiers } from "./player";
 export { Hand, createHand } from "./hand";
 export { RankType } from "./rank";
 export { RuleConfig, createDefaultRuleConfig } from "./rule";

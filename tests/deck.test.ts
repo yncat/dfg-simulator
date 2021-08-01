@@ -2,14 +2,14 @@ import * as Deck from "../src/deck";
 
 describe("Deck", () => {
   it("Can be instantiated with 54 unshuffled cards", () => {
-    const d = new Deck.Deck();
+    const d = Deck.createDeck();
     expect(d.cards.length).toBe(54);
   });
 });
 
 describe("shuffle", () => {
   it("Can shuffle cards", () => {
-    const d = new Deck.Deck();
+    const d = Deck.createDeck();
     d.shuffle();
     const before = Array.from(d.cards);
     expect(d.cards.length).toBe(54);
@@ -19,7 +19,7 @@ describe("shuffle", () => {
 
 describe("draw", () => {
   it("Can draw a card from the deck top", () => {
-    const d = new Deck.Deck();
+    const d = Deck.createDeck();
     d.shuffle();
     const want = d.cards[d.cards.length - 1];
     const drew = d.draw();
@@ -28,7 +28,7 @@ describe("draw", () => {
   });
 
   it("returns null when no cards are left", () => {
-    const d = new Deck.Deck();
+    const d = Deck.createDeck();
     d.cards = [];
     const drew = d.draw();
     expect(drew).toBeNull();

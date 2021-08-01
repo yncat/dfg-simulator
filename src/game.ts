@@ -106,7 +106,7 @@ function prepareDecks(playerCount: number): Deck.Deck[] {
   const deckCount = Calculation.calcRequiredDeckCount(playerCount);
   const decks: Deck.Deck[] = [];
   for (let i = 0; i < deckCount; i++) {
-    const d = new Deck.Deck();
+    const d = Deck.createDeck();
     d.shuffle();
     decks.push(d);
   }
