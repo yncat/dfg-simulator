@@ -4,7 +4,9 @@
 
 The goal is to create a library that can simulate Daifugo card game. Connect to whatever frontend and go!
 
-Basic features are already implemented. The next step is writing an example game to see if everything works as expected.
+Basic features are already implemented. An example game (Japanese) can be found at here:
+
+https://github.com/yncat/dfg-example
 
 ## npm commands
 
