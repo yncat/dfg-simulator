@@ -14,6 +14,8 @@ export {
   DiscardResult,
   PlayerRank,
   ActivePlayerControl,
+  GameInitParams,
+  createGameCustom,
 } from "./game";
 export { createPlayer, generateUniqueIdentifiers } from "./player";
 export { Hand, createHand } from "./hand";

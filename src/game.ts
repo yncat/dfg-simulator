@@ -43,6 +43,14 @@ export type GameInitParams = {
   ruleConfig: Rule.RuleConfig;
 };
 
+export function createGameCustom(gameInitParams: GameInitParams): Game {
+  return new GameImple(gameInitParams);
+}
+
+export function createGameForTest(gameInitParams: GameInitParams): GameImple {
+  return new GameImple(gameInitParams);
+}
+
 export function createGame(
   playerIdentifiers: string[],
   eventReceiver: Event.EventReceiver,
@@ -137,7 +145,7 @@ function distributeCards(players: Player.Player[], decks: Deck.Deck[]) {
   }
 }
 
-export class GameImple implements Game {
+class GameImple implements Game {
   private players: Player.Player[];
   private turnCount: number;
   private activePlayerIndex: number;

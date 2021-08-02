@@ -27,7 +27,7 @@ function createGameFixture() {
     eventReceiver: createMockEventReceiver(),
     ruleConfig: Rule.createDefaultRuleConfig(),
   };
-  return new Game.GameImple(params);
+  return Game.createGameForTest(params);
 }
 
 function createMockEventReceiver() {
@@ -83,7 +83,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -109,7 +109,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     expect(() => {
       g.finishActivePlayerControl(ctrl);
@@ -135,7 +135,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -170,7 +170,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -205,7 +205,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     g["inJBack"] = true;
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -240,7 +240,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -283,7 +283,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -328,7 +328,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -371,7 +371,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: r,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
@@ -403,7 +403,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
@@ -431,7 +431,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
@@ -459,7 +459,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
     g.finishActivePlayerControl(ctrl);
@@ -489,7 +489,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dp = ctrl.enumerateDiscardPairs();
@@ -526,7 +526,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dp = ctrl.enumerateDiscardPairs();
@@ -563,7 +563,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     g["inJBack"] = true;
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -600,7 +600,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dp = ctrl.enumerateDiscardPairs();
@@ -634,7 +634,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dp = ctrl.enumerateDiscardPairs();
@@ -668,7 +668,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
@@ -705,7 +705,7 @@ describe("Game.finishActivePlayerControl", () => {
       eventReceiver: er,
       ruleConfig: r,
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
@@ -737,7 +737,7 @@ describe("gameImple.isEnded", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     expect(g.isEnded()).toBeFalsy();
   });
 
@@ -758,7 +758,7 @@ describe("gameImple.isEnded", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     const dps = ctrl.enumerateDiscardPairs();
@@ -790,7 +790,7 @@ describe("gameImple.isEnded", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g.isEnded()).toBeTruthy();
   });
@@ -816,7 +816,7 @@ describe("gameImple.enumeratePlayerRanks", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.enumeratePlayerRanks();
     expect(ret[0]).toStrictEqual({
       identifier: "a",
@@ -850,7 +850,7 @@ describe("gameImple.enumeratePlayerIdentifiers", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.enumeratePlayerIdentifiers();
     expect(ret).toStrictEqual(["a", "b", "c"]);
   });
@@ -872,7 +872,7 @@ describe("game.findPlayerByIdentifier", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     expect(g.findPlayerByIdentifier("a")).toBe(p1);
   });
 
@@ -891,7 +891,7 @@ describe("game.findPlayerByIdentifier", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     expect(() => {
       g.findPlayerByIdentifier("c");
     }).toThrow("player c is not found");
@@ -917,7 +917,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     expect(() => {
       g.kickPlayerByIdentifier("abcabc");
     }).toThrow("player to kick is not found");
@@ -945,7 +945,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("b");
     expect(er.onPlayerKicked).toHaveBeenCalled();
     expect(g["players"]).toStrictEqual([p1, p3]);
@@ -974,7 +974,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("a");
     expect(er.onPlayerKicked).toHaveBeenCalled();
     expect(g["players"]).toStrictEqual([p2, p3]);
@@ -1002,7 +1002,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["players"]).toStrictEqual([p1, p3]);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1029,7 +1029,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: createMockEventReceiver(),
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("c");
     expect(g["players"]).toStrictEqual([p1, p2]);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -1062,7 +1062,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -1097,7 +1097,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a", "c"]);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -1138,7 +1138,7 @@ describe("Game.kickPlayerByIdentifier", () => {
       eventReceiver: er,
       ruleConfig: Rule.createDefaultRuleConfig(),
     };
-    const g = new Game.GameImple(params);
+    const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("c");
     expect(er.onNagare).toHaveBeenCalled();
   });
