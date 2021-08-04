@@ -6,6 +6,7 @@ export {
   SelectabilityCheckResult,
   CardSelectResult,
   CardDeselectResult,
+  createDiscardStack,
 } from "./discard";
 export {
   Game,

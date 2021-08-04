@@ -129,8 +129,16 @@ export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
 }
 
 // It should be discardPile, but DiscardPile is close to DiscardPair in string distance...
-export class DiscardStack {
-  discardPairs: DiscardPair[];
+export interface DiscardStack {
+  readonly discardPairs: DiscardPair[];
+  push: (discardPair: DiscardPair) => void;
+  last: () => DiscardPair;
+  secondToLast: () => DiscardPair;
+  clear: () => void;
+}
+
+export class DiscardStackImple implements DiscardStack {
+  readonly discardPairs: DiscardPair[];
   constructor() {
     this.discardPairs = [];
     this.clear();
@@ -147,12 +155,13 @@ export class DiscardStack {
       : createNullDiscardPair();
   }
   public clear(): void {
-    this.discardPairs = [createNullDiscardPair()];
+    this.discardPairs.splice(0);
+    this.discardPairs.push(createNullDiscardPair());
   }
 }
 
 export function createDiscardStack(): DiscardStack {
-  return new DiscardStack();
+  return new DiscardStackImple();
 }
 
 // card selectable result
