@@ -351,14 +351,16 @@ class GameImple implements Game {
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
-    this.discardStack.push(activePlayerControl.getDiscard());
+    const dp = activePlayerControl.getDiscard();
+    this.discardStack.push(dp);
     this.lastDiscarderIdentifier = this.players[
       this.activePlayerIndex
     ].identifier;
+    // We haven't taken the discard from hand.
     this.eventReceiver.onDiscard(
       this.lastDiscarderIdentifier,
       this.discardStack.last(),
-      activePlayerControl.countHand()
+      activePlayerControl.countHand() - dp.count()
     );
   }
 
