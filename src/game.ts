@@ -357,7 +357,8 @@ class GameImple implements Game {
     ].identifier;
     this.eventReceiver.onDiscard(
       this.lastDiscarderIdentifier,
-      this.discardStack.last()
+      this.discardStack.last(),
+      activePlayerControl.countHand()
     );
   }
 
@@ -562,6 +563,7 @@ export interface ActivePlayerControl {
   readonly controlIdentifier: string;
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
+  countHand: () => number;
   checkCardSelectability: (index: number) => Discard.SelectabilityCheckResult;
   isCardSelected: (index: number) => boolean;
   selectCard: (index: number) => Discard.CardSelectResult;
@@ -619,6 +621,10 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public enumerateHand(): Card.Card[] {
     return this.hand.cards;
+  }
+
+  public countHand(): number {
+    return this.hand.cards.length;
   }
 
   public checkCardSelectability(

@@ -1164,6 +1164,26 @@ describe("ActivePlayerControlImple.enumerateHand", () => {
   });
 });
 
+describe("ActivePlayerControlImple.countHand", () => {
+  it("can count cards in hand", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.HEARTS, 6);
+    const h = Hand.createHand();
+    h.give(c1, c2);
+    const ds = Discard.createDiscardStack();
+    const dp = new Discard.DiscardPlanner(h, ds, false);
+    const dpe = new Discard.DiscardPairEnumerator(ds, false);
+    const ctrl = Game.createActivePlayerControlForTest(
+      "t1p0a0",
+      "abc",
+      h,
+      dp,
+      dpe
+    );
+    expect(ctrl.countHand()).toBe(2);
+  });
+});
+
 describe("ActivePlayerControlImple.checkCardSelectability", () => {
   it("returns SELECTABLE when DiscardPlanner returned SELECTABLE", () => {
     const h = Hand.createHand();

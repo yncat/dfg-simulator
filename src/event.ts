@@ -8,7 +8,11 @@ type YagiriCallback = (identifier: string) => void;
 type JBackCallback = (identifier: string) => void;
 type KakumeiCallback = (identifier: string) => void;
 type StrengthInversionCallback = (strengthInverted: boolean) => void;
-type DiscardCallback = (identifier: string, discardPair: DiscardPair) => void;
+type DiscardCallback = (
+  identifier: string,
+  discardPair: DiscardPair,
+  remainingHandCount: number
+) => void;
 type PassCallback = (identifier: string) => void;
 type GameEndCallback = () => void;
 type PlayerKickedCallback = (identifier: string) => void;
