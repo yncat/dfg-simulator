@@ -11,7 +11,7 @@ class ResultError extends Error {}
 class ResultImple implements Result {
   private readonly rankMap: Map<string, RankType>;
   constructor(players: Player[]) {
-    this.rankMap = new Map();
+    this.rankMap = new Map<string, RankType>();
     players.forEach((v) => {
       this.rankMap.set(v.identifier, v.rank.getRankType());
     });
