@@ -796,6 +796,31 @@ describe("gameImple.isEnded", () => {
   });
 });
 
+describe("gameImple.generateResult", () => {
+  it("creates result object from the current game state", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [p1.identifier, p2.identifier],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = Game.createGameForTest(params);
+    p1.rank.force(Rank.RankType.DAIFUGO);
+    p2.rank.force(Rank.RankType.DAIHINMIN);
+    const r = g.generateResult();
+    expect(r.getRankByIdentifier(p1.identifier)).toBe(Rank.RankType.DAIFUGO);
+    expect(r.getRankByIdentifier(p2.identifier)).toBe(Rank.RankType.DAIHINMIN);
+  });
+});
+
 describe("gameImple.enumeratePlayerRanks", () => {
   it("can enumerate all players current ranks", () => {
     const p1 = Player.createPlayer("a");

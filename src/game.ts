@@ -11,6 +11,7 @@ import * as Deck from "./deck";
 import * as Discard from "./discard";
 import * as Calculation from "./calculation";
 import * as Legality from "./legality";
+import * as Result from "./result";
 
 export type PlayerRank = {
   identifier: string;
@@ -238,6 +239,10 @@ class GameImple implements Game {
 
   public isEnded(): boolean {
     return this.gameEnded;
+  }
+
+  public generateResult(): Result.Result {
+    return Result.createResult(this.players);
   }
 
   public findPlayerByIdentifier(identifier: string): Player.Player {
