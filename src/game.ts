@@ -541,7 +541,7 @@ class GameImple implements Game {
         ret.before,
         ret.after
       );
-      this.eventReceiver.onGameEnd();
+      this.eventReceiver.onGameEnd(this.generateResult());
       // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
     }

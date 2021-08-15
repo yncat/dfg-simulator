@@ -1,5 +1,6 @@
 import { RankType } from "./rank";
 import { DiscardPair } from "./discard";
+import type { Result } from "./result";
 
 type NagareCallback = () => void;
 type AgariCallback = (identifier: string) => void;
@@ -14,7 +15,7 @@ type DiscardCallback = (
   remainingHandCount: number
 ) => void;
 type PassCallback = (identifier: string) => void;
-type GameEndCallback = () => void;
+type GameEndCallback = (result: Result) => void;
 type PlayerKickedCallback = (identifier: string) => void;
 type PlayerRankChangedCallback = (
   identifier: string,
