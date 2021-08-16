@@ -1,6 +1,6 @@
 import * as Result from "../src/result";
 import * as Player from "../src/player";
-import * as Rank from "../src/Rank";
+import * as Rank from "../src/rank";
 
 describe("getIdentifiersByRank", () => {
   it("can get all player identifiers who has the specified rank", () => {
