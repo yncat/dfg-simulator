@@ -821,43 +821,6 @@ describe("gameImple.generateResult", () => {
   });
 });
 
-describe("gameImple.enumeratePlayerRanks", () => {
-  it("can enumerate all players current ranks", () => {
-    const p1 = Player.createPlayer("a");
-    const p2 = Player.createPlayer("b");
-    const p3 = Player.createPlayer("c");
-    p1.rank.force(Rank.RankType.DAIFUGO);
-    p2.rank.force(Rank.RankType.HEIMIN);
-    p3.rank.force(Rank.RankType.DAIHINMIN);
-    const params: Game.GameInitParams = {
-      players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
-    const g = Game.createGameForTest(params);
-    const ret = g.enumeratePlayerRanks();
-    expect(ret[0]).toStrictEqual({
-      identifier: "a",
-      rank: Rank.RankType.DAIFUGO,
-    });
-    expect(ret[1]).toStrictEqual({
-      identifier: "b",
-      rank: Rank.RankType.HEIMIN,
-    });
-    expect(ret[2]).toStrictEqual({
-      identifier: "c",
-      rank: Rank.RankType.DAIHINMIN,
-    });
-  });
-});
-
 describe("gameImple.enumeratePlayerIdentifiers", () => {
   it("can enumerate all players identifiers", () => {
     const p1 = Player.createPlayer("a");

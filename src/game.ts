@@ -24,7 +24,6 @@ export class GameCreationError extends Error {}
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
-  enumeratePlayerRanks: () => PlayerRank[];
   enumeratePlayerIdentifiers: () => string[];
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
@@ -220,15 +219,6 @@ class GameImple implements Game {
     if (!yagiriTriggered) {
       this.processTurnAdvancement();
     }
-  }
-
-  public enumeratePlayerRanks(): PlayerRank[] {
-    return this.players.map((v) => {
-      return {
-        identifier: v.identifier,
-        rank: v.rank.getRankType(),
-      };
-    });
   }
 
   public enumeratePlayerIdentifiers(): string[] {
