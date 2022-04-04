@@ -15,9 +15,11 @@ export interface DiscardPair {
   calcCardNumber: (strengthInverted: boolean) => number;
   calcStrength: () => number;
   isNull: () => boolean;
+  isSequencial: () => boolean;
   isKaidan: () => boolean;
   isSameFrom: (discardPair: DiscardPair) => boolean;
   isOnlyJoker: () => boolean;
+  isValid: () => boolean;
 }
 
 class DiscardPairImple implements DiscardPair {
@@ -69,7 +71,8 @@ class DiscardPairImple implements DiscardPair {
     return this.cards.length == 0;
   }
 
-  public isKaidan(): boolean {
+  public isSequencial(): boolean {
+    // This is not the "kaidan" in a daifugo rule. This function just checks card numbers sequenciality. This function does not consider jokers.
     if (this.cards.length <= 1) {
       return false;
     }
@@ -82,6 +85,31 @@ class DiscardPairImple implements DiscardPair {
       }
     }
 
+    return ok;
+  }
+
+  public isKaidan(): boolean {
+    if (this.count() !== 4) {
+      return false;
+    }
+    const withoutJokers = this.cards
+      .filter((c) => {
+        return !c.isJoker();
+      })
+      .sort((a, b) => {
+        // Ascending
+        return a.calcStrength() - b.calcStrength();
+      });
+    let ok = true;
+    for (let i = 1; i < withoutJokers.length; i++) {
+      if (
+        withoutJokers[i].calcStrength() !==
+        withoutJokers[i - 1].calcStrength() + 1
+      ) {
+        ok = false;
+        break;
+      }
+    }
     return ok;
   }
 
@@ -105,6 +133,48 @@ class DiscardPairImple implements DiscardPair {
         return !val.isJoker();
       }).length == 0
     );
+  }
+
+  public isValid(): boolean {
+    // "invalid" means that the combination is never allowed in Daifugo rules.
+    switch (this.count()) {
+      case 0:
+        return false;
+      case 1:
+        return true;
+      case 2:
+      case 3:
+        return this.consistsOfSameCardNumber();
+      case 4:
+        return this.consistsOfSameCardNumber() || this.isKaidan();
+      default:
+        return false;
+    }
+  }
+
+  private consistsOfSameCardNumber(): boolean {
+    // Returns true when the combination can be considered as "same card numbers pair".
+    // This function considers jokers.
+    if (this.isOnlyJoker()) {
+      return true;
+    }
+    const jokerCount = this.countWithCondition(Card.CardMark.JOKER, null);
+    // Find first non-joker card
+    let firstNumberedCard = this.cards[0];
+    for (let i = 0; i < this.cards.length; i++) {
+      if (!this.cards[i].isJoker()) {
+        firstNumberedCard = this.cards[i];
+        break;
+      }
+    }
+    const num = firstNumberedCard.cardNumber;
+    let sameNumberCount = 0;
+    this.cards.forEach((v) => {
+      if (v.cardNumber === num) {
+        sameNumberCount++;
+      }
+    });
+    return this.count() === sameNumberCount + jokerCount;
   }
 
   private strengthsFromWeakest() {
@@ -355,7 +425,7 @@ export class DiscardPlanner {
       return SelectabilityCheckResult.SELECTABLE;
     }
 
-    if (ldp.isKaidan()) {
+    if (ldp.isSequencial()) {
       if (selectingCard.isJoker()) {
         // If selecting a joker, all kaidan combinations might be possible if it's stronger than the last discard pair
         const nums = Calculation.enumerateStrongerCardNumbers(
@@ -480,7 +550,7 @@ export class DiscardPlanner {
     }
 
     const ldp = this.discardStack.last();
-    if (ldp.isKaidan() || ldp.isNull()) {
+    if (ldp.isSequencial() || ldp.isNull()) {
       if (this.onlyJokersSelected()) {
         // We have to search for possible caidan combinations in this case.
         let cn = ldp.calcCardNumber(this.strengthInverted);
@@ -879,6 +949,10 @@ export class DiscardPairEnumerator {
 
   private prune(pairs: DiscardPair[], discardStack: DiscardStack) {
     // Prunes discard pairs that are not playable after the given last pair.
+    // Filter invalid ones first
+    pairs = pairs.filter((p) => {
+      return p.isValid();
+    });
     return discardStack.last().isNull()
       ? pairs
       : pairs.filter((v) => {
@@ -900,7 +974,7 @@ export class DiscardPairEnumerator {
     ) {
       return true;
     }
-    if (pair.isKaidan() != lastPair.isKaidan()) {
+    if (pair.isSequencial() != lastPair.isSequencial()) {
       return false;
     }
     if (pair.isOnlyJoker()) {

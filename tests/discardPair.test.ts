@@ -47,12 +47,12 @@ describe("calcStrength", () => {
   });
 });
 
-describe("isKaidan", () => {
+describe("isSequencial", () => {
   it("returns false when there's only one card", () => {
     const dp = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.CLUBS, 5)
     );
-    expect(dp.isKaidan()).toBeFalsy();
+    expect(dp.isSequencial()).toBeFalsy();
   });
 
   it("returns true when cards are sequenced", () => {
@@ -61,16 +61,16 @@ describe("isKaidan", () => {
       Card.createCard(Card.CardMark.HEARTS, 6),
       Card.createCard(Card.CardMark.HEARTS, 7)
     );
-    expect(dp.isKaidan()).toBeTruthy();
+    expect(dp.isSequencial()).toBeTruthy();
   });
 
-  it("returns true when cards are sequenced", () => {
+  it("returns false when cards are not sequenced", () => {
     const dp = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.HEARTS, 5),
       Card.createCard(Card.CardMark.HEARTS, 6),
       Card.createCard(Card.CardMark.HEARTS, 8)
     );
-    expect(dp.isKaidan()).toBeFalsy();
+    expect(dp.isSequencial()).toBeFalsy();
   });
 });
 
@@ -163,5 +163,129 @@ describe("countWithCondition", () => {
       Card.createCard(Card.CardMark.SPADES, 7)
     );
     expect(dp.countWithCondition(Card.CardMark.DIAMONDS, 7)).toBe(1);
+  });
+});
+
+describe("isValid", () => {
+  it("null discard pair is invalid", () => {
+    const dp1 = Discard.CreateDiscardPairForTest();
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+  it("discard pair with a single card is valid", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 2 cards is valid, when card numbers are same", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 6)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 2 cards is valid, when considered joker and card numbers are same", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.JOKER, 0)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 2 cards is invalid, when card numbers are different", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 5)
+    );
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+  it("discard pair with 3 cards is valid, when card numbers are same", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.HEARTS, 6)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 3 cards is valid, when considered jokers and card numbers are same", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.JOKER, 0),
+      Card.createCard(Card.CardMark.HEARTS, 6)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 3 cards is invalid, when card numbers are different", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.HEARTS, 5)
+    );
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+  it("kaidan with 3 cards is not valid", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 7),
+      Card.createCard(Card.CardMark.DIAMONDS, 8),
+    );
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+  it("discard pair with 4 cards is valid, when card numbers are same", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.HEARTS, 6),
+      Card.createCard(Card.CardMark.HEARTS, 6)
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 4 cards is valid, when cards are kaidan", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 7),
+      Card.createCard(Card.CardMark.DIAMONDS, 8),
+      Card.createCard(Card.CardMark.DIAMONDS, 9),
+    );
+    expect(dp1.isValid()).toBeTruthy();
+  });
+
+  it("discard pair with 4 cards is valid, when kaidan marks do not match", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.SPADES, 7),
+      Card.createCard(Card.CardMark.DIAMONDS, 8),
+      Card.createCard(Card.CardMark.DIAMONDS, 9),
+    );
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+  it("discard pair with 4 cards is valid, when kaidan numbers do not match", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 1),
+      Card.createCard(Card.CardMark.DIAMONDS, 8),
+      Card.createCard(Card.CardMark.DIAMONDS, 9),
+    );
+    expect(dp1.isValid()).toBeFalsy();
+  });
+
+    it("discard pair with 4 cards is valid, when kaidan can be created with a joker", () => {
+    const dp1 = Discard.CreateDiscardPairForTest(
+      Card.createCard(Card.CardMark.DIAMONDS, 6),
+      Card.createCard(Card.CardMark.DIAMONDS, 1),
+      Card.createCard(Card.CardMark.DIAMONDS, 8),
+      Card.createCard(Card.CardMark.JOKER, 0),
+    );
+    expect(dp1.isValid()).toBeTruthy();
   });
 });

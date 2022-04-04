@@ -377,7 +377,7 @@ class GameImple implements Game {
     }
 
     const dp = activePlayerControl.getDiscard();
-    if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 11) {
+    if (!dp.isSequencial() && dp.calcCardNumber(this.strengthInverted) == 11) {
       this.invertStrength();
       this.eventReceiver.onJBack(activePlayerControl.playerIdentifier);
       this.inJBack = true;
@@ -413,7 +413,7 @@ class GameImple implements Game {
       return false;
     }
     const dp = activePlayerControl.getDiscard();
-    if (!dp.isKaidan() && dp.calcCardNumber(this.strengthInverted) == 8) {
+    if (!dp.isSequencial() && dp.calcCardNumber(this.strengthInverted) == 8) {
       this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
       this.processNagare();
       this.activePlayerActionCount++;
