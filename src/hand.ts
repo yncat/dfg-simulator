@@ -33,7 +33,7 @@ class HandImple implements Hand {
     // when card mark is WILD, it means a wildcarded joker.
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < this.cards.length; j++) {
-        if (cards[i].isSameFrom(this.cards[j])) {
+        if (cards[i].isSameCard(this.cards[j])) {
           this.cards.splice(j, 1);
           break;
         }

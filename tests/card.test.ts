@@ -32,14 +32,20 @@ describe("Card", () => {
     const c1 = Card.createCard(Card.CardMark.SPADES, 3);
     const c2 = Card.createCard(Card.CardMark.SPADES, 3);
     const c3 = Card.createCard(Card.CardMark.DIAMONDS, 3);
-    expect(c1.isSameFrom(c2)).toBeTruthy();
-    expect(c1.isSameFrom(c3)).toBeFalsy();
+    expect(c1.isSameCard(c2)).toBeTruthy();
+    expect(c1.isSameCard(c3)).toBeFalsy();
   });
 
   it("Can identify wildcarded card as same from a joker", () => {
     const c1 = Card.createCard(Card.CardMark.JOKER);
     const c2 = Card.createCard(Card.CardMark.WILD, 3);
-    expect(c1.isSameFrom(c2)).toBeTruthy();
+    expect(c1.isSameCard(c2)).toBeTruthy();
+  });
+
+  it("wildcarded cards can be considered as any card mark", () => {
+    const c1 = Card.createCard(Card.CardMark.WILD, 5);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    expect(c1.isSameMark(c2)).toBeTruthy();
   });
 
   it("Can identify joker", () => {

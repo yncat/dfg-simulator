@@ -312,6 +312,22 @@ describe("prune", () => {
     expect(e["prune"](dps, ds)).toStrictEqual(dsw);
   });
 
+  it("can prune pairs which are not allowed in daifugo rules", () => {
+    const h4 = Card.createCard(Card.CardMark.HEARTS, 4);
+    const h5 = Card.createCard(Card.CardMark.HEARTS, 5);
+    const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
+    const ds = createDiscardStackFixture();
+    const e = new Discard.DiscardPairEnumerator(ds, false);
+    const dps: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+      Discard.CreateDiscardPairForTest(h5, h6),
+    ];
+    const dsw: Discard.DiscardPair[] = [
+      Discard.CreateDiscardPairForTest(h5, h5),
+    ];
+    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+  });
+
   it("can prune pairs which do not match standard or kaidan condition", () => {
     const h4 = Card.createCard(Card.CardMark.HEARTS, 4);
     const h5 = Card.createCard(Card.CardMark.HEARTS, 5);

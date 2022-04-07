@@ -74,7 +74,7 @@ describe("isSequencial", () => {
   });
 });
 
-describe("isSameFrom", () => {
+describe("isSameCard", () => {
   it("returns false when the card count is different", () => {
     const dp1 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.SPADES, 5),
@@ -83,7 +83,7 @@ describe("isSameFrom", () => {
     const dp2 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.SPADES, 5)
     );
-    expect(dp1.isSameFrom(dp2)).toBeFalsy();
+    expect(dp1.isSameCard(dp2)).toBeFalsy();
   });
 
   it("returns false when the card count is same but has different card", () => {
@@ -95,7 +95,7 @@ describe("isSameFrom", () => {
       Card.createCard(Card.CardMark.SPADES, 5),
       Card.createCard(Card.CardMark.SPADES, 7)
     );
-    expect(dp1.isSameFrom(dp2)).toBeFalsy();
+    expect(dp1.isSameCard(dp2)).toBeFalsy();
   });
 
   it("returns true when the card count is same and all cards are same", () => {
@@ -107,7 +107,7 @@ describe("isSameFrom", () => {
       Card.createCard(Card.CardMark.SPADES, 5),
       Card.createCard(Card.CardMark.SPADES, 6)
     );
-    expect(dp1.isSameFrom(dp2)).toBeTruthy();
+    expect(dp1.isSameCard(dp2)).toBeTruthy();
   });
 });
 
@@ -230,13 +230,13 @@ describe("isValid", () => {
     expect(dp1.isValid()).toBeFalsy();
   });
 
-  it("kaidan with 3 cards is not valid", () => {
+  it("kaidan with 3 cards is valid", () => {
     const dp1 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.DIAMONDS, 7),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
     );
-    expect(dp1.isValid()).toBeFalsy();
+    expect(dp1.isValid()).toBeTruthy();
   });
 
   it("discard pair with 4 cards is valid, when card numbers are same", () => {
@@ -282,7 +282,7 @@ describe("isValid", () => {
     it("discard pair with 4 cards is valid, when kaidan can be created with a joker", () => {
     const dp1 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.DIAMONDS, 6),
-      Card.createCard(Card.CardMark.DIAMONDS, 1),
+      Card.createCard(Card.CardMark.DIAMONDS, 9),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
       Card.createCard(Card.CardMark.JOKER, 0),
     );

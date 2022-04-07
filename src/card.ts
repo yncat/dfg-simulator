@@ -20,7 +20,8 @@ export type CardNumber = number;
 export interface Card {
   readonly mark: CardMark;
   readonly cardNumber: number;
-  isSameFrom: (anotherCard: Card) => boolean;
+  isSameCard: (anotherCard: Card) => boolean;
+  isSameMark: (anotherCard: Card) => boolean;
   isJoker: () => boolean;
   calcStrength: () => number;
   copy: () => Card;
@@ -44,7 +45,7 @@ export class CardImple implements Card {
     }
   }
 
-  public isSameFrom(anotherCard: Card): boolean {
+  public isSameCard(anotherCard: Card): boolean {
     // wildcards are treeted as joker, too.
     if (this.isJoker() && anotherCard.mark == CardMark.WILD) {
       return true;
@@ -55,6 +56,13 @@ export class CardImple implements Card {
     return (
       this.mark == anotherCard.mark && this.cardNumber == anotherCard.cardNumber
     );
+  }
+
+  public isSameMark(anotherCard: Card): boolean {
+    if (this.mark === CardMark.WILD || anotherCard.mark === CardMark.WILD) {
+      return true;
+    }
+    return this.mark === anotherCard.mark;
   }
 
   public isJoker(): boolean {

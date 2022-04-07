@@ -17,7 +17,7 @@ export interface DiscardPair {
   isNull: () => boolean;
   isSequencial: () => boolean;
   isKaidan: () => boolean;
-  isSameFrom: (discardPair: DiscardPair) => boolean;
+  isSameCard: (discardPair: DiscardPair) => boolean;
   isOnlyJoker: () => boolean;
   isValid: () => boolean;
 }
@@ -89,9 +89,10 @@ class DiscardPairImple implements DiscardPair {
   }
 
   public isKaidan(): boolean {
-    if (this.count() !== 4) {
+    if (this.count() < 3) {
       return false;
     }
+    let jokerCount = this.countWithCondition(Card.CardMark.JOKER, null);
     const withoutJokers = this.cards
       .filter((c) => {
         return !c.isJoker();
@@ -104,22 +105,26 @@ class DiscardPairImple implements DiscardPair {
     for (let i = 1; i < withoutJokers.length; i++) {
       if (
         withoutJokers[i].calcStrength() !==
-        withoutJokers[i - 1].calcStrength() + 1
+          withoutJokers[i - 1].calcStrength() + 1 ||
+        !withoutJokers[i].isSameMark(withoutJokers[i - 1])
       ) {
-        ok = false;
-        break;
+        if (jokerCount === 0) {
+          ok = false;
+          break;
+        }
+        jokerCount--;
       }
     }
     return ok;
   }
 
-  public isSameFrom(discardPair: DiscardPair): boolean {
+  public isSameCard(discardPair: DiscardPair): boolean {
     if (this.count() != discardPair.count()) {
       return false;
     }
     let ok = true;
     for (let i = 0; i < this.count(); i++) {
-      if (!this.cards[i].isSameFrom(discardPair.cards[i])) {
+      if (!this.cards[i].isSameCard(discardPair.cards[i])) {
         ok = false;
         break;
       }
@@ -143,8 +148,8 @@ class DiscardPairImple implements DiscardPair {
       case 1:
         return true;
       case 2:
-      case 3:
         return this.consistsOfSameCardNumber();
+      case 3:
       case 4:
         return this.consistsOfSameCardNumber() || this.isKaidan();
       default:
@@ -376,7 +381,7 @@ export class DiscardPlanner {
     const sldp = this.discardStack.secondToLast();
     return (
       ldp.count() == 1 &&
-      ldp.cards[0].isSameFrom(Card.createCard(Card.CardMark.SPADES, 3)) &&
+      ldp.cards[0].isSameCard(Card.createCard(Card.CardMark.SPADES, 3)) &&
       sldp.count() == 1 &&
       sldp.cards[0].isJoker()
     );
@@ -998,7 +1003,7 @@ export class DiscardPairEnumerator {
     const sldp = discardStack.secondToLast();
     return (
       ldp.count() == 1 &&
-      ldp.cards[0].isSameFrom(Card.createCard(Card.CardMark.SPADES, 3)) &&
+      ldp.cards[0].isSameCard(Card.createCard(Card.CardMark.SPADES, 3)) &&
       sldp.count() == 1 &&
       sldp.cards[0].isJoker()
     );

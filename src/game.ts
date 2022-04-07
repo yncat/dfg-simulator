@@ -663,7 +663,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public discard(dp: Discard.DiscardPair): DiscardResult {
     const matched = this.enumerateDiscardPairs().filter((v) => {
-      return v.isSameFrom(dp);
+      return v.isSameCard(dp);
     });
     if (matched.length == 0) {
       return DiscardResult.NOT_FOUND;
