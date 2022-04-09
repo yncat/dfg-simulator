@@ -313,7 +313,6 @@ describe("prune", () => {
   });
 
   it("can prune pairs which are not allowed in daifugo rules", () => {
-    const h4 = Card.createCard(Card.CardMark.HEARTS, 4);
     const h5 = Card.createCard(Card.CardMark.HEARTS, 5);
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = createDiscardStackFixture();
