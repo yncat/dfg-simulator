@@ -42,6 +42,18 @@ describe("Card", () => {
     expect(c1.isSameCard(c2)).toBeTruthy();
   });
 
+  it("diamonds and diamonds are same mark", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 6);
+    expect(c1.isSameMark(c2)).toBeTruthy();
+  });
+
+  it("diamonds and hearts are same mark", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.HEARTS, 5);
+    expect(c1.isSameMark(c2)).toBeFalsy();
+  });
+
   it("wildcarded cards can be considered as any card mark", () => {
     const c1 = Card.createCard(Card.CardMark.WILD, 5);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
