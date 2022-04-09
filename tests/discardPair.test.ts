@@ -234,7 +234,7 @@ describe("isValid", () => {
     const dp1 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.DIAMONDS, 7),
-      Card.createCard(Card.CardMark.DIAMONDS, 8),
+      Card.createCard(Card.CardMark.DIAMONDS, 8)
     );
     expect(dp1.isValid()).toBeTruthy();
   });
@@ -254,7 +254,7 @@ describe("isValid", () => {
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.DIAMONDS, 7),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
-      Card.createCard(Card.CardMark.DIAMONDS, 9),
+      Card.createCard(Card.CardMark.DIAMONDS, 9)
     );
     expect(dp1.isValid()).toBeTruthy();
   });
@@ -264,7 +264,7 @@ describe("isValid", () => {
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.SPADES, 7),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
-      Card.createCard(Card.CardMark.DIAMONDS, 9),
+      Card.createCard(Card.CardMark.DIAMONDS, 9)
     );
     expect(dp1.isValid()).toBeFalsy();
   });
@@ -274,17 +274,17 @@ describe("isValid", () => {
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.DIAMONDS, 1),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
-      Card.createCard(Card.CardMark.DIAMONDS, 9),
+      Card.createCard(Card.CardMark.DIAMONDS, 9)
     );
     expect(dp1.isValid()).toBeFalsy();
   });
 
-    it("discard pair with 4 cards is valid, when kaidan can be created with a joker", () => {
+  it("discard pair with 4 cards is valid, when kaidan can be created with a joker", () => {
     const dp1 = Discard.CreateDiscardPairForTest(
       Card.createCard(Card.CardMark.DIAMONDS, 6),
       Card.createCard(Card.CardMark.DIAMONDS, 9),
       Card.createCard(Card.CardMark.DIAMONDS, 8),
-      Card.createCard(Card.CardMark.JOKER, 0),
+      Card.createCard(Card.CardMark.JOKER, 0)
     );
     expect(dp1.isValid()).toBeTruthy();
   });

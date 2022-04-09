@@ -363,6 +363,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
+        console.log("before");
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
@@ -463,6 +464,46 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        );
+      });
+
+      it("special case: found during testing 1", () => {
+        const h = Hand.createHand();
+        h.give(
+          Card.createCard(Card.CardMark.HEARTS, 3),
+          Card.createCard(Card.CardMark.DIAMONDS, 3),
+          Card.createCard(Card.CardMark.SPADES, 3),
+          Card.createCard(Card.CardMark.CLUBS, 4),
+          Card.createCard(Card.CardMark.CLUBS, 5),
+          Card.createCard(Card.CardMark.DIAMONDS, 5),
+          Card.createCard(Card.CardMark.HEARTS, 5),
+          Card.createCard(Card.CardMark.CLUBS, 6),
+          Card.createCard(Card.CardMark.SPADES, 7),
+          Card.createCard(Card.CardMark.CLUBS, 8),
+          Card.createCard(Card.CardMark.SPADES, 8),
+          Card.createCard(Card.CardMark.HEARTS, 9),
+          Card.createCard(Card.CardMark.SPADES, 9),
+          Card.createCard(Card.CardMark.DIAMONDS, 9),
+          Card.createCard(Card.CardMark.CLUBS, 9),
+          Card.createCard(Card.CardMark.DIAMONDS, 10),
+          Card.createCard(Card.CardMark.HEARTS, 10),
+          Card.createCard(Card.CardMark.HEARTS, 11),
+          Card.createCard(Card.CardMark.DIAMONDS, 11),
+          Card.createCard(Card.CardMark.CLUBS, 11),
+          Card.createCard(Card.CardMark.CLUBS, 12),
+          Card.createCard(Card.CardMark.SPADES, 12),
+          Card.createCard(Card.CardMark.DIAMONDS, 13),
+          Card.createCard(Card.CardMark.CLUBS, 13),
+          Card.createCard(Card.CardMark.SPADES, 1),
+          Card.createCard(Card.CardMark.CLUBS, 2),
+          Card.createCard(Card.CardMark.JOKER, 0)
+        );
+        const ds = createDiscardStackFixture();
+        const p = new Discard.DiscardPlanner(h, ds, false);
+        p.select(0);
+        console.log("before");
+        expect(p.checkSelectability(3)).toBe(
           Discard.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
@@ -874,7 +915,7 @@ describe("isConnectedByKaidan", () => {
     h1.give(s8, s9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["isConnectedByKaidan"](8, s11)).toBe(true);
+    expect(p1["isConnectedByKaidan"](s8, s11)).toBe(true);
   });
 
   it("returns false when the specified two cards are connected but marks are different", () => {
@@ -886,11 +927,12 @@ describe("isConnectedByKaidan", () => {
     h1.give(s8, h9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["isConnectedByKaidan"](8, s11)).toBe(false);
-    expect(p1["isConnectedByKaidan"](9, s11)).toBe(false);
+    expect(p1["isConnectedByKaidan"](s8, s11)).toBe(false);
+    expect(p1["isConnectedByKaidan"](h9, s11)).toBe(false);
   });
 
   it("returns false when start and target are not directly connected by kaidan", () => {
+    const s7 = Card.createCard(Card.CardMark.SPADES, 7);
     const s8 = Card.createCard(Card.CardMark.SPADES, 8);
     const s9 = Card.createCard(Card.CardMark.SPADES, 9);
     const s10 = Card.createCard(Card.CardMark.SPADES, 10);
@@ -899,10 +941,11 @@ describe("isConnectedByKaidan", () => {
     h1.give(s8, s9, s10, s11);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["isConnectedByKaidan"](7, s11)).toBe(false);
+    expect(p1["isConnectedByKaidan"](s7, s11)).toBe(false);
   });
 
   it("can substitute jokers", () => {
+    const s7 = Card.createCard(Card.CardMark.SPADES, 7);
     const s8 = Card.createCard(Card.CardMark.SPADES, 8);
     const s9 = Card.createCard(Card.CardMark.SPADES, 9);
     const s10 = Card.createCard(Card.CardMark.SPADES, 10);
@@ -912,7 +955,7 @@ describe("isConnectedByKaidan", () => {
     h1.give(s8, s9, s10, s11, joker);
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["isConnectedByKaidan"](7, s11)).toBe(true);
+    expect(p1["isConnectedByKaidan"](s7, s11)).toBe(true);
   });
 });
 

@@ -568,10 +568,22 @@ export class DiscardPlanner {
           if (stronger === null) {
             break;
           }
+          const kaidanPossible =
+            [
+              Card.CardMark.DIAMONDS,
+              Card.CardMark.CLUBS,
+              Card.CardMark.HEARTS,
+              Card.CardMark.SPADES,
+            ].filter((v) => {
+              return this.isConnectedByKaidan(
+                Card.createCard(v, stronger),
+                selectingCard
+              );
+            }).length > 0;
           if (
+            kaidanPossible &&
             this.countSequencialCardsFrom(selectingCard.mark, stronger) >=
-              lastDiscardCount &&
-            this.isConnectedByKaidan(stronger, selectingCard)
+              lastDiscardCount
           ) {
             found = true;
             break;
@@ -585,9 +597,10 @@ export class DiscardPlanner {
         // we have at least 1 numbered card in the previous selection
         const wc = this.findWeakestSelectedCard();
         // OK if the selecting card is connected by kaidan with the previous selection.
+        // Needs to be the same colour from the already selected cards.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
         // More than 3 sequencial cards must be present for a valid kaidan.
-        return this.isConnectedByKaidan(wc.cardNumber, selectingCard) &&
+        return this.isConnectedByKaidan(wc, selectingCard) &&
           this.countSequencialCardsFrom(wc.mark, wc.cardNumber) >= 3
           ? SelectabilityCheckResult.SELECTABLE
           : SelectabilityCheckResult.NOT_SELECTABLE;
@@ -683,18 +696,22 @@ export class DiscardPlanner {
     return start;
   }
 
-  private isConnectedByKaidan(startCardNumber: number, targetCard: Card.Card) {
-    // starting from startCard number, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
-    // If the scanned card's mark is different from targetCard.cardNumber, cancels searching and returns false.
+  private isConnectedByKaidan(startCard: Card.Card, targetCard: Card.Card) {
+    // starting from startCard, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
+    // If the scanned card's mark is different from startCard.mark, cancels searching and returns false.
     // If start and target aren't connected by kaidan, returns false.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
+    // Start and target must be same mark. We're trying to select the target card.
+    if (!startCard.isSameMark(targetCard)) {
+      return false;
+    }
     let jokers = this.hand.countJokers();
-    let start = startCardNumber;
+    let start = startCard.cardNumber;
     let cn: number | null = start;
     let connected = false;
     while (true) {
       if (
-        this.hand.countCardsWithSpecifiedMarkAndNumber(targetCard.mark, cn) == 0
+        this.hand.countCardsWithSpecifiedMarkAndNumber(startCard.mark, cn) == 0
       ) {
         if (jokers == 0) {
           break;
