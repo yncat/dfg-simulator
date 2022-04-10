@@ -502,10 +502,13 @@ describe("checkSelectability", () => {
         const ds = createDiscardStackFixture();
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
-        console.log("before");
         expect(p.checkSelectability(3)).toBe(
           Discard.SelectabilityCheckResult.NOT_SELECTABLE
         );
+        p.deselect(0);
+        p.select(2);
+        expect(p.checkSelectability(0)).toBeTruthy();
+        expect(p.checkSelectability(1)).toBeTruthy();
       });
     });
   });
