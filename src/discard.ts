@@ -555,6 +555,13 @@ export class DiscardPlanner {
     }
 
     const ldp = this.discardStack.last();
+    if (
+      ldp.isNull() &&
+      this.consistsOfSameNumberedCards() &&
+      this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
+    ) {
+      return SelectabilityCheckResult.SELECTABLE;
+    }
     if (ldp.isSequencial() || ldp.isNull()) {
       if (this.onlyJokersSelected()) {
         // We have to search for possible caidan combinations in this case.
@@ -629,6 +636,26 @@ export class DiscardPlanner {
         : SelectabilityCheckResult.NOT_SELECTABLE;
     }
     return SelectabilityCheckResult.NOT_SELECTABLE;
+  }
+
+  private consistsOfSameNumberedCards() {
+    // Returns true when the current selection consists of same numbered cards.
+    // This method considers jokers.
+    if (this.onlyJokersSelected()) {
+      return true;
+    }
+    const withoutJokers = this.enumerateSelectedCards().filter((v) => {
+      return !v.isJoker();
+    });
+
+    const num = withoutJokers[0].cardNumber;
+    let sameNumberCount = 0;
+    withoutJokers.forEach((v) => {
+      if (v.cardNumber === num) {
+        sameNumberCount++;
+      }
+    });
+    return this.countSelectedCards() === sameNumberCount + this.countSelectedJokers();
   }
 
   private isSameNumberFromPreviouslySelected(cardNumber: number) {

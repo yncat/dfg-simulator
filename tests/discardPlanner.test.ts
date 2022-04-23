@@ -311,6 +311,20 @@ describe("checkSelectability", () => {
     });
 
     describe("checking the second card", () => {
+      it("returns SELECTABLE when the last discard is null and selecting the same numbered cards from the previously selected one", () => {
+        const h = Hand.createHand();
+        h.give(
+          Card.createCard(Card.CardMark.HEARTS, 5),
+          Card.createCard(Card.CardMark.DIAMONDS, 5)
+        );
+        const ds = createDiscardStackFixture();
+        const p = new Discard.DiscardPlanner(h, ds, false);
+        p.select(0);
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+      });
+
       it("returns SELECTABLE when the last discard is two-card pair and selecting the same numberd cards from the previously selected one", () => {
         const h = Hand.createHand();
         h.give(
@@ -507,8 +521,12 @@ describe("checkSelectability", () => {
         );
         p.deselect(0);
         p.select(2);
-        expect(p.checkSelectability(0)).toBeTruthy();
-        expect(p.checkSelectability(1)).toBeTruthy();
+        expect(p.checkSelectability(0)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
       });
     });
   });
