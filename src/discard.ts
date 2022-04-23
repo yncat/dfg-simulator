@@ -655,7 +655,9 @@ export class DiscardPlanner {
         sameNumberCount++;
       }
     });
-    return this.countSelectedCards() === sameNumberCount + this.countSelectedJokers();
+    return (
+      this.countSelectedCards() === sameNumberCount + this.countSelectedJokers()
+    );
   }
 
   private isSameNumberFromPreviouslySelected(cardNumber: number) {
