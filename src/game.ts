@@ -28,6 +28,7 @@ export interface Game {
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
+  generateResult: () => Result.Result;
 }
 
 export type GameInitParams = {
