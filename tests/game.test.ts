@@ -352,6 +352,46 @@ describe("Game.finishActivePlayerControl", () => {
     ]);
   });
 
+  it("properly determine ranks when there's a forbidden agari player", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = Card.createCard(Card.CardMark.JOKER, 0);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    const r = createMockEventReceiver();
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: r,
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(r.onDiscard).toHaveBeenCalled();
+    expect(r.onForbiddenAgari).toHaveBeenCalled();
+    expect(r.onGameEnd).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(
+      Rank.RankType.DAIHINMIN
+    );
+    expect(r.onPlayerRankChanged.mock.calls[1][0]).toBe("b");
+    expect(r.onPlayerRankChanged.mock.calls[1][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(p2.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual([p2.identifier]);
+    expect(g["penalizedPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
+  });
+
   it("updates related states and emits events when passing", () => {
     const p1 = Player.createPlayer("a");
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);

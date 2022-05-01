@@ -525,7 +525,7 @@ class GameImple implements Game {
     });
     if (rm.length == 1) {
       const p = rm[0];
-      const ret = p.rank.determine(this.players.length, this.players.length);
+      const ret = p.rank.determine(this.players.length, this.players.length-this.penalizedPlayerIdentifiers.length);
       this.agariPlayerIdentifiers.push(p.identifier);
       this.eventReceiver.onPlayerRankChanged(
         p.identifier,
