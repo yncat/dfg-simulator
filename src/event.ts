@@ -14,7 +14,7 @@ type DiscardCallback = (
   discardPair: DiscardPair,
   remainingHandCount: number
 ) => void;
-type PassCallback = (identifier: string) => void;
+type PassCallback = (identifier: string, remainingHandCount: number) => void;
 type GameEndCallback = (result: Result) => void;
 type PlayerKickedCallback = (identifier: string) => void;
 type PlayerRankChangedCallback = (

@@ -343,7 +343,10 @@ class GameImple implements Game {
 
   private processDiscardOrPass(activePlayerControl: ActivePlayerControl) {
     if (activePlayerControl.hasPassed()) {
-      this.eventReceiver.onPass(activePlayerControl.playerIdentifier);
+      this.eventReceiver.onPass(
+        activePlayerControl.playerIdentifier,
+        activePlayerControl.countHand()
+      );
       return;
     }
     // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
@@ -525,7 +528,10 @@ class GameImple implements Game {
     });
     if (rm.length == 1) {
       const p = rm[0];
-      const ret = p.rank.determine(this.players.length, this.players.length-this.penalizedPlayerIdentifiers.length);
+      const ret = p.rank.determine(
+        this.players.length,
+        this.players.length - this.penalizedPlayerIdentifiers.length
+      );
       this.agariPlayerIdentifiers.push(p.identifier);
       this.eventReceiver.onPlayerRankChanged(
         p.identifier,

@@ -423,6 +423,32 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
+  it("passing returns remaining hand count", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    const r = createMockEventReceiver();
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: r,
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    g.finishActivePlayerControl(ctrl);
+    expect(r.onPass).toHaveBeenCalledWith("a", 2);
+  });
+
   it("goes back to the first player if all players finished action", () => {
     const c1 = Card.createCard(Card.CardMark.HEARTS, 2);
     const p1 = Player.createPlayer("a");
