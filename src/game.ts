@@ -381,7 +381,7 @@ class GameImple implements Game {
     }
 
     const dp = activePlayerControl.getDiscard();
-    if (!dp.isSequencial() && dp.calcCardNumber(this.strengthInverted) == 11) {
+    if (dp.countWithCondition(null, 11) > 0) {
       this.invertStrength();
       this.eventReceiver.onJBack(activePlayerControl.playerIdentifier);
       this.inJBack = true;
@@ -417,7 +417,7 @@ class GameImple implements Game {
       return false;
     }
     const dp = activePlayerControl.getDiscard();
-    if (!dp.isSequencial() && dp.calcCardNumber(this.strengthInverted) == 8) {
+    if (dp.countWithCondition(null, 8) > 0) {
       this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
       this.processNagare();
       this.activePlayerActionCount++;

@@ -377,7 +377,6 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
-        console.log("before");
         expect(p.checkSelectability(0)).toBe(
           Discard.SelectabilityCheckResult.SELECTABLE
         );
