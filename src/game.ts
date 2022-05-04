@@ -212,7 +212,9 @@ class GameImple implements Game {
 
     this.processDiscardOrPass(activePlayerControl);
     const yagiriTriggered = this.processYagiri(activePlayerControl);
-    this.processJBack(activePlayerControl);
+    if (!yagiriTriggered) {
+      this.processJBack(activePlayerControl);
+    }
     this.processKakumei(activePlayerControl);
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
