@@ -532,7 +532,7 @@ describe("checkSelectability", () => {
         const h = Hand.createHand();
         h.give(
           Card.createCard(Card.CardMark.JOKER, 0),
-          Card.createCard(Card.CardMark.DIAMONDS, 6),
+          Card.createCard(Card.CardMark.DIAMONDS, 6)
         );
         const ds = createDiscardStackFixture();
         const p = new Discard.DiscardPlanner(h, ds, false);
@@ -541,7 +541,9 @@ describe("checkSelectability", () => {
           Discard.SelectabilityCheckResult.SELECTABLE
         );
         p.select(1);
-        expect(p.checkSelectability(1)).toBe(Discard.SelectabilityCheckResult.ALREADY_SELECTED);
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.ALREADY_SELECTED
+        );
       });
     });
   });
