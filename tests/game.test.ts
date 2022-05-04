@@ -906,6 +906,47 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onKakumei).not.toHaveBeenCalled();
     expect(er.onStrengthInversion).not.toHaveBeenCalled();
   });
+
+  it("triggers jBack and kakumei at the same time", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 12);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.jBack = true;
+    r.kakumei = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(er.onJBack).toHaveBeenCalled();
+    expect(er.onKakumei).toHaveBeenCalled();
+    expect(g.strengthInverted).toBeFalsy();
+  });
 });
 
 describe("gameImple.isEnded", () => {
