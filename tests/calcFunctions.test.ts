@@ -167,3 +167,12 @@ describe.each([
     expect(Calculation.calcRequiredDeckCount(a)).toBe(e);
   });
 });
+
+describe.each([
+  [false, 3],
+  [true, 2],
+])("calcWeakestCardNumber(strengthInverted=%p)", (a, e) => {
+  it("returns expected value", () => {
+    expect(Calculation.calcWeakestCardNumber(a)).toBe(e);
+  });
+});

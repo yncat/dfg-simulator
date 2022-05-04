@@ -84,6 +84,10 @@ export function calcWeakerCardNumber(
   return convertStrengthIntoCardNumber(str);
 }
 
+export function calcWeakestCardNumber(strengthInverted: boolean): number {
+  return strengthInverted ? 2 : 3;
+}
+
 export function enumerateNumbersBetween(a: number, b: number): number[] {
   if (a == b) {
     return [a];

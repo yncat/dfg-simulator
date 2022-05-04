@@ -565,7 +565,7 @@ export class DiscardPlanner {
     if (ldp.isSequencial() || ldp.isNull()) {
       if (this.onlyJokersSelected()) {
         // We have to search for possible caidan combinations in this case.
-        let cn = ldp.calcCardNumber(this.strengthInverted);
+        let cn = Calculation.calcWeakestCardNumber(this.strengthInverted);
         let found = false;
         while (true) {
           const stronger = Calculation.calcStrongerCardNumber(

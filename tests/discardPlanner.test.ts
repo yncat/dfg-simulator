@@ -528,6 +528,22 @@ describe("checkSelectability", () => {
           Discard.SelectabilityCheckResult.SELECTABLE
         );
       });
+
+      it("special case: checking a numbered card after joker when last discard pair is null", () => {
+        const h = Hand.createHand();
+        h.give(
+          Card.createCard(Card.CardMark.JOKER, 0),
+          Card.createCard(Card.CardMark.DIAMONDS, 6),
+        );
+        const ds = createDiscardStackFixture();
+        const p = new Discard.DiscardPlanner(h, ds, false);
+        p.select(0);
+        expect(p.checkSelectability(1)).toBe(
+          Discard.SelectabilityCheckResult.SELECTABLE
+        );
+        p.select(1);
+        expect(p.checkSelectability(1)).toBe(Discard.SelectabilityCheckResult.ALREADY_SELECTED);
+      });
     });
   });
 
