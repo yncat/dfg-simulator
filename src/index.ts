@@ -12,6 +12,7 @@ export {
   Game,
   createGame,
   GameCreationError,
+  GameError,
   DiscardResult,
   PlayerRank,
   ActivePlayerControl,
