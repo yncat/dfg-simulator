@@ -495,7 +495,7 @@ class GameImple implements Game {
     if (p.hand.count() == 0) {
       if (
         Legality.isForbiddenAgari(
-          this.discardStack.last(),
+          this.discardStack,
           this.strengthInverted
         )
       ) {

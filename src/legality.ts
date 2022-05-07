@@ -1,10 +1,12 @@
+import { DiscardStack } from "./discard";
 import { CardMark } from "./card";
-import { DiscardPair } from "./discard";
 
 export function isForbiddenAgari(
-  discardPair: DiscardPair,
+  discardStack: DiscardStack,
   strengthInverted: boolean
 ): boolean {
+  const discardPair = discardStack.last();
+  const previousDiscardPair = discardStack.secondToLast();
   // joker is included.
   if (discardPair.countWithCondition(CardMark.JOKER, null) > 0) {
     return true;
@@ -25,9 +27,14 @@ export function isForbiddenAgari(
     return true;
   }
 
-  // 3 of spades.
+  // 3 of spades, when the last discard pair includes jokers.
+  const c1 =
+    discardPair.count() == discardPair.countWithCondition(CardMark.SPADES, 3);
+  const c2 = !previousDiscardPair.isNull;
+  const c3 = previousDiscardPair.countWithCondition(CardMark.JOKER, null) > 0;
   if (
-    discardPair.count() == discardPair.countWithCondition(CardMark.SPADES, 3)
+    discardPair.count() == discardPair.countWithCondition(CardMark.SPADES, 3) &&
+    previousDiscardPair.countWithCondition(CardMark.JOKER, null) > 0
   ) {
     return true;
   }
