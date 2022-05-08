@@ -263,6 +263,8 @@ export const CardDeselectResult = {
 } as const;
 export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
 
+type SearchDirection = "stronger" | "weaker";
+
 export class DiscardPlanner {
   private hand: Hand;
   private discardStack: DiscardStack;
@@ -469,7 +471,7 @@ export class DiscardPlanner {
         }
         let found = false;
         if (
-          this.countSequencialCardsFrom(selectingCard.mark, s) >=
+          this.countSequencialCardsFrom(selectingCard.mark, s, "stronger") >=
           lastDiscardPairCount
         ) {
           found = true;
@@ -531,7 +533,7 @@ export class DiscardPlanner {
     ];
     for (let i = 0; i < marks.length; i++) {
       if (
-        this.countSequencialCardsFrom(marks[i], cardNumber) >=
+        this.countSequencialCardsFrom(marks[i], cardNumber, "stronger") >=
         lastDiscardPairCount
       ) {
         return true;
@@ -589,8 +591,11 @@ export class DiscardPlanner {
             }).length > 0;
           if (
             kaidanPossible &&
-            this.countSequencialCardsFrom(selectingCard.mark, stronger) >=
-              lastDiscardCount
+            this.countSequencialCardsFrom(
+              selectingCard.mark,
+              stronger,
+              "stronger"
+            ) >= lastDiscardCount
           ) {
             found = true;
             break;
@@ -603,12 +608,34 @@ export class DiscardPlanner {
       } else {
         // we have at least 1 numbered card in the previous selection
         const wc = this.findWeakestSelectedCard();
+        const dir: SearchDirection =
+          Calculation.findStrongerCardNumber(
+            wc.cardNumber,
+            selectingCard.cardNumber,
+            this.strengthInverted
+          ) === selectingCard.cardNumber
+            ? "stronger"
+            : "weaker";
         // OK if the selecting card is connected by kaidan with the previous selection.
         // Needs to be the same colour from the already selected cards.
         // no worries about jokers because isConnectedByKaidan automatically substitutes jokers.
         // More than 3 sequencial cards must be present for a valid kaidan.
+        // Longer kaidan should be rejected. E.G. When the last discard pair is 6 7 8 and 7 is selected, 10 should be rejected because 7 8 9 10 == distance of 4, which cannot be played.
+        let distanceOK = true;
+        if (
+          !ldp.isNull() &&
+          Math.abs(
+            Calculation.convertCardNumberIntoStrength(wc.cardNumber) -
+              Calculation.convertCardNumberIntoStrength(
+                selectingCard.cardNumber
+              )
+          ) >= ldp.count()
+        ) {
+          distanceOK = false;
+        }
         return this.isConnectedByKaidan(wc, selectingCard) &&
-          this.countSequencialCardsFrom(wc.mark, wc.cardNumber) >= 3
+          this.countSequencialCardsFrom(wc.mark, wc.cardNumber, dir) >= 3 &&
+          distanceOK
           ? SelectabilityCheckResult.SELECTABLE
           : SelectabilityCheckResult.NOT_SELECTABLE;
       }
@@ -673,32 +700,35 @@ export class DiscardPlanner {
 
   private countSequencialCardsFrom(
     cardMark: Card.CardMark,
-    cardNumber: number
+    cardNumber: number,
+    searchDirection: SearchDirection
   ) {
     // if this hand has 3 4 5 and the cardNumber parameter is 3, it will return 3 since we have 3 sequencial cards (3,4,5).
     // when the strength is inverted, 7 6 5 and card parameter 7 will return 3.
     // This function is used for checking kaidan combinations, so returns false when card marks are different.
     // This function considers jokers in the hand. When one of the required cards is not found, it tries to substitute a joker instead.
+    // SearchDirection determines direction to search. When set to stronger, it searches for 5 6 7. When set to weaker, searches 5 4 3.
     let ret = 0;
-    let str = Calculation.convertCardNumberIntoStrength(cardNumber);
+    let cn = cardNumber;
     let jokers = this.hand.countJokers();
     while (true) {
-      if (str == 2 || str == 16) {
-        break;
-      }
-      if (
-        this.hand.countCardsWithSpecifiedMarkAndNumber(
-          cardMark,
-          Calculation.convertStrengthIntoCardNumber(str)
-        ) == 0
-      ) {
+      if (this.hand.countCardsWithSpecifiedMarkAndNumber(cardMark, cn) == 0) {
         if (jokers == 0) {
           break;
         }
         jokers--; // substituted a joker
       }
       ret++;
-      str = this.strengthInverted ? str - 1 : str + 1;
+      let cntemp: number | null;
+      if (searchDirection === "stronger") {
+        cntemp = Calculation.calcStrongerCardNumber(cn, this.strengthInverted);
+      } else {
+        cntemp = Calculation.calcWeakerCardNumber(cn, this.strengthInverted);
+      }
+      if (cntemp === null) {
+        break;
+      }
+      cn = cntemp;
     }
     return ret;
   }
@@ -726,7 +756,7 @@ export class DiscardPlanner {
   }
 
   private isConnectedByKaidan(startCard: Card.Card, targetCard: Card.Card) {
-    // starting from startCard, calculates stronger card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
+    // starting from startCard, calculates stronger or weaker card number one by one. If it reaches to targetCardNumber, returns true indicating that the target is connected from the start by kaidan.
     // If the scanned card's mark is different from startCard.mark, cancels searching and returns false.
     // If start and target aren't connected by kaidan, returns false.
     // This function considers jokers. If one of the required card is missing, it tries to substitute a joker instead.
@@ -734,6 +764,12 @@ export class DiscardPlanner {
     if (!startCard.isSameMark(targetCard)) {
       return false;
     }
+    const targetIsStronger =
+      Calculation.findStrongerCardNumber(
+        targetCard.cardNumber,
+        startCard.cardNumber,
+        this.strengthInverted
+      ) === targetCard.cardNumber;
     let jokers = this.hand.countJokers();
     let start = startCard.cardNumber;
     let cn: number | null = start;
@@ -752,7 +788,11 @@ export class DiscardPlanner {
         break;
       }
       start = cn;
-      cn = Calculation.calcStrongerCardNumber(start, this.strengthInverted);
+      if (targetIsStronger) {
+        cn = Calculation.calcStrongerCardNumber(start, this.strengthInverted);
+      } else {
+        cn = Calculation.calcWeakerCardNumber(start, this.strengthInverted);
+      }
       if (cn === null) {
         break;
       }

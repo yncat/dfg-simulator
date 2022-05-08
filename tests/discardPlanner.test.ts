@@ -548,6 +548,114 @@ describe("checkSelectability", () => {
     });
   });
 
+  describe("Special cases", () => {
+    it("returns SELECTABLE when the last discard is null and tried a kaidan combination from the stronger direction", () => {
+      const h = Hand.createHand();
+      h.give(
+        Card.createCard(Card.CardMark.SPADES, 3),
+        Card.createCard(Card.CardMark.SPADES, 4),
+        Card.createCard(Card.CardMark.SPADES, 5),
+        Card.createCard(Card.CardMark.SPADES, 6)
+      );
+      const ds = Discard.createDiscardStack();
+      const p = new Discard.DiscardPlanner(h, ds, false);
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.select(3);
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(0)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+    });
+
+    it("returns NOT_SELECTABLE when the last discard is a kaidan and tried a weaker kaidan combination from the stronger direction", () => {
+      const h = Hand.createHand();
+      h.give(
+        Card.createCard(Card.CardMark.SPADES, 7),
+        Card.createCard(Card.CardMark.SPADES, 8),
+        Card.createCard(Card.CardMark.SPADES, 9),
+        Card.createCard(Card.CardMark.SPADES, 10),
+        Card.createCard(Card.CardMark.SPADES, 11)
+      );
+      const ds = Discard.createDiscardStack();
+      ds.push(
+        Discard.CreateDiscardPairForTest(
+          Card.createCard(Card.CardMark.SPADES, 7),
+          Card.createCard(Card.CardMark.SPADES, 8),
+          Card.createCard(Card.CardMark.SPADES, 9)
+        )
+      );
+      const p = new Discard.DiscardPlanner(h, ds, false);
+      expect(p.checkSelectability(0)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(4)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.select(1);
+      expect(p.checkSelectability(0)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+    });
+
+    it("cannot select kaidan which has longer distance than the last discard pair", () => {
+      const h = Hand.createHand();
+      h.give(
+        Card.createCard(Card.CardMark.SPADES, 7),
+        Card.createCard(Card.CardMark.SPADES, 8),
+        Card.createCard(Card.CardMark.SPADES, 9),
+        Card.createCard(Card.CardMark.SPADES, 10),
+        Card.createCard(Card.CardMark.SPADES, 11)
+      );
+      const ds = Discard.createDiscardStack();
+      ds.push(
+        Discard.CreateDiscardPairForTest(
+          Card.createCard(Card.CardMark.SPADES, 7),
+          Card.createCard(Card.CardMark.SPADES, 8),
+          Card.createCard(Card.CardMark.SPADES, 9)
+        )
+      );
+      const p = new Discard.DiscardPlanner(h, ds, false);
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(4)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.select(1);
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(4)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+    });
+  });
+
   describe("when strength is inverted", () => {
     // just testing that strength invert is correctly passed. Main logic tests are all above.
     it("returns SELECTABLE when checking a single card and the last discard is weaker", () => {
@@ -784,9 +892,15 @@ describe("countSequencialCardsFrom", () => {
     );
     const ds3 = Discard.createDiscardStack();
     const p3 = new Discard.DiscardPlanner(h3, ds3, false);
-    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
-    expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
-    expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(3);
+    expect(
+      p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(0);
+    expect(
+      p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(1);
+    expect(
+      p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(3);
   });
 
   it("do not count when marks are different from the start", () => {
@@ -798,7 +912,9 @@ describe("countSequencialCardsFrom", () => {
     );
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(1);
+    expect(
+      p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(1);
   });
 
   it("can count sequencial cards when the strength is inverted", () => {
@@ -822,9 +938,15 @@ describe("countSequencialCardsFrom", () => {
     );
     const ds3 = Discard.createDiscardStack();
     const p3 = new Discard.DiscardPlanner(h3, ds3, true);
-    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(0);
-    expect(p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2);
-    expect(p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 6)).toBe(3);
+    expect(
+      p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(0);
+    expect(
+      p2["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(2);
+    expect(
+      p3["countSequencialCardsFrom"](Card.CardMark.SPADES, 6, "stronger")
+    ).toBe(3);
   });
 
   it("can count sequencial cards by substituting jokers", () => {
@@ -837,8 +959,12 @@ describe("countSequencialCardsFrom", () => {
     );
     const ds1 = Discard.createDiscardStack();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);
-    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4)).toBe(2); // 2 jokers substituted
-    expect(p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 8)).toBe(4); // 8, joker, joker, 11
+    expect(
+      p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 4, "stronger")
+    ).toBe(2); // 2 jokers substituted
+    expect(
+      p1["countSequencialCardsFrom"](Card.CardMark.SPADES, 8, "stronger")
+    ).toBe(4); // 8, joker, joker, 11
   });
 });
 
