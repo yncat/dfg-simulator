@@ -654,6 +654,61 @@ describe("checkSelectability", () => {
         Discard.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
+
+    it("accepts any order when selecting kaidan", () => {
+      const h = Hand.createHand();
+      h.give(
+        Card.createCard(Card.CardMark.SPADES, 7),
+        Card.createCard(Card.CardMark.SPADES, 8),
+        Card.createCard(Card.CardMark.SPADES, 9),
+        Card.createCard(Card.CardMark.SPADES, 10),
+        Card.createCard(Card.CardMark.SPADES, 11)
+      );
+      const ds = Discard.createDiscardStack();
+      ds.push(
+        Discard.CreateDiscardPairForTest(
+          Card.createCard(Card.CardMark.SPADES, 7),
+          Card.createCard(Card.CardMark.SPADES, 8),
+          Card.createCard(Card.CardMark.SPADES, 9)
+        )
+      );
+      const p = new Discard.DiscardPlanner(h, ds, false);
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(4)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.select(1);
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.deselect(1);
+      p.select(2);
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(3)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      p.deselect(2);
+      p.select(3);
+      expect(p.checkSelectability(1)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+      expect(p.checkSelectability(2)).toBe(
+        Discard.SelectabilityCheckResult.SELECTABLE
+      );
+    });
   });
 
   describe("when strength is inverted", () => {
