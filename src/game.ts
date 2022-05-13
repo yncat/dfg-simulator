@@ -419,7 +419,9 @@ class GameImple implements Game {
       return false;
     }
     const dp = activePlayerControl.getDiscard();
-    if (dp.countWithCondition(null, 8) > 0) {
+    const count = dp.countWithCondition(null, 8);
+    // If this is going to be a forbidden agari, do not trigger yagiri. Otherwise, the discarder will get another turn after the play, despite the next turn won't come and the game freezes.
+    if (count > 0 && dp.count() !== activePlayerControl.countHand()) {
       this.eventReceiver.onYagiri(activePlayerControl.playerIdentifier);
       this.processNagare();
       this.activePlayerActionCount++;

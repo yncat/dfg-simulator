@@ -534,8 +534,10 @@ describe("Game.finishActivePlayerControl", () => {
 
   it("triggers Yagiri", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    // Needs another card to avoid forbidden agari.
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
     const p1 = Player.createPlayer("a");
-    p1.hand.give(c1);
+    p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
@@ -574,8 +576,10 @@ describe("Game.finishActivePlayerControl", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 8);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
     const c3 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    // Needs another card for avoding forbidden agari
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
     const p1 = Player.createPlayer("a");
-    p1.hand.give(c1, c2, c3);
+    p1.hand.give(c1, c2, c3, c4);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
@@ -648,10 +652,92 @@ describe("Game.finishActivePlayerControl", () => {
     expect(ctrl2.playerIdentifier).toBe("b");
   });
 
-  it("reset JBack by nagare with yagiri", () => {
+  it("do not trigger Yagiri when it will consume all cards in the hand (8s)", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 8);
     const p1 = Player.createPlayer("a");
     p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.yagiri = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onYagiri).not.toHaveBeenCalled();
+    expect(er.onNagare).not.toHaveBeenCalled();
+    const ctrl2 = g.startActivePlayerControl();
+    expect(ctrl2.playerIdentifier).toBe("b");
+  });
+
+  it("do not trigger Yagiri when it will consume all cards in the hand (kaidan)", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.yagiri = true;
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onYagiri).not.toHaveBeenCalled();
+    expect(er.onNagare).not.toHaveBeenCalled();
+    const ctrl2 = g.startActivePlayerControl();
+    expect(ctrl2.playerIdentifier).toBe("b");
+  });
+
+  it("reset JBack by nagare with yagiri", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    // Needs another card vor avoiding forbidden agari.
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
@@ -764,8 +850,10 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
     const c3 = Card.createCard(Card.CardMark.DIAMONDS, 10);
     const c4 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    // Needs another card for avoiding forbidden agari.
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 12);
     const p1 = Player.createPlayer("a");
-    p1.hand.give(c1, c2, c3, c4);
+    p1.hand.give(c1, c2, c3, c4, c5);
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
