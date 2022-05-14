@@ -1,5 +1,6 @@
 import * as Card from "../src/card";
 import * as Discard from "../src/discard";
+import * as Helper from "./helper";
 
 function createDiscardStackFixture(
   ...cards: Card.Card[]
@@ -52,7 +53,7 @@ describe("enumerate", () => {
       const dps = e.enumerate(c1, c1, c2);
       expect(dps.length).toBe(1);
       const dp = dps[0];
-      expect(dp["cards"]).toStrictEqual([c1, c1, c1w]);
+      expect(Helper.assertCardsEqual(dp["cards"], [c1, c1, c1w])).toBeTruthy();
     });
   });
 
@@ -69,10 +70,18 @@ describe("enumerate", () => {
       const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, joker, joker);
       expect(dps.length).toBe(4);
-      expect(dps[0]["cards"]).toStrictEqual([h5w, h6w, h7]);
-      expect(dps[1]["cards"]).toStrictEqual([h6w, h7, h8w]);
-      expect(dps[2]["cards"]).toStrictEqual([h7, h8w, h9w]);
-      expect(dps[3]["cards"]).toStrictEqual([h7, h7w, h7w]);
+      expect(
+        Helper.assertCardsEqual(dps[0]["cards"], [h5w, h6w, h7])
+      ).toBeTruthy();
+      expect(
+        Helper.assertCardsEqual(dps[1]["cards"], [h6w, h7, h8w])
+      ).toBeTruthy();
+      expect(
+        Helper.assertCardsEqual(dps[2]["cards"], [h7, h8w, h9w])
+      ).toBeTruthy();
+      expect(
+        Helper.assertCardsEqual(dps[3]["cards"], [h7, h7w, h7w])
+      ).toBeTruthy();
     });
 
     it("uses jokers for connecting kaidan", () => {
@@ -84,7 +93,9 @@ describe("enumerate", () => {
       const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, h9, joker);
       expect(dps.length).toBe(1);
-      expect(dps[0]["cards"]).toStrictEqual([h7, d8w, h9]);
+      expect(
+        Helper.assertCardsEqual(dps[0]["cards"], [h7, d8w, h9])
+      ).toBeTruthy();
     });
 
     it("uses jokers for connecting kaidan and enumerate all patterns for remaining jokers", () => {
@@ -98,8 +109,12 @@ describe("enumerate", () => {
       const e = new Discard.DiscardPairEnumerator(ds, false);
       const dps = e.enumerate(h7, h9, joker, joker);
       expect(dps.length).toBe(2);
-      expect(dps[0]["cards"]).toStrictEqual([h6w, h7, d8w, h9]);
-      expect(dps[1]["cards"]).toStrictEqual([h7, d8w, h9, h10w]);
+      expect(
+        Helper.assertCardsEqual(dps[0]["cards"], [h6w, h7, d8w, h9])
+      ).toBeTruthy();
+      expect(
+        Helper.assertCardsEqual(dps[1]["cards"], [h7, d8w, h9, h10w])
+      ).toBeTruthy();
     });
   });
 });
@@ -160,7 +175,9 @@ describe("fillMissingKaidanCards", () => {
     e["selectedCards"] = [c1, c2, joker];
     const jokers = e["fillMissingKaidanCards"](1, 7, 9);
     expect(jokers).toBe(0);
-    expect(e["selectedCards"]).toStrictEqual([c1, wc1, c2]);
+    expect(
+      Helper.assertCardsEqual(e["selectedCards"], [c1, wc1, c2])
+    ).toBeTruthy();
   });
 
   it("use two jokers", () => {
@@ -174,7 +191,9 @@ describe("fillMissingKaidanCards", () => {
     e["selectedCards"] = [c1, c2, joker, joker];
     const jokers = e["fillMissingKaidanCards"](2, 7, 10);
     expect(jokers).toBe(0);
-    expect(e["selectedCards"]).toStrictEqual([c1, wc1, wc2, c2]);
+    expect(
+      Helper.assertCardsEqual(e["selectedCards"], [c1, wc1, wc2, c2])
+    ).toBeTruthy();
   });
 
   it("use two jokers and another joker remains", () => {
@@ -188,7 +207,9 @@ describe("fillMissingKaidanCards", () => {
     e["selectedCards"] = [c1, c2, joker, joker, joker];
     const jokers = e["fillMissingKaidanCards"](3, 7, 10);
     expect(jokers).toBe(1);
-    expect(e["selectedCards"]).toStrictEqual([c1, wc1, wc2, c2, joker]);
+    expect(
+      Helper.assertCardsEqual(e["selectedCards"], [c1, wc1, wc2, c2, joker])
+    ).toBeTruthy();
   });
 });
 

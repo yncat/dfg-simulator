@@ -1,8 +1,8 @@
-import * as Player from "../src/player";
+import * as Identifier from "../src/identifier";
 
 describe("generateUniqueIdentifiers", () => {
   it("returns unique player identifier strings", () => {
-    const ids = Player.generateUniqueIdentifiers(3);
+    const ids = Identifier.generateUniqueIdentifiers(3);
     expect(ids.length).toBe(3);
     expect(ids[0].length).toBe(16);
     expect(ids[0]).not.toBe(ids[1]);

@@ -2,6 +2,7 @@
 Daifugo cards
 */
 import * as Calculation from "./calculation";
+import * as Identifier from "./identifier";
 
 // Marks
 export const CardMark = {
@@ -20,6 +21,8 @@ export type CardNumber = number;
 export interface Card {
   readonly mark: CardMark;
   readonly cardNumber: number;
+  // id can be used for identifying the card as a unique instance. For example, unique ID is needed when rendering card info in a list using the React framework. When using React, it should be specified in the key prop.
+  readonly ID: string;
   isSameCard: (anotherCard: Card) => boolean;
   isSameMark: (anotherCard: Card) => boolean;
   isJoker: () => boolean;
@@ -31,7 +34,11 @@ export interface Card {
 class InvalidCardError extends Error {}
 
 export class CardImple implements Card {
-  constructor(public mark: CardMark, public cardNumber: CardNumber = 0) {
+  public readonly ID: string;
+  constructor(
+    public mark: CardMark,
+    public cardNumber: CardNumber = 0
+  ) {
     if (cardNumber < 0 || cardNumber > 13) {
       throw new InvalidCardError("card number range must be 0(joker) to 13");
     }
@@ -43,6 +50,7 @@ export class CardImple implements Card {
         "card number must not be 0 when it is not a joker"
       );
     }
+    this.ID = genID(mark, cardNumber) : "";
   }
 
   public isSameCard(anotherCard: Card): boolean {
@@ -85,4 +93,8 @@ export class CardImple implements Card {
 
 export function createCard(mark: CardMark, cardNumber = 0): Card {
   return new CardImple(mark, cardNumber);
+}
+
+function genID(mark: CardMark, cardNumber: CardNumber): string {
+  return `${mark}${cardNumber}${Identifier.randomHex(16)}`;
 }

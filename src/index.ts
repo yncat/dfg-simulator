@@ -19,7 +19,8 @@ export {
   GameInitParams,
   createGameCustom,
 } from "./game";
-export { createPlayer, generateUniqueIdentifiers } from "./player";
+export { createPlayer } from "./player";
+export { generateUniqueIdentifiers } from "./identifier";
 export { Hand, createHand } from "./hand";
 export { RankType } from "./rank";
 export { Result, createResult } from "./result";

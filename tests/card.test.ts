@@ -13,6 +13,11 @@ describe("Card", () => {
     expect(c3.cardNumber).toBe(13);
   });
 
+  it("automatically generates ID", () => {
+    const c1 = Card.createCard(Card.CardMark.SPADES, 3);
+    expect(c1.ID.length).not.toBe(0);
+  });
+
   it("Cannot be instantiated when card spec is invalid", () => {
     expect(() => {
       return Card.createCard(Card.CardMark.SPADES, -1);
