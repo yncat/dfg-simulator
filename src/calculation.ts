@@ -7,6 +7,13 @@ export function isStrongEnough(
   newStrength: number,
   inverted: boolean
 ): boolean {
+  // 16 means joker. Joker is always the strongest.
+  if (lastStrength === 16) {
+    return false;
+  }
+  if (newStrength === 16) {
+    return true;
+  }
   if (inverted) {
     return newStrength < lastStrength;
   }

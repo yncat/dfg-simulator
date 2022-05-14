@@ -26,10 +26,14 @@ describe.each([
   [4, 5, false, true],
   [4, 4, false, false],
   [4, 3, false, false],
+  [16, 3, false, false],
+  [3, 16, false, true],
   // inverted
   [4, 5, true, false],
   [4, 4, true, false],
   [4, 3, true, true],
+  [16, 3, true, false],
+  [3, 16, true, true],
 ])("is strong enough? (last=%i, new=%i, inverted=%p)", (a, b, c, e) => {
   it("returns expected value", () => {
     expect(Calculation.isStrongEnough(a, b, c)).toBe(e);

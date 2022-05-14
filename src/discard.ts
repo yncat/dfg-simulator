@@ -412,11 +412,6 @@ export class DiscardPlanner {
       return SelectabilityCheckResult.SELECTABLE;
     }
 
-    // This is not 3 of spades, so deny everything above joker.
-    if (ldp.isOnlyJoker()) {
-      return SelectabilityCheckResult.NOT_SELECTABLE;
-    }
-
     // check strength
     const strongEnough = Calculation.isStrongEnough(
       ldp.calcStrength(),
