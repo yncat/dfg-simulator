@@ -549,6 +549,19 @@ describe("checkSelectability", () => {
   });
 
   describe("Special cases", () => {
+    it("returns NOT_SELECTABLE when tried to discard 1 4 during jBack", () => {
+      const h = Hand.createHand();
+      h.give(Card.createCard(Card.CardMark.SPADES, 4));
+      const ds = Discard.createDiscardStack();
+      ds.push(
+        Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER))
+      );
+      const p = new Discard.DiscardPlanner(h, ds, true);
+      expect(p.checkSelectability(0)).toBe(
+        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      );
+    });
+
     it("returns SELECTABLE when the last discard is null and tried a kaidan combination from the stronger direction", () => {
       const h = Hand.createHand();
       h.give(
