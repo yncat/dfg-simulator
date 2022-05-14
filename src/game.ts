@@ -210,16 +210,21 @@ class GameImple implements Game {
       );
     }
 
+    const prevActionCount = this.activePlayerActionCount;
+
     this.processDiscardOrPass(activePlayerControl);
     const yagiriTriggered = this.processYagiri(activePlayerControl);
     if (!yagiriTriggered) {
       this.processJBack(activePlayerControl);
     }
     this.processKakumei(activePlayerControl);
+    this.processInevitableNagare(activePlayerControl);
+    // Hand will be updated from the next line!
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
     this.processGameEndCheck();
-    if (!yagiriTriggered) {
+    // When we need another turn for this player, we should have incremented activePlayerActionCount.
+    if (this.activePlayerActionCount === prevActionCount) {
       this.processTurnAdvancement();
     }
   }
@@ -434,6 +439,45 @@ class GameImple implements Game {
     this.eventReceiver.onNagare();
     this.processJBackReset();
     this.discardStack.clear();
+  }
+
+  private processInevitableNagare(activePlayerControl: ActivePlayerControl) {
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+    // Under the following circumstances, nagare is inevitable. Having everyone pass manually for this is just going to be waste of time, so automatically trigger nagare.
+    // 3 of spades which negated joker.
+    // kaidan including the strongest card number.
+    const ldp = this.discardStack.last();
+    const sldp = this.discardStack.secondToLast();
+    const hasNull = ldp.isNull() || sldp.isNull();
+    let required = false;
+    if (
+      !hasNull &&
+      sldp.isOnlyJoker() &&
+      ldp.countWithCondition(Card.CardMark.SPADES, 3) === ldp.count()
+    ) {
+      required = true;
+    }
+    if (
+      ldp.isKaidan() &&
+      ldp.countWithCondition(
+        null,
+        Calculation.calcStrongestCardNumber(this.strengthInverted)
+      ) > 0
+    ) {
+      required = true;
+    }
+
+    if (required) {
+      this.processNagare();
+      const dp = activePlayerControl.getDiscard();
+      if (dp.count() !== activePlayerControl.countHand()) {
+        this.activePlayerActionCount++;
+      }
+    }
+
+    return;
   }
 
   private processJBackReset() {

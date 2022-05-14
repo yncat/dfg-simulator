@@ -176,3 +176,12 @@ describe.each([
     expect(Calculation.calcWeakestCardNumber(a)).toBe(e);
   });
 });
+
+describe.each([
+  [true, 3],
+  [false, 2],
+])("calcStrongestCardNumber(strengthInverted=%p)", (a, e) => {
+  it("returns expected value", () => {
+    expect(Calculation.calcStrongestCardNumber(a)).toBe(e);
+  });
+});

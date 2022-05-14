@@ -104,3 +104,8 @@ export function enumerateNumbersBetween(a: number, b: number): number[] {
 export function calcRequiredDeckCount(numberOfPlayers: number): number {
   return Math.ceil(numberOfPlayers / 6);
 }
+
+// Returns the strongest card number.
+export function calcStrongestCardNumber(strengthInverted: boolean): number {
+  return strengthInverted ? 3 : 2;
+}

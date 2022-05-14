@@ -1035,6 +1035,166 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onKakumei).toHaveBeenCalled();
     expect(g.strengthInverted).toBeFalsy();
   });
+
+  it("triggers nagare and let the discarder play one more time, after negating joker with 3 of spades", () => {
+    const s3 = Card.createCard(Card.CardMark.SPADES, 3);
+    const s4 = Card.createCard(Card.CardMark.SPADES, 4);
+    // Needs another card for testing that the discarder gets another turn.
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(s3, s4);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(s3);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(s3);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const ds = Discard.createDiscardStack();
+    ds.push(
+      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+    );
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: ds,
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(er.onNagare).toHaveBeenCalled();
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(1);
+  });
+
+  it("triggers nagare and let the discarder play one more time, when playing the strongest kaidan (not inverted)", () => {
+    const s12 = Card.createCard(Card.CardMark.SPADES, 12);
+    const s13 = Card.createCard(Card.CardMark.SPADES, 13);
+    const s1 = Card.createCard(Card.CardMark.SPADES, 1);
+    const s2 = Card.createCard(Card.CardMark.SPADES, 2);
+    // Needs another card for testing that the discarder gets another turn.
+    const s3 = Card.createCard(Card.CardMark.SPADES, 3);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(s12, s13, s1, s2, s3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(s3);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(s3);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const ds = Discard.createDiscardStack();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: ds,
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(er.onNagare).toHaveBeenCalled();
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(1);
+  });
+
+  it("triggers nagare and let the discarder play one more time, when playing the strongest kaidan (inverted)", () => {
+    const s3 = Card.createCard(Card.CardMark.SPADES, 3);
+    const s4 = Card.createCard(Card.CardMark.SPADES, 4);
+    const s5 = Card.createCard(Card.CardMark.SPADES, 5);
+    const s6 = Card.createCard(Card.CardMark.SPADES, 6);
+    // Needs another card for testing that the discarder gets another turn.
+    const s7 = Card.createCard(Card.CardMark.SPADES, 7);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(s3, s4, s5, s6, s7);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(s3);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(s3);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const ds = Discard.createDiscardStack();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: ds,
+      lastDiscarderIdentifier: "",
+      strengthInverted: true,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(er.onNagare).toHaveBeenCalled();
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(1);
+  });
+
+  it("triggers nagare and pass the turn to the next player, after negating joker with 3 of spades and the discarder consumes all of his hand", () => {
+    const s3 = Card.createCard(Card.CardMark.SPADES, 3);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(s3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(s3);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(s3);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    const ds = Discard.createDiscardStack();
+    ds.push(
+      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+    );
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: ds,
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: er,
+      ruleConfig: r,
+    };
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(er.onNagare).toHaveBeenCalled();
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(g["activePlayerActionCount"]).toBe(0);
+  });
 });
 
 describe("gameImple.isEnded", () => {
