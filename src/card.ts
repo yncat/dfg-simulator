@@ -35,10 +35,7 @@ class InvalidCardError extends Error {}
 
 export class CardImple implements Card {
   public readonly ID: string;
-  constructor(
-    public mark: CardMark,
-    public cardNumber: CardNumber = 0
-  ) {
+  constructor(public mark: CardMark, public cardNumber: CardNumber = 0) {
     if (cardNumber < 0 || cardNumber > 13) {
       throw new InvalidCardError("card number range must be 0(joker) to 13");
     }
@@ -50,7 +47,7 @@ export class CardImple implements Card {
         "card number must not be 0 when it is not a joker"
       );
     }
-    this.ID = genID(mark, cardNumber) : "";
+    this.ID = genID(mark, cardNumber);
   }
 
   public isSameCard(anotherCard: Card): boolean {
