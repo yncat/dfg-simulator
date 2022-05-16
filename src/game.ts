@@ -259,11 +259,11 @@ class GameImple implements Game {
 
     this.eventReceiver.onPlayerKicked(p.identifier);
     const wasActive = p === this.players[this.activePlayerIndex];
-    // if the kicked player is currently active, internally go back to the previously active player.
-    if (wasActive) {
-      this.processTurnReverseWhenKicked();
-    }
-    this.deletePlayer(identifier);
+    p.markAsKicked();
+    this.agariPlayerIdentifiers = this.agariPlayerIdentifiers.filter((v) => {
+      return v != identifier;
+    });
+
     this.recalcAlreadyRankedPlayers();
     this.processGameEndCheck();
     if (wasActive) {
@@ -301,24 +301,11 @@ class GameImple implements Game {
     return found;
   }
 
-  private deletePlayer(identifier: string) {
-    this.agariPlayerIdentifiers = this.agariPlayerIdentifiers.filter((v) => {
-      return v != identifier;
-    });
-    this.players = this.players.filter((v) => {
-      return v.identifier != identifier;
-    });
-    // Adjust active player index when required
-    if (this.activePlayerIndex >= this.players.length) {
-      this.activePlayerIndex = this.players.length - 1;
-    }
-  }
-
   private recalcAlreadyRankedPlayers() {
+    const count = this.countNotKickedPlayers();
     for (let i = 0; i < this.agariPlayerIdentifiers.length; i++) {
       const p = this.findPlayer(this.agariPlayerIdentifiers[i]);
-      // Assumes there is the kicked player's instance remaining in this.players, so subtract -1.
-      const ret = p.rank.determine(this.players.length - 1, i + 1);
+      const ret = p.rank.determine(count, i + 1);
       if (ret.changed) {
         this.eventReceiver.onPlayerRankChanged(
           p.identifier,
@@ -329,12 +316,19 @@ class GameImple implements Game {
     }
   }
 
+  private countNotKickedPlayers(): number {
+    return this.players.filter((v) => {
+      return !v.isKicked();
+    }).length;
+  }
+
   private makeStartInfo() {
+    const count = this.countNotKickedPlayers();
     this.eventReceiver.onInitialInfoProvided(
-      this.players.length,
-      Calculation.calcRequiredDeckCount(this.players.length)
+      count,
+      Calculation.calcRequiredDeckCount(count)
     );
-    for (let i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < count; i++) {
       this.eventReceiver.onCardsProvided(
         this.players[i].identifier,
         this.players[i].hand.count()
@@ -495,6 +489,7 @@ class GameImple implements Game {
     }
 
     while (true) {
+      // Must use this.players.length since we have to check for kicked players in some cases.
       this.activePlayerIndex++;
       if (this.activePlayerIndex == this.players.length) {
         this.activePlayerIndex = 0;
@@ -506,26 +501,8 @@ class GameImple implements Game {
       ) {
         this.processNagare();
       }
-      if (
-        this.players[this.activePlayerIndex].rank.getRankType() ==
-        Rank.RankType.UNDETERMINED
-      ) {
-        break;
-      }
-    }
-  }
-
-  private processTurnReverseWhenKicked() {
-    // internally used to reverce turn for the last active player when the active player is kicked out of the game.
-    if (this.gameEnded) {
-      return;
-    }
-
-    while (true) {
-      this.activePlayerIndex--;
-      if (this.activePlayerIndex == -1) {
-        this.activePlayerIndex = this.players.length - 1;
-        // do not touch turn count here because this is not the game's real logic. We are doing this for switching to the correct player after deleting the kicked player.
+      if (this.players[this.activePlayerIndex].isKicked()) {
+        continue;
       }
       if (
         this.players[this.activePlayerIndex].rank.getRankType() ==
@@ -551,29 +528,34 @@ class GameImple implements Game {
     const p = this.players[this.activePlayerIndex];
     this.eventReceiver.onAgari(p.identifier);
     this.agariPlayerIdentifiers.push(p.identifier);
+    const count = this.countNotKickedPlayers();
     const pos = this.agariPlayerIdentifiers.length;
-    const ret = p.rank.determine(this.players.length, pos);
+    const ret = p.rank.determine(count, pos);
     this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
   }
 
   private processForbiddenAgari() {
     const p = this.players[this.activePlayerIndex];
     this.eventReceiver.onForbiddenAgari(p.identifier);
-    const pos = this.players.length - this.penalizedPlayerIdentifiers.length;
-    const ret = p.rank.determine(this.players.length, pos);
+    const count = this.countNotKickedPlayers();
+    const pos = count - this.penalizedPlayerIdentifiers.length;
+    const ret = p.rank.determine(count, pos);
     this.penalizedPlayerIdentifiers.push(p.identifier);
     this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
   }
 
   private processGameEndCheck() {
     const rm = this.players.filter((v) => {
-      return v.rank.getRankType() == Rank.RankType.UNDETERMINED;
+      return (
+        !v.isKicked() && v.rank.getRankType() == Rank.RankType.UNDETERMINED
+      );
     });
     if (rm.length == 1) {
       const p = rm[0];
+      const count = this.countNotKickedPlayers();
       const ret = p.rank.determine(
-        this.players.length,
-        this.players.length - this.penalizedPlayerIdentifiers.length
+        count,
+        count - this.penalizedPlayerIdentifiers.length
       );
       this.agariPlayerIdentifiers.push(p.identifier);
       this.eventReceiver.onPlayerRankChanged(
@@ -582,7 +564,7 @@ class GameImple implements Game {
         ret.after
       );
       this.eventReceiver.onGameEnd(this.generateResult());
-      // Cach the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
+      // Cache the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
     }
   }

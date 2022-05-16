@@ -1413,8 +1413,9 @@ describe("Game.kickPlayerByIdentifier", () => {
     const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("b");
     expect(er.onPlayerKicked).toHaveBeenCalled();
-    expect(g["players"]).toStrictEqual([p1, p3]);
+    expect(g["players"]).toStrictEqual([p1, p2, p3]);
     expect(g["activePlayerIndex"]).toBe(0);
+    expect(p2.isKicked()).toBeTruthy();
   });
 
   it("when kicking a player who is not ranked yet and is active in this turn", () => {
@@ -1442,11 +1443,12 @@ describe("Game.kickPlayerByIdentifier", () => {
     const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("a");
     expect(er.onPlayerKicked).toHaveBeenCalled();
-    expect(g["players"]).toStrictEqual([p2, p3]);
-    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["players"]).toStrictEqual([p1, p2, p3]);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(p1.isKicked()).toBeTruthy();
   });
 
-  it("when kicking a player who is not ranked yet and is not active in this turn 01", () => {
+  it("when kicking a player who is not ranked yet and is active in this turn 01", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
@@ -1469,11 +1471,11 @@ describe("Game.kickPlayerByIdentifier", () => {
     };
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
-    expect(g["players"]).toStrictEqual([p1, p3]);
-    expect(g["activePlayerIndex"]).toBe(1);
+    expect(g["players"]).toStrictEqual([p1, p2, p3]);
+    expect(g["activePlayerIndex"]).toBe(2);
   });
 
-  it("when kicking a player who is not ranked yet and is not active in this turn 02", () => {
+  it("when kicking a player who is not ranked yet and is active in this turn 02", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
@@ -1496,7 +1498,7 @@ describe("Game.kickPlayerByIdentifier", () => {
     };
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("c");
-    expect(g["players"]).toStrictEqual([p1, p2]);
+    expect(g["players"]).toStrictEqual([p1, p2, p3]);
     expect(g["activePlayerIndex"]).toBe(0);
   });
 
