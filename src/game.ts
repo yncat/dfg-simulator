@@ -230,7 +230,10 @@ class GameImple implements Game {
   }
 
   public enumeratePlayerIdentifiers(): string[] {
-    return this.players.map((v) => {
+    const notKickedPlayers = this.players.filter((v) => {
+      return !v.isKicked();
+    });
+    return notKickedPlayers.map((v) => {
       return v.identifier;
     });
   }

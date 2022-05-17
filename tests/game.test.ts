@@ -1319,6 +1319,28 @@ describe("gameImple.enumeratePlayerIdentifiers", () => {
     const ret = g.enumeratePlayerIdentifiers();
     expect(ret).toStrictEqual(["a", "b", "c"]);
   });
+
+  it("does not include kicked player", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    p2.markAsKicked();
+    const params: Game.GameInitParams = {
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: Discard.createDiscardStack(),
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = Game.createGameForTest(params);
+    const ret = g.enumeratePlayerIdentifiers();
+    expect(ret).toStrictEqual(["a", "c"]);
+  });
 });
 
 describe("game.findPlayerByIdentifier", () => {
