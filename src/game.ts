@@ -230,9 +230,7 @@ class GameImple implements Game {
   }
 
   public enumeratePlayerIdentifiers(): string[] {
-    const notKickedPlayers = this.players.filter((v) => {
-      return !v.isKicked();
-    });
+    const notKickedPlayers = this.enumerateNotKickedPlayers();
     return notKickedPlayers.map((v) => {
       return v.identifier;
     });
@@ -243,7 +241,7 @@ class GameImple implements Game {
   }
 
   public generateResult(): Result.Result {
-    return Result.createResult(this.players);
+    return Result.createResult(this.enumerateNotKickedPlayers());
   }
 
   public findPlayerByIdentifier(identifier: string): Player.Player {
@@ -272,6 +270,12 @@ class GameImple implements Game {
     if (wasActive) {
       this.processTurnAdvancement();
     }
+  }
+
+  private enumerateNotKickedPlayers() {
+    return this.players.filter((v) => {
+      return !v.isKicked();
+    });
   }
 
   private findPlayerOrNull(identifier: string): Player.Player | null {
