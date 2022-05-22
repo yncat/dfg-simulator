@@ -29,6 +29,7 @@ export interface Game {
   findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
   generateResult: () => Result.Result;
+  outputDiscardStack: () => Array<Discard.DiscardPair>;
 }
 
 export type GameInitParams = {
@@ -270,6 +271,13 @@ class GameImple implements Game {
     if (wasActive) {
       this.processTurnAdvancement();
     }
+  }
+
+  public outputDiscardStack(): Array<Discard.DiscardPair> {
+    // Copy from the current discard stack. Does not need to copy DiscardPair because they're all immutable.
+    return this.discardStack.discardPairs.map((v) => {
+        return v;
+    });
   }
 
   private enumerateNotKickedPlayers() {

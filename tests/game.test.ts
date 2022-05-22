@@ -1633,6 +1633,39 @@ describe("Game.kickPlayerByIdentifier", () => {
   });
 });
 
+describe("gameImple.outputDiscardStack", () => {
+  it("creates a list of discard pairs and does not change when the original data is updated", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const ds = Discard.createDiscardStack();
+    const d4 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const d5 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const joker = Card.createCard(Card.CardMark.JOKER);
+    const dp1 = Discard.CreateDiscardPairForTest(d4, d4);
+    const dp2 = Discard.CreateDiscardPairForTest(d5, d5);
+    const dp3 = Discard.CreateDiscardPairForTest(joker, joker);
+    ds.push(dp1);
+    ds.push(dp2);
+    const params: Game.GameInitParams = {
+      players: [p1, p2],
+      activePlayerIndex: 0,
+      activePlayerActionCount: 0,
+      discardStack: ds,
+      lastDiscarderIdentifier: "",
+      strengthInverted: false,
+      agariPlayerIdentifiers: [p1.identifier, p2.identifier],
+      penalizedPlayerIdentifiers: [],
+      eventReceiver: createMockEventReceiver(),
+      ruleConfig: Rule.createDefaultRuleConfig(),
+    };
+    const g = Game.createGameForTest(params);
+    const rds1 = g.outputDiscardStack();
+    console.log(JSON.stringify(rds1));
+    expect(rds1[0].cards).toStrictEqual([d4, d4]);
+    expect(rds1[1].cards).toStrictEqual([d5, d5]);
+  });
+});
+
 describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
