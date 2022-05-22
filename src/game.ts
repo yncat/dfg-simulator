@@ -276,7 +276,7 @@ class GameImple implements Game {
   public outputDiscardStack(): Array<Discard.DiscardPair> {
     // Copy from the current discard stack. Does not need to copy DiscardPair because they're all immutable.
     return this.discardStack.discardPairs.map((v) => {
-        return v;
+      return v;
     });
   }
 
