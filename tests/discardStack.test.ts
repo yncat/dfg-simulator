@@ -2,10 +2,9 @@ import * as Card from "../src/card";
 import * as Discard from "../src/discard";
 
 describe("DiscardStack", () => {
-  it("can be instantiated with null discard pair", () => {
+  it("can be instantiated with an empty list", () => {
     const ds = Discard.createDiscardStack();
-    const ndp = Discard.createNullDiscardPair();
-    expect(ds["discardPairs"]).toStrictEqual([ndp]);
+    expect(ds["discardPairs"]).toStrictEqual([]);
   });
 
   it("can push a new discard pair", () => {
@@ -14,8 +13,8 @@ describe("DiscardStack", () => {
     const ds = Discard.createDiscardStack();
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     ds.push(dp);
-    expect(ds["discardPairs"].length).toBe(2);
-    expect(ds["discardPairs"][1]).toStrictEqual(dp);
+    expect(ds["discardPairs"].length).toBe(1);
+    expect(ds["discardPairs"][0]).toStrictEqual(dp);
   });
 
   it("can retrieve the last pushed discard pair", () => {
@@ -53,9 +52,8 @@ describe("DiscardStack", () => {
     const ds = Discard.createDiscardStack();
     const ndp = Discard.createNullDiscardPair();
     ds.push(dp);
-    expect(ds["discardPairs"].length).toBe(2);
-    ds.clear();
     expect(ds["discardPairs"].length).toBe(1);
-    expect(ds["discardPairs"][0]).toStrictEqual(ndp);
+    ds.clear();
+    expect(ds["discardPairs"].length).toBe(0);
   });
 });

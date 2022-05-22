@@ -222,7 +222,9 @@ export class DiscardStackImple implements DiscardStack {
     this.discardPairs.push(discardPair);
   }
   public last(): DiscardPair {
-    return this.discardPairs[this.discardPairs.length - 1];
+    return this.discardPairs.length === 0
+      ? createNullDiscardPair()
+      : this.discardPairs[this.discardPairs.length - 1];
   }
   public secondToLast(): DiscardPair {
     return this.discardPairs.length >= 2
@@ -231,7 +233,6 @@ export class DiscardStackImple implements DiscardStack {
   }
   public clear(): void {
     this.discardPairs.splice(0);
-    this.discardPairs.push(createNullDiscardPair());
   }
 }
 
