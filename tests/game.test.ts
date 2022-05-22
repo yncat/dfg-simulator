@@ -530,11 +530,9 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const params = createGameInitParams({
       players: [p1, p2, p3],
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -753,11 +751,9 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const params = createGameInitParams({
       players: [p1, p2, p3],
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -810,11 +806,9 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const params = createGameInitParams({
       players: [p1, p2, p3],
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -875,7 +869,6 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(s3);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
     ds.push(
       Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
@@ -884,7 +877,6 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       discardStack: ds,
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -911,13 +903,11 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(s3);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
     const params = createGameInitParams({
       players: [p1, p2, p3],
       discardStack: ds,
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -947,14 +937,12 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(s3);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
     const params = createGameInitParams({
       players: [p1, p2, p3],
       discardStack: ds,
       strengthInverted: true,
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
@@ -979,7 +967,6 @@ describe("Game.finishActivePlayerControl", () => {
     const p3 = Player.createPlayer("c");
     p3.hand.give(s3);
     const er = createMockEventReceiver();
-    const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
     ds.push(
       Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
@@ -988,7 +975,6 @@ describe("Game.finishActivePlayerControl", () => {
       players: [p1, p2, p3],
       discardStack: ds,
       eventReceiver: er,
-      ruleConfig: r,
     });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
