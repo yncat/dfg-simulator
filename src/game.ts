@@ -32,6 +32,8 @@ export interface Game {
   outputDiscardStack: () => Array<Discard.DiscardPair>;
 }
 
+type RemovedCardsMap = Map<Card.CardMark, Map<Card.CardNumber, number>>;
+
 export type GameInitParams = {
   players: Player.Player[];
   activePlayerIndex: number;
@@ -43,6 +45,7 @@ export type GameInitParams = {
   penalizedPlayerIdentifiers: string[];
   eventReceiver: Event.EventReceiver;
   ruleConfig: Rule.RuleConfig;
+  removedCardsMap: RemovedCardsMap;
 };
 
 export function createGameCustom(gameInitParams: GameInitParams): Game {
@@ -71,6 +74,11 @@ export function createGame(
   const decks = prepareDecks(players.length);
   distributeCards(shuffledPlayers, decks);
 
+  const removedCardsMap = new Map<
+    Card.CardMark,
+    Map<Card.CardNumber, number>
+  >();
+
   const params = {
     players: shuffledPlayers,
     activePlayerIndex: 0,
@@ -82,6 +90,7 @@ export function createGame(
     penalizedPlayerIdentifiers: [],
     eventReceiver: eventReceiver,
     ruleConfig: ruleConfig,
+    removedCardsMap: removedCardsMap,
   };
 
   const g = new GameImple(params);
@@ -154,6 +163,7 @@ class GameImple implements Game {
   private activePlayerActionCount: number;
   private discardStack: Discard.DiscardStack;
   private lastDiscarderIdentifier: string;
+  private readonly removedCardsMap: RemovedCardsMap;
   strengthInverted: boolean;
   private agariPlayerIdentifiers: string[];
   private penalizedPlayerIdentifiers: string[];
@@ -175,6 +185,7 @@ class GameImple implements Game {
     this.penalizedPlayerIdentifiers = params.penalizedPlayerIdentifiers;
     this.eventReceiver = params.eventReceiver;
     this.ruleConfig = params.ruleConfig;
+    this.removedCardsMap = params.removedCardsMap;
     this.gameEnded = false;
     this.inJBack = false;
     this.makeStartInfo();
@@ -732,5 +743,16 @@ class ActivePlayerControlImple implements ActivePlayerControl {
       }
     }
     return this.discardPair;
+  }
+}
+
+export class RemovedCardEntry {
+  readonly mark: Card.CardMark;
+  readonly cardNumber: Card.CardNumber;
+  readonly count: number;
+  constructor(mark: Card.CardMark, cardNumber: Card.CardNumber, count: number) {
+    this.mark = mark;
+    this.cardNumber = cardNumber;
+    this.count = count;
   }
 }

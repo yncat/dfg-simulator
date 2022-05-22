@@ -11,22 +11,55 @@ import * as Rule from "../src/rule";
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 /* eslint @typescript-eslint/no-empty-function: 0 */
 
+function createGameInitParams(params: Partial<Game.GameInitParams>) {
+  return {
+    players: params.players === undefined ? [] : params.players,
+    activePlayerIndex:
+      params.activePlayerIndex === undefined ? 0 : params.activePlayerIndex,
+    activePlayerActionCount:
+      params.activePlayerActionCount === undefined
+        ? 0
+        : params.activePlayerActionCount,
+    discardStack:
+      params.discardStack === undefined
+        ? Discard.createDiscardStack()
+        : params.discardStack,
+    lastDiscarderIdentifier:
+      params.lastDiscarderIdentifier === undefined
+        ? ""
+        : params.lastDiscarderIdentifier,
+    strengthInverted:
+      params.strengthInverted === undefined ? false : params.strengthInverted,
+    agariPlayerIdentifiers:
+      params.agariPlayerIdentifiers === undefined
+        ? []
+        : params.agariPlayerIdentifiers,
+    penalizedPlayerIdentifiers:
+      params.penalizedPlayerIdentifiers === undefined
+        ? []
+        : params.penalizedPlayerIdentifiers,
+    eventReceiver:
+      params.eventReceiver === undefined
+        ? createMockEventReceiver()
+        : params.eventReceiver,
+    ruleConfig:
+      params.ruleConfig === undefined
+        ? Rule.createDefaultRuleConfig()
+        : params.ruleConfig,
+    removedCardsMap:
+      params.removedCardsMap === undefined
+        ? new Map<Card.CardMark, Map<Card.CardNumber, number>>()
+        : params.removedCardsMap,
+  };
+}
+
 function createGameFixture() {
   const p1 = Player.createPlayer("a");
   const p2 = Player.createPlayer("b");
   const p3 = Player.createPlayer("c");
-  const params: Game.GameInitParams = {
+  const params = createGameInitParams({
     players: [p1, p2, p3],
-    activePlayerIndex: 0,
-    activePlayerActionCount: 0,
-    discardStack: Discard.createDiscardStack(),
-    lastDiscarderIdentifier: "",
-    strengthInverted: false,
-    agariPlayerIdentifiers: [],
-    penalizedPlayerIdentifiers: [],
-    eventReceiver: createMockEventReceiver(),
-    ruleConfig: Rule.createDefaultRuleConfig(),
-  };
+  });
   return Game.createGameForTest(params);
 }
 
@@ -71,18 +104,9 @@ describe("Game.finishActivePlayerControl", () => {
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -97,18 +121,10 @@ describe("Game.finishActivePlayerControl", () => {
   it("rejects action when player's hand is empty", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     expect(() => {
@@ -123,18 +139,10 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -158,18 +166,10 @@ describe("Game.finishActivePlayerControl", () => {
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -193,18 +193,10 @@ describe("Game.finishActivePlayerControl", () => {
     const p2 = Player.createPlayer("b");
     p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     g["inJBack"] = true;
     let ctrl = g.startActivePlayerControl();
@@ -228,18 +220,10 @@ describe("Game.finishActivePlayerControl", () => {
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -271,18 +255,10 @@ describe("Game.finishActivePlayerControl", () => {
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -316,18 +292,10 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -358,18 +326,10 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -399,18 +359,10 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
@@ -430,18 +382,10 @@ describe("Game.finishActivePlayerControl", () => {
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
     const r = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: r,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
@@ -457,18 +401,10 @@ describe("Game.finishActivePlayerControl", () => {
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
       activePlayerIndex: 2,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
@@ -485,18 +421,9 @@ describe("Game.finishActivePlayerControl", () => {
     p2.rank.force(Rank.RankType.DAIFUGO);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
@@ -513,18 +440,10 @@ describe("Game.finishActivePlayerControl", () => {
     p2.hand.give(c1);
     const p3 = Player.createPlayer("c");
     p3.hand.give(c1);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
       activePlayerIndex: 2,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.pass();
@@ -545,18 +464,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -587,18 +499,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -626,18 +531,11 @@ describe("Game.finishActivePlayerControl", () => {
     p3.hand.give(c1);
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -663,18 +561,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -703,18 +594,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -745,18 +629,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     g["inJBack"] = true;
     const ctrl = g.startActivePlayerControl();
@@ -782,18 +659,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.jBack = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -819,18 +689,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.jBack = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -862,18 +725,11 @@ describe("Game.finishActivePlayerControl", () => {
     const r = Rule.createDefaultRuleConfig();
     r.jBack = true;
     r.yagiri = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -898,18 +754,11 @@ describe("Game.finishActivePlayerControl", () => {
     p3.hand.give(c1);
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -932,18 +781,11 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     r.kakumei = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -969,18 +811,11 @@ describe("Game.finishActivePlayerControl", () => {
     p3.hand.give(c1);
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1010,18 +845,11 @@ describe("Game.finishActivePlayerControl", () => {
     const r = Rule.createDefaultRuleConfig();
     r.jBack = true;
     r.kakumei = true;
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1052,18 +880,12 @@ describe("Game.finishActivePlayerControl", () => {
     ds.push(
       Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
     );
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: ds,
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1091,18 +913,12 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: ds,
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1133,18 +949,13 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const r = Rule.createDefaultRuleConfig();
     const ds = Discard.createDiscardStack();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: ds,
-      lastDiscarderIdentifier: "",
       strengthInverted: true,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1173,18 +984,12 @@ describe("Game.finishActivePlayerControl", () => {
     ds.push(
       Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
     );
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: ds,
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
       ruleConfig: r,
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1202,18 +1007,9 @@ describe("gameImple.isEnded", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     expect(g.isEnded()).toBeFalsy();
   });
@@ -1223,18 +1019,9 @@ describe("gameImple.isEnded", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
     p1.hand.give(c1);
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
@@ -1255,18 +1042,11 @@ describe("gameImple.isEnded", () => {
     p3.hand.give(c1, c2);
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "",
-      strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g.isEnded()).toBeTruthy();
@@ -1277,18 +1057,10 @@ describe("gameImple.outputResult", () => {
   it("creates result object from the current game state", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
       agariPlayerIdentifiers: [p1.identifier, p2.identifier],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     p1.rank.force(Rank.RankType.DAIFUGO);
     p2.rank.force(Rank.RankType.DAIHINMIN);
@@ -1303,18 +1075,9 @@ describe("gameImple.enumeratePlayerIdentifiers", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.enumeratePlayerIdentifiers();
     expect(ret).toStrictEqual(["a", "b", "c"]);
@@ -1325,18 +1088,9 @@ describe("gameImple.enumeratePlayerIdentifiers", () => {
     const p2 = Player.createPlayer("b");
     const p3 = Player.createPlayer("c");
     p2.markAsKicked();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.enumeratePlayerIdentifiers();
     expect(ret).toStrictEqual(["a", "c"]);
@@ -1347,18 +1101,9 @@ describe("game.findPlayerByIdentifier", () => {
   it("returns player with the specified identifier", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     expect(g.findPlayerByIdentifier("a")).toBe(p1);
   });
@@ -1366,18 +1111,9 @@ describe("game.findPlayerByIdentifier", () => {
   it("throws an error when not found", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     expect(() => {
       g.findPlayerByIdentifier("c");
@@ -1392,18 +1128,9 @@ describe("Game.kickPlayerByIdentifier", () => {
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     p1.hand.give(c1, c2);
     const p2 = Player.createPlayer("b");
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     expect(() => {
       g.kickPlayerByIdentifier("abcabc");
@@ -1420,18 +1147,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
     const er = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("b");
     expect(er.onPlayerKicked).toHaveBeenCalled();
@@ -1450,18 +1169,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
     const er = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("a");
     expect(er.onPlayerKicked).toHaveBeenCalled();
@@ -1479,18 +1190,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
       activePlayerIndex: 1,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["players"]).toStrictEqual([p1, p2, p3]);
@@ -1506,18 +1209,10 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.hand.give(c1, c2);
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
       activePlayerIndex: 2,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("c");
     expect(g["players"]).toStrictEqual([p1, p2, p3]);
@@ -1539,18 +1234,11 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
     const er = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3, p4],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
@@ -1574,18 +1262,11 @@ describe("Game.kickPlayerByIdentifier", () => {
     p2.rank.force(Rank.RankType.DAIFUGO);
     const er = createMockEventReceiver();
     const onGameEnd = jest.spyOn(er, "onGameEnd").mockImplementation(() => {});
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
       agariPlayerIdentifiers: ["b", "a"],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("b");
     expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a", "c"]);
@@ -1615,18 +1296,12 @@ describe("Game.kickPlayerByIdentifier", () => {
     p2.hand.give(c1, c2);
     p3.hand.give(c1, c2);
     const er = createMockEventReceiver();
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2, p3],
       activePlayerIndex: 2,
-      activePlayerActionCount: 0,
-      discardStack: Discard.createDiscardStack(),
       lastDiscarderIdentifier: "a",
-      strengthInverted: false,
-      agariPlayerIdentifiers: [],
-      penalizedPlayerIdentifiers: [],
       eventReceiver: er,
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const ret = g.kickPlayerByIdentifier("c");
     expect(er.onNagare).toHaveBeenCalled();
@@ -1646,18 +1321,11 @@ describe("gameImple.outputDiscardStack", () => {
     const dp3 = Discard.CreateDiscardPairForTest(joker, joker);
     ds.push(dp1);
     ds.push(dp2);
-    const params: Game.GameInitParams = {
+    const params = createGameInitParams({
       players: [p1, p2],
-      activePlayerIndex: 0,
-      activePlayerActionCount: 0,
       discardStack: ds,
-      lastDiscarderIdentifier: "",
-      strengthInverted: false,
       agariPlayerIdentifiers: [p1.identifier, p2.identifier],
-      penalizedPlayerIdentifiers: [],
-      eventReceiver: createMockEventReceiver(),
-      ruleConfig: Rule.createDefaultRuleConfig(),
-    };
+    });
     const g = Game.createGameForTest(params);
     const rds1 = g.outputDiscardStack();
     console.log(JSON.stringify(rds1));
@@ -2036,5 +1704,14 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const dsc = Discard.CreateDiscardPairForTest(c2, c2);
     const ret = ctrl.discard(dsc);
     expect(ret).toBe(Game.DiscardResult.NOT_FOUND);
+  });
+});
+
+describe("removedCardEntry", () => {
+  it("can be generated as readonly value object", () => {
+    const e = new Game.RemovedCardEntry(Card.CardMark.CLUBS, 9, 3);
+    expect(e.mark).toBe(Card.CardMark.CLUBS);
+    expect(e.cardNumber).toBe(9);
+    expect(e.count).toBe(3);
   });
 });
