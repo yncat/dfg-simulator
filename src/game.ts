@@ -28,7 +28,7 @@ export interface Game {
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
-  generateResult: () => Result.Result;
+  outputResult: () => Result.Result;
   outputDiscardStack: () => Array<Discard.DiscardPair>;
 }
 
@@ -241,7 +241,7 @@ class GameImple implements Game {
     return this.gameEnded;
   }
 
-  public generateResult(): Result.Result {
+  public outputResult(): Result.Result {
     return Result.createResult(this.enumerateNotKickedPlayers());
   }
 
@@ -578,7 +578,7 @@ class GameImple implements Game {
         ret.before,
         ret.after
       );
-      this.eventReceiver.onGameEnd(this.generateResult());
+      this.eventReceiver.onGameEnd(this.outputResult());
       // Cache the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
     }

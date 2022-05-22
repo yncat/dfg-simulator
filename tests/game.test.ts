@@ -1273,7 +1273,7 @@ describe("gameImple.isEnded", () => {
   });
 });
 
-describe("gameImple.generateResult", () => {
+describe("gameImple.outputResult", () => {
   it("creates result object from the current game state", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
@@ -1292,7 +1292,7 @@ describe("gameImple.generateResult", () => {
     const g = Game.createGameForTest(params);
     p1.rank.force(Rank.RankType.DAIFUGO);
     p2.rank.force(Rank.RankType.DAIHINMIN);
-    const r = g.generateResult();
+    const r = g.outputResult();
     expect(r.getRankByIdentifier(p1.identifier)).toBe(Rank.RankType.DAIFUGO);
     expect(r.getRankByIdentifier(p2.identifier)).toBe(Rank.RankType.DAIHINMIN);
   });
