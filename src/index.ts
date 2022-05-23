@@ -16,6 +16,7 @@ export {
   DiscardResult,
   PlayerRank,
   ActivePlayerControl,
+  RemovedCardEntry,
   GameInitParams,
   createGameCustom,
 } from "./game";
