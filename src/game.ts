@@ -30,6 +30,7 @@ export interface Game {
   kickPlayerByIdentifier(identifier: string): void;
   outputResult: () => Result.Result;
   outputDiscardStack: () => Array<Discard.DiscardPair>;
+  outputRemovedCards: () => RemovedCardEntry[];
 }
 
 type RemovedCardsMap = Map<Card.CardMark, Map<Card.CardNumber, number>>;
@@ -290,6 +291,16 @@ class GameImple implements Game {
     return this.discardStack.discardPairs.map((v) => {
       return v;
     });
+  }
+
+  public outputRemovedCards(): RemovedCardEntry[] {
+    const ret: RemovedCardEntry[] = [];
+    this.removedCardsMap.forEach((inner, mark) => {
+      inner.forEach((count, cn) => {
+        ret.push(new RemovedCardEntry(mark, cn, count));
+      });
+    });
+    return ret;
   }
 
   private enumerateNotKickedPlayers() {

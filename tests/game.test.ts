@@ -1343,6 +1343,30 @@ describe("gameImple.outputDiscardStack", () => {
   });
 });
 
+describe("gameImple.outputRemovedCards", () => {
+  it("creates a list of removed card entries for reading", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const inner = new Map<Card.CardNumber, number>();
+    inner.set(4, 1);
+    inner.set(5, 2);
+    const outer = new Map<Card.CardMark, Map<Card.CardNumber, number>>();
+    outer.set(Card.CardMark.DIAMONDS, inner);
+    const params = createGameInitParams({
+      players: [p1, p2],
+      removedCardsMap: outer,
+    });
+    const g = Game.createGameForTest(params);
+    const es = g.outputRemovedCards();
+    expect(es).toContainEqual(
+      new Game.RemovedCardEntry(Card.CardMark.DIAMONDS, 4, 1)
+    );
+    expect(es).toContainEqual(
+      new Game.RemovedCardEntry(Card.CardMark.DIAMONDS, 5, 2)
+    );
+  });
+});
+
 describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
