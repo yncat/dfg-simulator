@@ -271,6 +271,7 @@ class GameImple implements Game {
     }
 
     this.eventReceiver.onPlayerKicked(p.identifier);
+    this.updateRemovedCards(p.hand.cards);
     const wasActive = p === this.players[this.activePlayerIndex];
     p.markAsKicked();
     this.agariPlayerIdentifiers = this.agariPlayerIdentifiers.filter((v) => {
@@ -605,6 +606,26 @@ class GameImple implements Game {
       "a" +
       this.activePlayerActionCount.toString()
     );
+  }
+
+  private updateRemovedCards(cards: Card.Card[]) {
+    cards.forEach((v) => {
+      let e1 = this.removedCardsMap.get(v.mark);
+      if (e1 === undefined) {
+        const m = new Map<Card.CardNumber, number>();
+        this.removedCardsMap.set(v.mark, m);
+        e1 = m;
+      }
+
+      let e2 = e1.get(v.cardNumber);
+      if (e2 === undefined) {
+        e1.set(v.cardNumber, 0);
+        e2 = 0;
+      }
+      e2++;
+
+      e1.set(v.cardNumber, e2);
+    });
   }
 }
 

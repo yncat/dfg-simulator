@@ -1123,6 +1123,30 @@ describe("Game.kickPlayerByIdentifier", () => {
     }).toThrow("player to kick is not found");
   });
 
+  it("saves cards of kicked player's hand to removedCardsMap", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const p3 = Player.createPlayer("c");
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2, c2);
+    p2.hand.give(c1, c2);
+    p3.hand.give(c1, c2);
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+    });
+    const g = Game.createGameForTest(params);
+    g.kickPlayerByIdentifier("a");
+    const mp = g["removedCardsMap"];
+    const outer = mp.get(Card.CardMark.DIAMONDS);
+    expect(outer).not.toBeUndefined();
+    const inner4s = outer?.get(4);
+    const inner5s = outer?.get(5);
+    expect(inner4s).toBe(1);
+    expect(inner5s).toBe(2);
+  });
+
   it("when kicking a player who is not ranked yet and is not active in this turn", () => {
     const p1 = Player.createPlayer("a");
     const p2 = Player.createPlayer("b");
@@ -1314,7 +1338,6 @@ describe("gameImple.outputDiscardStack", () => {
     });
     const g = Game.createGameForTest(params);
     const rds1 = g.outputDiscardStack();
-    console.log(JSON.stringify(rds1));
     expect(rds1[0].cards).toStrictEqual([d4, d4]);
     expect(rds1[1].cards).toStrictEqual([d5, d5]);
   });
