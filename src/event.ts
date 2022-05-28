@@ -30,6 +30,7 @@ type CardsProvidedCallback = (
   identifier: string,
   providedCount: number
 ) => void;
+type ReverseCallback = () => void;
 
 export interface EventReceiver {
   onNagare: NagareCallback;
@@ -46,4 +47,5 @@ export interface EventReceiver {
   onPlayerRankChanged: PlayerRankChangedCallback;
   onInitialInfoProvided: InitialInfoProvidedCallback;
   onCardsProvided: CardsProvidedCallback;
+  onReverse: ReverseCallback;
 }

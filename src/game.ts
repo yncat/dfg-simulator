@@ -42,6 +42,7 @@ export type GameInitParams = {
   discardStack: Discard.DiscardStack;
   lastDiscarderIdentifier: string;
   strengthInverted: boolean;
+  reversed: boolean;
   agariPlayerIdentifiers: string[];
   penalizedPlayerIdentifiers: string[];
   eventReceiver: Event.EventReceiver;
@@ -87,6 +88,7 @@ export function createGame(
     discardStack: Discard.createDiscardStack(),
     lastDiscarderIdentifier: "",
     strengthInverted: false,
+    reversed: false,
     agariPlayerIdentifiers: [],
     penalizedPlayerIdentifiers: [],
     eventReceiver: eventReceiver,
@@ -165,7 +167,8 @@ class GameImple implements Game {
   private discardStack: Discard.DiscardStack;
   private lastDiscarderIdentifier: string;
   private readonly removedCardsMap: RemovedCardsMap;
-  strengthInverted: boolean;
+  private strengthInverted: boolean;
+  private reversed: boolean;
   private agariPlayerIdentifiers: string[];
   private penalizedPlayerIdentifiers: string[];
   private gameEnded: boolean; // cach the game finish state for internal use
@@ -182,6 +185,7 @@ class GameImple implements Game {
     this.discardStack = params.discardStack;
     this.lastDiscarderIdentifier = params.lastDiscarderIdentifier;
     this.strengthInverted = params.strengthInverted;
+    this.reversed = params.reversed;
     this.agariPlayerIdentifiers = params.agariPlayerIdentifiers;
     this.penalizedPlayerIdentifiers = params.penalizedPlayerIdentifiers;
     this.eventReceiver = params.eventReceiver;
@@ -231,6 +235,7 @@ class GameImple implements Game {
       this.processJBack(activePlayerControl);
     }
     this.processKakumei(activePlayerControl);
+    this.processReverse(activePlayerControl);
     this.processInevitableNagare(activePlayerControl);
     // Hand will be updated from the next line!
     this.processPlayerHandUpdate(activePlayerControl);
@@ -520,6 +525,21 @@ class GameImple implements Game {
     }
   }
 
+  private processReverse(activePlayerControl: ActivePlayerControl) {
+    if (!this.ruleConfig.reverse) {
+      return;
+    }
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 9);
+    if (count > 0) {
+      this.reversed = !this.reversed;
+      this.eventReceiver.onReverse();
+    }
+  }
+
   private processTurnAdvancement() {
     // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
     if (this.gameEnded) {
@@ -528,13 +548,19 @@ class GameImple implements Game {
 
     while (true) {
       // Must use this.players.length since we have to check for kicked players in some cases.
-      this.activePlayerIndex++;
+      this.activePlayerIndex = this.reversed
+        ? this.activePlayerIndex - 1
+        : this.activePlayerIndex + 1;
       if (this.activePlayerIndex == this.players.length) {
         this.activePlayerIndex = 0;
         this.turnCount++;
       }
+      if (this.activePlayerIndex === -1) {
+        this.activePlayerIndex = this.players.length - 1;
+        this.turnCount++;
+      }
       if (
-        this.players[this.activePlayerIndex].identifier ==
+        this.players[this.activePlayerIndex].identifier ===
         this.lastDiscarderIdentifier
       ) {
         this.processNagare();

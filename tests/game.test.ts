@@ -30,6 +30,7 @@ function createGameInitParams(params: Partial<Game.GameInitParams>) {
         : params.lastDiscarderIdentifier,
     strengthInverted:
       params.strengthInverted === undefined ? false : params.strengthInverted,
+    reversed: params.reversed === undefined ? false : params.reversed,
     agariPlayerIdentifiers:
       params.agariPlayerIdentifiers === undefined
         ? []
@@ -855,7 +856,7 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     expect(er.onJBack).toHaveBeenCalled();
     expect(er.onKakumei).toHaveBeenCalled();
-    expect(g.strengthInverted).toBeFalsy();
+    expect(g["strengthInverted"]).toBeFalsy();
   });
 
   it("triggers nagare and let the discarder play one more time, after negating joker with 3 of spades", () => {
@@ -985,6 +986,105 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onNagare).toHaveBeenCalled();
     expect(g["activePlayerIndex"]).toBe(1);
     expect(g["activePlayerActionCount"]).toBe(0);
+  });
+
+  it("process turns in reversed order when reversed switch is on", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      activePlayerIndex: 1,
+      reversed: true,
+    });
+    const g = Game.createGameForTest(params);
+    let ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    g.finishActivePlayerControl(ctrl);
+    ctrl = g.startActivePlayerControl();
+    expect(ctrl.playerIdentifier).toBe("a");
+  });
+
+  it("can process reversed order when activePlayerIndex reaches boundary", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 4);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1, c2); // need to have some cards. The game detects agari when the hand is empty even when the player passes.
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      activePlayerIndex: 0,
+      reversed: true,
+    });
+    const g = Game.createGameForTest(params);
+    let ctrl = g.startActivePlayerControl();
+    ctrl.pass();
+    g.finishActivePlayerControl(ctrl);
+    ctrl = g.startActivePlayerControl();
+    expect(ctrl.playerIdentifier).toBe("c");
+  });
+
+  it("triggers 9 reverse", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.reverse = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(2);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onReverse).toHaveBeenCalled();
+  });
+
+  it("does not trigger 9 reverse when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.reverse = false;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(er.onReverse).not.toHaveBeenCalled();
   });
 });
 

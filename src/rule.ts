@@ -2,6 +2,7 @@ export type RuleConfig = {
   yagiri: boolean;
   jBack: boolean;
   kakumei: boolean;
+  reverse: boolean;
 };
 
 export function createDefaultRuleConfig(): RuleConfig {
@@ -9,5 +10,6 @@ export function createDefaultRuleConfig(): RuleConfig {
     yagiri: false,
     jBack: false,
     kakumei: false,
+    reverse: false,
   };
 }
