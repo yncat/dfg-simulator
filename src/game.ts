@@ -236,6 +236,7 @@ class GameImple implements Game {
     }
     this.processKakumei(activePlayerControl);
     this.processReverse(activePlayerControl);
+    this.processSkip(activePlayerControl);
     this.processInevitableNagare(activePlayerControl);
     // Hand will be updated from the next line!
     this.processPlayerHandUpdate(activePlayerControl);
@@ -537,6 +538,27 @@ class GameImple implements Game {
     if (count > 0) {
       this.reversed = !this.reversed;
       this.eventReceiver.onReverse();
+    }
+  }
+
+  private processSkip(activePlayerControl: ActivePlayerControl) {
+    if (this.ruleConfig.skip === Rule.SkipConfig.OFF) {
+      return;
+    }
+    if (activePlayerControl.hasPassed()) {
+      return;
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 5);
+    if (count > 0) {
+      const numSkip =
+        this.ruleConfig.skip === Rule.SkipConfig.SINGLE ? 1 : count;
+      for (let i = 0; i < numSkip; i++) {
+        this.processTurnAdvancement();
+        this.eventReceiver.onSkip(
+          this.players[this.activePlayerIndex].identifier
+        );
+      }
     }
   }
 

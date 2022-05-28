@@ -31,6 +31,7 @@ type CardsProvidedCallback = (
   providedCount: number
 ) => void;
 type ReverseCallback = () => void;
+type SkipCallback = (identifier: string) => void;
 
 export interface EventReceiver {
   onNagare: NagareCallback;
@@ -48,4 +49,5 @@ export interface EventReceiver {
   onInitialInfoProvided: InitialInfoProvidedCallback;
   onCardsProvided: CardsProvidedCallback;
   onReverse: ReverseCallback;
+  onSkip: SkipCallback;
 }

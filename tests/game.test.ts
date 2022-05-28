@@ -1086,6 +1086,68 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(1);
     expect(er.onReverse).not.toHaveBeenCalled();
   });
+
+  it("triggers 5 skip single", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 6);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.skip = Rule.SkipConfig.SINGLE;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(2);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onSkip).toHaveBeenCalledWith("b");
+  });
+
+  it("triggers 5 skip multiple", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 6);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.skip = Rule.SkipConfig.MULTI;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerActionCount"]).toBe(0);
+    expect(er.onSkip).toHaveBeenCalledTimes(2);
+    expect(er.onSkip.mock.calls[0][0]).toBe("b");
+    expect(er.onSkip.mock.calls[1][0]).toBe("c");
+  });
 });
 
 describe("gameImple.isEnded", () => {

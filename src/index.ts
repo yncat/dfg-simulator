@@ -25,4 +25,4 @@ export { generateUniqueIdentifiers } from "./identifier";
 export { Hand, createHand } from "./hand";
 export { RankType } from "./rank";
 export { Result, createResult } from "./result";
-export { RuleConfig, createDefaultRuleConfig } from "./rule";
+export { SkipConfig, RuleConfig, createDefaultRuleConfig } from "./rule";
