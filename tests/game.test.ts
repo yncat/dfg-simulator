@@ -1148,6 +1148,35 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onSkip.mock.calls[0][0]).toBe("b");
     expect(er.onSkip.mock.calls[1][0]).toBe("c");
   });
+
+  it("does not trigger 5 skip when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 6);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.skip = Rule.SkipConfig.OFF;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    const dp = ctrl.enumerateDiscardPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(g["activePlayerIndex"]).toBe(1);
+    expect(er.onSkip).not.toHaveBeenCalled();
+  });
 });
 
 describe("gameImple.isEnded", () => {
