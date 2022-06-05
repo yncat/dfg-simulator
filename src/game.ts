@@ -31,6 +31,7 @@ export interface Game {
   outputResult: () => Result.Result;
   outputDiscardStack: () => Array<Discard.DiscardPair>;
   outputRemovedCards: () => RemovedCardEntry[];
+  outputRuleConfig: () => Rule.RuleConfig;
 }
 
 type RemovedCardsMap = Map<Card.CardMark, Map<Card.CardNumber, number>>;
@@ -307,6 +308,10 @@ class GameImple implements Game {
       });
     });
     return ret;
+  }
+
+  public outputRuleConfig(): Rule.RuleConfig {
+    return { ...this.ruleConfig };
   }
 
   private enumerateNotKickedPlayers() {

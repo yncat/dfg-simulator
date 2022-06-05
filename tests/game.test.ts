@@ -1558,6 +1558,34 @@ describe("gameImple.outputRemovedCards", () => {
   });
 });
 
+describe("gameImple.outputRuleConfig", () => {
+  it("returns a copy of rule configuration", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params = createGameInitParams({
+      players: [p1, p2],
+    });
+    const g = Game.createGameForTest(params);
+    const rc = g.outputRuleConfig();
+    expect(rc).toStrictEqual(Rule.createDefaultRuleConfig());
+  });
+
+  it("does not allow changing rule configuration from the returned instance", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const params = createGameInitParams({
+      players: [p1, p2],
+    });
+    const g = Game.createGameForTest(params);
+    const rc1 = g.outputRuleConfig();
+    rc1.reverse = true;
+    const d = Rule.createDefaultRuleConfig();
+    const rc2 = g.outputRuleConfig();
+    expect(rc2).toStrictEqual(d);
+    expect(rc2).not.toStrictEqual(rc1);
+  });
+});
+
 describe("ActivePlayerControlImple.enumerateHand", () => {
   it("can enumerate cards in hand", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
