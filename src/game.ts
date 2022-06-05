@@ -237,14 +237,14 @@ class GameImple implements Game {
     }
     this.processKakumei(activePlayerControl);
     this.processReverse(activePlayerControl);
-    this.processSkip(activePlayerControl);
+    const skipTriggered = this.processSkip(activePlayerControl);
     this.processInevitableNagare(activePlayerControl);
     // Hand will be updated from the next line!
     this.processPlayerHandUpdate(activePlayerControl);
     this.processAgariCheck();
     this.processGameEndCheck();
     // When we need another turn for this player, we should have incremented activePlayerActionCount.
-    if (this.activePlayerActionCount === prevActionCount) {
+    if (this.activePlayerActionCount === prevActionCount && !skipTriggered) {
       this.processTurnAdvancement();
     }
   }
@@ -547,11 +547,12 @@ class GameImple implements Game {
   }
 
   private processSkip(activePlayerControl: ActivePlayerControl) {
+    // When processing skip, the next player who will play will be calculated in this method, thus activePlayerIndex must not be changed after this method returns.
     if (this.ruleConfig.skip === Rule.SkipConfig.OFF) {
-      return;
+      return false;
     }
     if (activePlayerControl.hasPassed()) {
-      return;
+      return false;
     }
     const dp = activePlayerControl.getDiscard();
     const count = dp.countWithCondition(null, 5);
@@ -563,8 +564,10 @@ class GameImple implements Game {
         this.eventReceiver.onSkip(
           this.players[this.activePlayerIndex].identifier
         );
+        this.processTurnAdvancement();
       }
     }
+    return true;
   }
 
   private processTurnAdvancement() {

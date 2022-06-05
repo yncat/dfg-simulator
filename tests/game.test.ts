@@ -1142,11 +1142,11 @@ describe("Game.finishActivePlayerControl", () => {
     const dp = ctrl.enumerateDiscardPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
-    expect(g["activePlayerIndex"]).toBe(0);
+    expect(g["activePlayerIndex"]).toBe(1);
     expect(g["activePlayerActionCount"]).toBe(0);
     expect(er.onSkip).toHaveBeenCalledTimes(2);
     expect(er.onSkip.mock.calls[0][0]).toBe("b");
-    expect(er.onSkip.mock.calls[1][0]).toBe("c");
+    expect(er.onSkip.mock.calls[1][0]).toBe("a");
   });
 
   it("does not trigger 5 skip when disabled by rule config", () => {

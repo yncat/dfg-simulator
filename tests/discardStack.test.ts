@@ -50,7 +50,6 @@ describe("DiscardStack", () => {
     const c2 = Card.createCard(Card.CardMark.CLUBS, 4);
     const dp = Discard.CreateDiscardPairForTest(c1, c2);
     const ds = Discard.createDiscardStack();
-    const ndp = Discard.createNullDiscardPair();
     ds.push(dp);
     expect(ds["discardPairs"].length).toBe(1);
     ds.clear();
