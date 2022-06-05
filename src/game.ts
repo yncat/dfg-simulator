@@ -556,16 +556,16 @@ class GameImple implements Game {
     }
     const dp = activePlayerControl.getDiscard();
     const count = dp.countWithCondition(null, 5);
-    if (count > 0) {
-      const numSkip =
-        this.ruleConfig.skip === Rule.SkipConfig.SINGLE ? 1 : count;
-      for (let i = 0; i < numSkip; i++) {
-        this.processTurnAdvancement();
-        this.eventReceiver.onSkip(
-          this.players[this.activePlayerIndex].identifier
-        );
-        this.processTurnAdvancement();
-      }
+    if (count === 0) {
+      return;
+    }
+    const numSkip = this.ruleConfig.skip === Rule.SkipConfig.SINGLE ? 1 : count;
+    for (let i = 0; i < numSkip; i++) {
+      this.processTurnAdvancement();
+      this.eventReceiver.onSkip(
+        this.players[this.activePlayerIndex].identifier
+      );
+      this.processTurnAdvancement();
     }
     return true;
   }
