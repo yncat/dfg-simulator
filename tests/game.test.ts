@@ -1330,10 +1330,13 @@ describe("Game.kickPlayerByIdentifier", () => {
     const g = Game.createGameForTest(params);
     g.kickPlayerByIdentifier("a");
     const mp = g["removedCardsMap"];
-    const outer = mp.get(Card.CardMark.DIAMONDS);
+    const outer = mp.get(Card.CardMark.DIAMONDS) as Map<
+      Card.CardNumber,
+      number
+    >;
     expect(outer).not.toBeUndefined();
-    const inner4s = outer?.get(4);
-    const inner5s = outer?.get(5);
+    const inner4s = outer.get(4) as number;
+    const inner5s = outer.get(5) as number;
     expect(inner4s).toBe(1);
     expect(inner5s).toBe(2);
   });
