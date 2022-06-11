@@ -219,6 +219,8 @@ class GameImple implements Game {
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
   ): void {
+    // Need to store the current player. It is required when checking agari.
+    const playerMemo = this.players[this.activePlayerIndex];
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
@@ -240,8 +242,8 @@ class GameImple implements Game {
     const skipTriggered = this.processSkip(activePlayerControl);
     this.processInevitableNagare(activePlayerControl);
     // Hand will be updated from the next line!
-    this.processPlayerHandUpdate(activePlayerControl);
-    this.processAgariCheck();
+    this.processPlayerHandUpdate(activePlayerControl, playerMemo);
+    this.processAgariCheck(playerMemo);
     this.processGameEndCheck();
     // When we need another turn for this player, we should have incremented activePlayerActionCount.
     if (this.activePlayerActionCount === prevActionCount && !skipTriggered) {
@@ -413,13 +415,14 @@ class GameImple implements Game {
     );
   }
 
-  private processPlayerHandUpdate(activePlayerControl: ActivePlayerControl) {
+  private processPlayerHandUpdate(
+    activePlayerControl: ActivePlayerControl,
+    targetPlayer: Player.Player
+  ) {
     if (activePlayerControl.hasPassed()) {
       return;
     }
-    this.players[this.activePlayerIndex].hand.take(
-      ...activePlayerControl.getDiscard().cards
-    );
+    targetPlayer.hand.take(...activePlayerControl.getDiscard().cards);
   }
 
   private processJBack(activePlayerControl: ActivePlayerControl) {
@@ -607,35 +610,32 @@ class GameImple implements Game {
     }
   }
 
-  private processAgariCheck() {
-    const p = this.players[this.activePlayerIndex];
-    if (p.hand.count() == 0) {
+  private processAgariCheck(player: Player.Player) {
+    if (player.hand.count() == 0) {
       if (Legality.isForbiddenAgari(this.discardStack, this.strengthInverted)) {
-        this.processForbiddenAgari();
+        this.processForbiddenAgari(player);
         return;
       }
-      this.processLegalAgari();
+      this.processLegalAgari(player);
     }
   }
 
-  private processLegalAgari() {
-    const p = this.players[this.activePlayerIndex];
-    this.eventReceiver.onAgari(p.identifier);
-    this.agariPlayerIdentifiers.push(p.identifier);
+  private processLegalAgari(targetPlayer:Player.Player) {
+    this.eventReceiver.onAgari(targetPlayer.identifier);
+    this.agariPlayerIdentifiers.push(targetPlayer.identifier);
     const count = this.countNotKickedPlayers();
     const pos = this.agariPlayerIdentifiers.length;
-    const ret = p.rank.determine(count, pos);
-    this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
+    const ret = targetPlayer.rank.determine(count, pos);
+    this.eventReceiver.onPlayerRankChanged(targetPlayer.identifier, ret.before, ret.after);
   }
 
-  private processForbiddenAgari() {
-    const p = this.players[this.activePlayerIndex];
-    this.eventReceiver.onForbiddenAgari(p.identifier);
+  private processForbiddenAgari(targetPlayer:Player.Player) {
+    this.eventReceiver.onForbiddenAgari(targetPlayer.identifier);
     const count = this.countNotKickedPlayers();
     const pos = count - this.penalizedPlayerIdentifiers.length;
-    const ret = p.rank.determine(count, pos);
-    this.penalizedPlayerIdentifiers.push(p.identifier);
-    this.eventReceiver.onPlayerRankChanged(p.identifier, ret.before, ret.after);
+    const ret = targetPlayer.rank.determine(count, pos);
+    this.penalizedPlayerIdentifiers.push(targetPlayer.identifier);
+    this.eventReceiver.onPlayerRankChanged(targetPlayer.identifier, ret.before, ret.after);
   }
 
   private processGameEndCheck() {

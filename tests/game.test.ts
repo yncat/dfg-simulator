@@ -249,6 +249,47 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["agariPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
   });
 
+    it("can process agari when the last discard is 5 skip", () => {
+    const p1 = Player.createPlayer("a");
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const r = createMockEventReceiver();
+    const rc = Rule.createDefaultRuleConfig();
+    rc.skip=Rule.SkipConfig.SINGLE;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: r,
+      ruleConfig:rc,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateDiscardPairs();
+    expect(dps[0].cards).toStrictEqual([c1]);
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+    expect(r.onDiscard).toHaveBeenCalled();
+    expect(r.onAgari).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged).toHaveBeenCalled();
+    expect(r.onPlayerRankChanged.mock.calls[0][0]).toBe("a");
+    expect(r.onPlayerRankChanged.mock.calls[0][1]).toBe(
+      Rank.RankType.UNDETERMINED
+    );
+    expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
+    expect(r.onSkip).toHaveBeenCalledWith("b");
+    expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
+    expect(p1.hand.cards).toStrictEqual([]);
+    const ndp = Discard.CreateDiscardPairForTest(c1);
+    expect(g["discardStack"].last()).toStrictEqual(ndp);
+    expect(g["activePlayerIndex"]).toBe(2);
+    expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual([p1.identifier]);
+  });
+
   it("emits forbidden agari event when player's agari pair is forbidden one", () => {
     const p1 = Player.createPlayer("a");
     const c1 = Card.createCard(Card.CardMark.JOKER);
