@@ -88,4 +88,9 @@ describe("isForbiddenAgari", () => {
     ds.push(dp);
     expect(Legality.isForbiddenAgari(ds, false)).toBeFalsy();
   });
+
+  it("returns false when the pair is a null discard pair", () => {
+    const ds = Discard.createDiscardStack();
+    expect(Legality.isForbiddenAgari(ds, false)).toBeFalsy();
+  });
 });

@@ -7,18 +7,23 @@ export function isForbiddenAgari(
 ): boolean {
   const discardPair = discardStack.last();
   const previousDiscardPair = discardStack.secondToLast();
+  // TODO: should not be required.
+  if(discardPair.isNull()){
+    return false;
+  }
+
   // joker is included.
   if (discardPair.countWithCondition(CardMark.JOKER, null) > 0) {
     return true;
   }
 
   // When strength is not inverted, 2 is included.
-  if (!strengthInverted && discardPair.countWithCondition(null, 2)) {
+  if (!strengthInverted && discardPair.countWithCondition(null, 2)>0) {
     return true;
   }
 
   // When strength is inverted, 3 was included.
-  if (strengthInverted && discardPair.countWithCondition(null, 3)) {
+  if (strengthInverted && discardPair.countWithCondition(null, 3)>0) {
     return true;
   }
 
