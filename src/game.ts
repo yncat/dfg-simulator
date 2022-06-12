@@ -608,8 +608,7 @@ class GameImple implements Game {
   }
 
   private processAgariCheck(activePlayerControl: ActivePlayerControl) {
-    const p = this.findPlayerByIdentifier(activePlayerControl.playerIdentifier);
-    if (p.hand.count() == 0) {
+    if (activePlayerControl.countHand() == 0) {
       if (Legality.isForbiddenAgari(this.discardStack, this.strengthInverted)) {
         this.processForbiddenAgari(activePlayerControl);
         return;

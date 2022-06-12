@@ -8,7 +8,7 @@ export function isForbiddenAgari(
   const discardPair = discardStack.last();
   const previousDiscardPair = discardStack.secondToLast();
   // TODO: should not be required.
-  if(discardPair.isNull()){
+  if (discardPair.isNull()) {
     return false;
   }
 
@@ -18,12 +18,12 @@ export function isForbiddenAgari(
   }
 
   // When strength is not inverted, 2 is included.
-  if (!strengthInverted && discardPair.countWithCondition(null, 2)>0) {
+  if (!strengthInverted && discardPair.countWithCondition(null, 2) > 0) {
     return true;
   }
 
   // When strength is inverted, 3 was included.
-  if (strengthInverted && discardPair.countWithCondition(null, 3)>0) {
+  if (strengthInverted && discardPair.countWithCondition(null, 3) > 0) {
     return true;
   }
 
