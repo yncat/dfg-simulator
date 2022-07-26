@@ -25,6 +25,8 @@ https://github.com/yncat/dfg-example
 - Yagiri (8)
 - J back (11)
 - Kakumei / Kaidan Kakumei
+- Reverse (5)
+- Skip (9())
 - Joker as wildcards
 - 3 of spades against a joker
 
