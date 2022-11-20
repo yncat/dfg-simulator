@@ -22,7 +22,7 @@ export function isForbiddenAgari(
     return true;
   }
 
-  // When strength is inverted, 3 was included.
+  // When strength is inverted, 3 is included.
   if (strengthInverted && discardPair.countWithCondition(null, 3) > 0) {
     return true;
   }
