@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import * as AdditionalAction from "../src/additionalAction";
 import * as Card from "../src/card";
 import * as Discard from "../src/discard";
 import * as Game from "../src/game";
@@ -2050,5 +2051,77 @@ describe("removedCardEntry", () => {
     expect(e.mark).toBe(Card.CardMark.CLUBS);
     expect(e.cardNumber).toBe(9);
     expect(e.count).toBe(3);
+  });
+});
+
+describe("AdditionalActionControl", () => {
+  describe("isFinished", () => {
+    it("Returns false when action is not required", () => {
+      const a = new Game.AdditionalActionControl(false, null, null);
+      expect(a.isAdditionalActionRequired()).toBeFalsy();
+    });
+
+    it("Returns true when action is required", () => {
+      const a = new Game.AdditionalActionControl(true, null, null);
+      expect(a.isAdditionalActionRequired()).toBeTruthy();
+    });
+  });
+
+  describe("getType", () => {
+    it("returns additional action type", () => {
+      const a = new Game.AdditionalActionControl(true, "discard10", null);
+      expect(a.getType()).toBe("discard10");
+    });
+
+    it("throws an error when action is not required", () => {
+      const a = new Game.AdditionalActionControl(false, null, null);
+      expect(() => {
+        a.getType();
+      }).toThrow("additional action is not required");
+    });
+
+    it("throws an error when action is required but the actual type is not set", () => {
+      const a = new Game.AdditionalActionControl(true, null, null);
+      expect(() => {
+        a.getType();
+      }).toThrow("additional action is required, but action type is not set");
+    });
+
+    describe("unwrap", () => {
+      it("returns unwrapped additional action type", () => {
+        const obj = new AdditionalAction.Transfer7("test");
+        const a = new Game.AdditionalActionControl(true, "transfer7", obj);
+        const unwrapped = a.unwrap<AdditionalAction.Transfer7>(
+          AdditionalAction.Transfer7
+        );
+        expect(unwrapped).toBe<AdditionalAction.Transfer7>(obj);
+      });
+
+      it("throws an error when tried to unwrap with an invalid type", () => {
+        const obj = new AdditionalAction.Transfer7("test");
+        const a = new Game.AdditionalActionControl(true, "transfer7", obj);
+        expect(() => {
+          a.unwrap<AdditionalAction.Discard10>(AdditionalAction.Discard10);
+        }).toThrow(
+          "tried to unwrap additional action with an incorrect type argument"
+        );
+      });
+
+      it("throws an error when action is not required", () => {
+        const a = new Game.AdditionalActionControl(false, null, null);
+        expect(() => {
+          a.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+        }).toThrow("additional action is not required");
+      });
+
+      it("throws an error when action is required but the action itself is not set", () => {
+        const a = new Game.AdditionalActionControl(true, "transfer7", null);
+        expect(() => {
+          a.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+        }).toThrow(
+          "additional action is required, but the action itself is not set"
+        );
+      });
+    });
   });
 });

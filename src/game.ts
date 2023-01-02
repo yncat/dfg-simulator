@@ -1,6 +1,7 @@
 /*
 Game manager
 */
+import * as additionalAction from "./additionalAction";
 import * as Player from "./player";
 import * as Hand from "./hand";
 import * as Card from "./card";
@@ -23,7 +24,9 @@ export class GameCreationError extends Error {}
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
-  finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
+  finishActivePlayerControl: (
+    activePlayerControl: ActivePlayerControl
+  ) => AdditionalActionControl;
   enumeratePlayerIdentifiers: () => string[];
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
@@ -218,7 +221,7 @@ class GameImple implements Game {
 
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
-  ): void {
+  ): AdditionalActionControl {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
@@ -248,6 +251,8 @@ class GameImple implements Game {
     if (this.activePlayerActionCount === prevActionCount) {
       this.processTurnAdvancement();
     }
+
+    return new AdditionalActionControl(false, null, null);
   }
 
   public enumeratePlayerIdentifiers(): string[] {
@@ -847,5 +852,56 @@ export class RemovedCardEntry {
     this.mark = mark;
     this.cardNumber = cardNumber;
     this.count = count;
+  }
+}
+
+export class AdditionalActionControl {
+  private required: boolean;
+  private type: additionalAction.SupportedAdditionalActionTypes | null;
+  private additionalAction: additionalAction.AdditionalAction | null;
+  constructor(
+    required: boolean,
+    type: additionalAction.SupportedAdditionalActionTypes | null,
+    additionalAction: additionalAction.AdditionalAction | null
+  ) {
+    this.required = required;
+    this.type = type;
+    this.additionalAction = additionalAction;
+  }
+
+  public isAdditionalActionRequired(): boolean {
+    return this.required;
+  }
+
+  public getType(): additionalAction.SupportedAdditionalActionTypes {
+    if (!this.required) {
+      throw new GameError("additional action is not required");
+    }
+    if (this.type === null) {
+      throw new GameError(
+        "additional action is required, but action type is not set"
+      );
+    }
+    return this.type;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public unwrap<T extends additionalAction.SupportedAdditionalActions>(
+    typeArg: new (...args: any) => T
+  ): T {
+    if (!this.required) {
+      throw new GameError("additional action is not required");
+    }
+    if (this.additionalAction === null) {
+      throw new GameError(
+        "additional action is required, but the action itself is not set"
+      );
+    }
+    if (this.additionalAction instanceof typeArg != true) {
+      throw new GameError(
+        "tried to unwrap additional action with an incorrect type argument"
+      );
+    }
+    return this.additionalAction as T;
   }
 }
