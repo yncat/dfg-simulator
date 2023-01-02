@@ -1,13 +1,14 @@
 import * as Card from "../src/card";
+import * as CardSelection from "../src/cardSelection";
 import * as Discard from "../src/discard";
 import * as Helper from "./helper";
 
 function createDiscardStackFixture(
   ...cards: Card.Card[]
 ): Discard.DiscardStack {
-  const dp = Discard.CreateDiscardPairForTest(...cards);
+  const csp = CardSelection.CreateCardSelectionPairForTest(...cards);
   const ds = Discard.createDiscardStack();
-  ds.push(dp);
+  ds.push(csp);
   return ds;
 }
 
@@ -24,10 +25,10 @@ describe("enumerate", () => {
       const c = Card.createCard(Card.CardMark.HEARTS, 7);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(c, c, c);
-      expect(dps.length).toBe(1);
-      const dp = dps[0];
-      expect(dp["cards"]).toStrictEqual([c, c, c]);
+      const csps = e.enumerate(c, c, c);
+      expect(csps.length).toBe(1);
+      const csp = csps[0];
+      expect(csp["cards"]).toStrictEqual([c, c, c]);
     });
   });
 
@@ -36,10 +37,10 @@ describe("enumerate", () => {
       const c = Card.createCard(Card.CardMark.JOKER);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(c, c, c);
-      expect(dps.length).toBe(1);
-      const dp = dps[0];
-      expect(dp["cards"]).toStrictEqual([c, c, c]);
+      const csps = e.enumerate(c, c, c);
+      expect(csps.length).toBe(1);
+      const csp = csps[0];
+      expect(csp["cards"]).toStrictEqual([c, c, c]);
     });
   });
 
@@ -50,10 +51,10 @@ describe("enumerate", () => {
       const c2 = Card.createCard(Card.CardMark.JOKER);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(c1, c1, c2);
-      expect(dps.length).toBe(1);
-      const dp = dps[0];
-      expect(Helper.assertCardsEqual(dp["cards"], [c1, c1, c1w])).toBeTruthy();
+      const csps = e.enumerate(c1, c1, c2);
+      expect(csps.length).toBe(1);
+      const csp = csps[0];
+      expect(Helper.assertCardsEqual(csp["cards"], [c1, c1, c1w])).toBeTruthy();
     });
   });
 
@@ -68,19 +69,19 @@ describe("enumerate", () => {
       const joker = Card.createCard(Card.CardMark.JOKER);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(h7, joker, joker);
-      expect(dps.length).toBe(4);
+      const csps = e.enumerate(h7, joker, joker);
+      expect(csps.length).toBe(4);
       expect(
-        Helper.assertCardsEqual(dps[0]["cards"], [h5w, h6w, h7])
+        Helper.assertCardsEqual(csps[0]["cards"], [h5w, h6w, h7])
       ).toBeTruthy();
       expect(
-        Helper.assertCardsEqual(dps[1]["cards"], [h6w, h7, h8w])
+        Helper.assertCardsEqual(csps[1]["cards"], [h6w, h7, h8w])
       ).toBeTruthy();
       expect(
-        Helper.assertCardsEqual(dps[2]["cards"], [h7, h8w, h9w])
+        Helper.assertCardsEqual(csps[2]["cards"], [h7, h8w, h9w])
       ).toBeTruthy();
       expect(
-        Helper.assertCardsEqual(dps[3]["cards"], [h7, h7w, h7w])
+        Helper.assertCardsEqual(csps[3]["cards"], [h7, h7w, h7w])
       ).toBeTruthy();
     });
 
@@ -91,10 +92,10 @@ describe("enumerate", () => {
       const joker = Card.createCard(Card.CardMark.JOKER);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(h7, h9, joker);
-      expect(dps.length).toBe(1);
+      const csps = e.enumerate(h7, h9, joker);
+      expect(csps.length).toBe(1);
       expect(
-        Helper.assertCardsEqual(dps[0]["cards"], [h7, d8w, h9])
+        Helper.assertCardsEqual(csps[0]["cards"], [h7, d8w, h9])
       ).toBeTruthy();
     });
 
@@ -107,13 +108,13 @@ describe("enumerate", () => {
       const joker = Card.createCard(Card.CardMark.JOKER);
       const ds = Discard.createDiscardStack();
       const e = new Discard.DiscardPairEnumerator(ds, false);
-      const dps = e.enumerate(h7, h9, joker, joker);
-      expect(dps.length).toBe(2);
+      const csps = e.enumerate(h7, h9, joker, joker);
+      expect(csps.length).toBe(2);
       expect(
-        Helper.assertCardsEqual(dps[0]["cards"], [h6w, h7, d8w, h9])
+        Helper.assertCardsEqual(csps[0]["cards"], [h6w, h7, d8w, h9])
       ).toBeTruthy();
       expect(
-        Helper.assertCardsEqual(dps[1]["cards"], [h7, d8w, h9, h10w])
+        Helper.assertCardsEqual(csps[1]["cards"], [h7, d8w, h9, h10w])
       ).toBeTruthy();
     });
   });
@@ -310,11 +311,11 @@ describe("prune", () => {
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = Discard.createDiscardStack();
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
-      Discard.CreateDiscardPairForTest(h6, h6),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
+      CardSelection.CreateCardSelectionPairForTest(h6, h6),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dps);
+    expect(e["prune"](csps, ds)).toStrictEqual(csps);
   });
 
   it("can prune pairs which do not satisfy cards count", () => {
@@ -323,14 +324,14 @@ describe("prune", () => {
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = createDiscardStackFixture(h4, h4);
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
-      Discard.CreateDiscardPairForTest(h6),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
+      CardSelection.CreateCardSelectionPairForTest(h6),
     ];
-    const dsw: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 
   it("can prune pairs which are not allowed in daifugo rules", () => {
@@ -338,14 +339,14 @@ describe("prune", () => {
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = createDiscardStackFixture();
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
-      Discard.CreateDiscardPairForTest(h5, h6),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
+      CardSelection.CreateCardSelectionPairForTest(h5, h6),
     ];
-    const dsw: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 
   it("can prune pairs which do not match standard or kaidan condition", () => {
@@ -354,14 +355,14 @@ describe("prune", () => {
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = createDiscardStackFixture(h4, h4);
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
-      Discard.CreateDiscardPairForTest(h5, h6),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
+      CardSelection.CreateCardSelectionPairForTest(h5, h6),
     ];
-    const dsw: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h5, h5),
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 
   it("can prune pairs which is not stronger", () => {
@@ -369,14 +370,14 @@ describe("prune", () => {
     const h6 = Card.createCard(Card.CardMark.HEARTS, 6);
     const ds = createDiscardStackFixture(h5, h5);
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h6, h6),
-      Discard.CreateDiscardPairForTest(h5, h5),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h6, h6),
+      CardSelection.CreateCardSelectionPairForTest(h5, h5),
     ];
-    const dsw: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(h6, h6),
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(h6, h6),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 
   it("does not prune a single 3 of spades after a joker", () => {
@@ -384,9 +385,13 @@ describe("prune", () => {
     const joker = Card.createCard(Card.CardMark.JOKER);
     const ds = createDiscardStackFixture(joker);
     const e = new Discard.DiscardPairEnumerator(ds, false);
-    const dps: Discard.DiscardPair[] = [Discard.CreateDiscardPairForTest(s3)];
-    const dsw: Discard.DiscardPair[] = [Discard.CreateDiscardPairForTest(s3)];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(s3),
+    ];
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(s3),
+    ];
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 
   it("does not prune a single joker after a 3 of spades when strength is inverted", () => {
@@ -394,12 +399,12 @@ describe("prune", () => {
     const joker = Card.createCard(Card.CardMark.JOKER);
     const ds = createDiscardStackFixture(s3);
     const e = new Discard.DiscardPairEnumerator(ds, true);
-    const dps: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(joker),
+    const csps: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(joker),
     ];
-    const dsw: Discard.DiscardPair[] = [
-      Discard.CreateDiscardPairForTest(joker),
+    const dsw: CardSelection.CardSelectionPair[] = [
+      CardSelection.CreateCardSelectionPairForTest(joker),
     ];
-    expect(e["prune"](dps, ds)).toStrictEqual(dsw);
+    expect(e["prune"](csps, ds)).toStrictEqual(dsw);
   });
 });

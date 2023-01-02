@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import * as AdditionalAction from "../src/additionalAction";
 import * as Card from "../src/card";
+import * as CardSelection from "../src/cardSelection";
 import * as Discard from "../src/discard";
 import * as Game from "../src/game";
 import * as Hand from "../src/hand";
@@ -112,7 +113,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(() => {
@@ -148,14 +149,14 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(r.onDiscard).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([c2]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
@@ -175,7 +176,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -203,7 +204,7 @@ describe("Game.finishActivePlayerControl", () => {
     g["inJBack"] = true;
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -229,7 +230,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -243,7 +244,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -269,7 +270,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -284,7 +285,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onSkip).toHaveBeenCalledWith("b");
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(2);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -310,7 +311,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -325,7 +326,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onReverse).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(2);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -346,7 +347,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -362,7 +363,7 @@ describe("Game.finishActivePlayerControl", () => {
     );
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
@@ -383,7 +384,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(r.onDiscard).toHaveBeenCalled();
@@ -417,7 +418,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(r.onDiscard).toHaveBeenCalled();
@@ -454,7 +455,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onPass).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe("");
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
-    const ndp = Discard.createNullDiscardPair();
+    const ndp = CardSelection.createNullCardSelectionPair();
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
@@ -556,7 +557,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -593,7 +594,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     ctrl.selectCard(1);
     ctrl.selectCard(2);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -621,7 +622,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -651,7 +652,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -687,7 +688,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -720,7 +721,7 @@ describe("Game.finishActivePlayerControl", () => {
     g["inJBack"] = true;
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -749,7 +750,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -781,7 +782,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     ctrl.selectCard(1);
     ctrl.selectCard(2);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -818,7 +819,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onYagiri).toHaveBeenCalled();
@@ -842,7 +843,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeFalsy();
@@ -872,7 +873,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -900,7 +901,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeFalsy();
@@ -934,7 +935,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onJBack).toHaveBeenCalled();
@@ -955,7 +956,9 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const ds = Discard.createDiscardStack();
     ds.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.JOKER, 0)
+      )
     );
     const params = createGameInitParams({
       players: [p1, p2, p3],
@@ -965,7 +968,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -999,7 +1002,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1034,7 +1037,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1053,7 +1056,9 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const ds = Discard.createDiscardStack();
     ds.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.JOKER, 0)
+      )
     );
     const params = createGameInitParams({
       players: [p1, p2, p3],
@@ -1063,7 +1068,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1135,7 +1140,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(2);
@@ -1163,7 +1168,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1192,7 +1197,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(2);
@@ -1222,7 +1227,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -1254,7 +1259,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1285,7 +1290,7 @@ describe("gameImple.isEnded", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g.isEnded()).toBeTruthy();
@@ -1603,9 +1608,9 @@ describe("gameImple.outputDiscardStack", () => {
     const d4 = Card.createCard(Card.CardMark.DIAMONDS, 4);
     const d5 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const joker = Card.createCard(Card.CardMark.JOKER);
-    const dp1 = Discard.CreateDiscardPairForTest(d4, d4);
-    const dp2 = Discard.CreateDiscardPairForTest(d5, d5);
-    const dp3 = Discard.CreateDiscardPairForTest(joker, joker);
+    const dp1 = CardSelection.CreateCardSelectionPairForTest(d4, d4);
+    const dp2 = CardSelection.CreateCardSelectionPairForTest(d5, d5);
+    const dp3 = CardSelection.CreateCardSelectionPairForTest(joker, joker);
     ds.push(dp1);
     ds.push(dp2);
     const params = createGameInitParams({
@@ -1728,11 +1733,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.SELECTABLE;
+        return CardSelection.SelectabilityCheckResult.SELECTABLE;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.SELECTABLE);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.SELECTABLE);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -1750,11 +1755,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.ALREADY_SELECTED;
+        return CardSelection.SelectabilityCheckResult.ALREADY_SELECTED;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.ALREADY_SELECTED);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -1772,11 +1777,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.NOT_SELECTABLE;
+        return CardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.NOT_SELECTABLE);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.NOT_SELECTABLE);
   });
 });
 
@@ -1818,11 +1823,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.SUCCESS;
+      return CardSelection.CardSelectResult.SUCCESS;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(ret).toBe(CardSelection.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -1838,11 +1843,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.ALREADY_SELECTED;
+      return CardSelection.CardSelectResult.ALREADY_SELECTED;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
+    expect(ret).toBe(CardSelection.CardSelectResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -1858,11 +1863,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.NOT_SELECTABLE;
+      return CardSelection.CardSelectResult.NOT_SELECTABLE;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
+    expect(ret).toBe(CardSelection.CardSelectResult.NOT_SELECTABLE);
   });
 });
 
@@ -1880,11 +1885,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.SUCCESS;
+      return CardSelection.CardDeselectResult.SUCCESS;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.SUCCESS);
+    expect(ret).toBe(CardSelection.CardDeselectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
@@ -1900,11 +1905,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.ALREADY_DESELECTED;
+      return CardSelection.CardDeselectResult.ALREADY_DESELECTED;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
+    expect(ret).toBe(CardSelection.CardDeselectResult.ALREADY_DESELECTED);
   });
 
   it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
@@ -1920,11 +1925,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.NOT_DESELECTABLE;
+      return CardSelection.CardDeselectResult.NOT_DESELECTABLE;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
+    expect(ret).toBe(CardSelection.CardDeselectResult.NOT_DESELECTABLE);
   });
 });
 
@@ -1952,7 +1957,7 @@ describe("ActivePlayerControlImple.countSelectedCards", () => {
   });
 });
 
-describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
+describe("ActivePlayerControlImple.enumerateCardSelectionPairs", () => {
   it("returns what DiscardPairEnumerator returned", () => {
     const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
@@ -1966,11 +1971,11 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
       dpe
     );
     const c = Card.createCard(Card.CardMark.SPADES, 3);
-    const want = [Discard.CreateDiscardPairForTest(c, c)];
+    const want = [CardSelection.CreateCardSelectionPairForTest(c, c)];
     const enumerate = jest.spyOn(dpe, "enumerate").mockImplementation(() => {
       return want;
     });
-    const ret = ctrl.enumerateDiscardPairs();
+    const ret = ctrl.enumerateCardSelectionPairs();
     expect(enumerate).toHaveBeenCalled();
     expect(ret).toStrictEqual(want);
   });
@@ -2005,7 +2010,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
-        return [Discard.CreateDiscardPairForTest(c1, c1)];
+        return [CardSelection.CreateCardSelectionPairForTest(c1, c1)];
       });
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
@@ -2014,7 +2019,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
       dp,
       dpe
     );
-    const dsc = Discard.CreateDiscardPairForTest(c1, c1);
+    const dsc = CardSelection.CreateCardSelectionPairForTest(c1, c1);
     const ret = ctrl.discard(dsc);
     expect(ret).toBe(Game.DiscardResult.SUCCESS);
     expect(ctrl.getDiscard()).toStrictEqual(dsc);
@@ -2030,7 +2035,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
-        return [Discard.CreateDiscardPairForTest(c1, c1)];
+        return [CardSelection.CreateCardSelectionPairForTest(c1, c1)];
       });
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
@@ -2039,7 +2044,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
       dp,
       dpe
     );
-    const dsc = Discard.CreateDiscardPairForTest(c2, c2);
+    const dsc = CardSelection.CreateCardSelectionPairForTest(c2, c2);
     const ret = ctrl.discard(dsc);
     expect(ret).toBe(Game.DiscardResult.NOT_FOUND);
   });

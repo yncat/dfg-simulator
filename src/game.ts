@@ -2,6 +2,7 @@
 Game manager
 */
 import * as additionalAction from "./additionalAction";
+import * as CardSelection from "./cardSelection";
 import * as Player from "./player";
 import * as Hand from "./hand";
 import * as Card from "./card";
@@ -32,7 +33,7 @@ export interface Game {
   findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
   outputResult: () => Result.Result;
-  outputDiscardStack: () => Array<Discard.DiscardPair>;
+  outputDiscardStack: () => Array<CardSelection.CardSelectionPair>;
   outputRemovedCards: () => RemovedCardEntry[];
   outputRuleConfig: () => Rule.RuleConfig;
 }
@@ -299,9 +300,9 @@ class GameImple implements Game {
     }
   }
 
-  public outputDiscardStack(): Array<Discard.DiscardPair> {
-    // Copy from the current discard stack. Does not need to copy DiscardPair because they're all immutable.
-    return this.discardStack.discardPairs.map((v) => {
+  public outputDiscardStack(): Array<CardSelection.CardSelectionPair> {
+    // Copy from the current discard stack. Does not need to copy CardSelectionPair because they're all immutable.
+    return this.discardStack.cardSelectionPairs.map((v) => {
       return v;
     });
   }
@@ -405,7 +406,7 @@ class GameImple implements Game {
       );
       return;
     }
-    // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
+    // We won't check the validity of the given discard pair here. It should be done in discardPlanner and CardSelectionPairEnumerator.
     const dp = activePlayerControl.getDiscard();
     this.discardStack.push(dp);
     this.lastDiscarderIdentifier = this.players[
@@ -717,16 +718,20 @@ export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
   countHand: () => number;
-  checkCardSelectability: (index: number) => Discard.SelectabilityCheckResult;
+  checkCardSelectability: (
+    index: number
+  ) => CardSelection.SelectabilityCheckResult;
   isCardSelected: (index: number) => boolean;
-  selectCard: (index: number) => Discard.CardSelectResult;
-  deselectCard: (index: number) => Discard.CardDeselectResult;
+  selectCard: (index: number) => CardSelection.CardSelectResult;
+  deselectCard: (index: number) => CardSelection.CardDeselectResult;
   countSelectedCards: () => number;
-  enumerateDiscardPairs: () => Discard.DiscardPair[];
+  enumerateCardSelectionPairs: () => CardSelection.CardSelectionPair[];
   pass: () => void;
   hasPassed: () => boolean;
-  discard: (discardPair: Discard.DiscardPair) => DiscardResult;
-  getDiscard: () => Discard.DiscardPair;
+  discard: (
+    cardSelectionPair: CardSelection.CardSelectionPair
+  ) => DiscardResult;
+  getDiscard: () => CardSelection.CardSelectionPair;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -755,7 +760,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
   private passed: boolean;
-  private discardPair: Discard.DiscardPair | null;
+  private cardSelectionPair: CardSelection.CardSelectionPair | null;
   constructor(
     controlIdentifier: string,
     playerIdentifier: string,
@@ -769,7 +774,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     this.discardPlanner = discardPlanner;
     this.discardPairEnumerator = discardPairEnumerator;
     this.passed = false;
-    this.discardPair = null;
+    this.cardSelectionPair = null;
   }
 
   public enumerateHand(): Card.Card[] {
@@ -782,7 +787,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public checkCardSelectability(
     index: number
-  ): Discard.SelectabilityCheckResult {
+  ): CardSelection.SelectabilityCheckResult {
     return this.discardPlanner.checkSelectability(index);
   }
 
@@ -790,11 +795,11 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPlanner.isSelected(index);
   }
 
-  public selectCard(index: number): Discard.CardSelectResult {
+  public selectCard(index: number): CardSelection.CardSelectResult {
     return this.discardPlanner.select(index);
   }
 
-  public deselectCard(index: number): Discard.CardDeselectResult {
+  public deselectCard(index: number): CardSelection.CardDeselectResult {
     return this.discardPlanner.deselect(index);
   }
 
@@ -802,7 +807,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPlanner.countSelectedCards();
   }
 
-  public enumerateDiscardPairs(): Discard.DiscardPair[] {
+  public enumerateCardSelectionPairs(): CardSelection.CardSelectionPair[] {
     return this.discardPairEnumerator.enumerate(
       ...this.discardPlanner.enumerateSelectedCards()
     );
@@ -810,28 +815,28 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public pass(): void {
     this.passed = true;
-    this.discardPair = null;
+    this.cardSelectionPair = null;
   }
 
   public hasPassed(): boolean {
     return this.passed;
   }
 
-  public discard(dp: Discard.DiscardPair): DiscardResult {
-    const matched = this.enumerateDiscardPairs().filter((v) => {
+  public discard(dp: CardSelection.CardSelectionPair): DiscardResult {
+    const matched = this.enumerateCardSelectionPairs().filter((v) => {
       return v.isSameCard(dp);
     });
     if (matched.length == 0) {
       return DiscardResult.NOT_FOUND;
     }
 
-    this.discardPair = dp;
+    this.cardSelectionPair = dp;
     this.passed = false;
     return DiscardResult.SUCCESS;
   }
 
-  public getDiscard(): Discard.DiscardPair {
-    if (this.discardPair === null) {
+  public getDiscard(): CardSelection.CardSelectionPair {
+    if (this.cardSelectionPair === null) {
       if (this.hasPassed()) {
         throw new ActivePlayerControlError("cannot get discard when passed");
       } else {
@@ -840,7 +845,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
         );
       }
     }
-    return this.discardPair;
+    return this.cardSelectionPair;
   }
 }
 
@@ -887,6 +892,7 @@ export class AdditionalActionControl {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public unwrap<T extends additionalAction.SupportedAdditionalActions>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeArg: new (...args: any) => T
   ): T {
     if (!this.required) {

@@ -4,265 +4,44 @@ Discard plan builder / checker
 import * as Card from "./card";
 import { Hand } from "./hand";
 import * as Calculation from "./calculation";
-
-export interface DiscardPair {
-  cards: Card.Card[];
-  count: () => number;
-  countWithCondition: (
-    mark: Card.CardMark | null,
-    cardNumber: number | null
-  ) => number;
-  calcCardNumber: (strengthInverted: boolean) => number;
-  calcStrength: () => number;
-  isNull: () => boolean;
-  isSequencial: () => boolean;
-  isKaidan: () => boolean;
-  isSameCard: (discardPair: DiscardPair) => boolean;
-  isOnlyJoker: () => boolean;
-  isValid: () => boolean;
-}
-
-class DiscardPairImple implements DiscardPair {
-  cards: Card.Card[];
-  constructor(cards: Card.Card[]) {
-    this.cards = cards;
-  }
-
-  public count(): number {
-    return this.cards.length;
-  }
-
-  public countWithCondition(
-    mark: Card.CardMark | null,
-    cardNumber: number | null
-  ): number {
-    return this.cards.filter((v) => {
-      if (mark !== null && v.mark !== mark) {
-        return false;
-      }
-      if (cardNumber !== null && v.cardNumber !== cardNumber) {
-        return false;
-      }
-      return true;
-    }).length;
-  }
-
-  public calcCardNumber(strengthInverted: boolean): number {
-    const cs = Array.from(this.cards);
-    cs.sort((a, b) => {
-      if (a.cardNumber == b.cardNumber) {
-        return 0;
-      }
-      const stronger = Calculation.findStrongerCardNumber(
-        a.cardNumber,
-        b.cardNumber,
-        strengthInverted
-      );
-      return stronger == a.cardNumber ? 1 : -1;
-    });
-    return cs[0].cardNumber;
-  }
-
-  public calcStrength(): number {
-    return this.strengthsFromWeakest()[0];
-  }
-
-  public isNull(): boolean {
-    return this.cards.length == 0;
-  }
-
-  public isSequencial(): boolean {
-    // This is not the "kaidan" in a daifugo rule. This function just checks card numbers sequenciality. This function does not consider jokers.
-    if (this.cards.length <= 1) {
-      return false;
-    }
-    const strs = this.strengthsFromWeakest();
-    let ok = true;
-    for (let i = 0; i < strs.length - 1; i++) {
-      if (strs[i + 1] != strs[i] + 1) {
-        ok = false;
-        break;
-      }
-    }
-
-    return ok;
-  }
-
-  public isKaidan(): boolean {
-    if (this.count() < 3) {
-      return false;
-    }
-    let jokerCount = this.countWithCondition(Card.CardMark.JOKER, null);
-    const withoutJokers = this.cards
-      .filter((c) => {
-        return !c.isJoker();
-      })
-      .sort((a, b) => {
-        // Ascending
-        return a.calcStrength() - b.calcStrength();
-      });
-    let ok = true;
-    for (let i = 1; i < withoutJokers.length; i++) {
-      if (
-        withoutJokers[i].calcStrength() !==
-          withoutJokers[i - 1].calcStrength() + 1 ||
-        !withoutJokers[i].isSameMark(withoutJokers[i - 1])
-      ) {
-        if (jokerCount === 0) {
-          ok = false;
-          break;
-        }
-        jokerCount--;
-      }
-    }
-    return ok;
-  }
-
-  public isSameCard(discardPair: DiscardPair): boolean {
-    if (this.count() != discardPair.count()) {
-      return false;
-    }
-    let ok = true;
-    for (let i = 0; i < this.count(); i++) {
-      if (!this.cards[i].isSameCard(discardPair.cards[i])) {
-        ok = false;
-        break;
-      }
-    }
-    return ok;
-  }
-
-  public isOnlyJoker(): boolean {
-    return (
-      this.cards.filter((val) => {
-        return !val.isJoker();
-      }).length == 0
-    );
-  }
-
-  public isValid(): boolean {
-    // "invalid" means that the combination is never allowed in Daifugo rules.
-    switch (this.count()) {
-      case 0:
-        return false;
-      case 1:
-        return true;
-      case 2:
-        return this.consistsOfSameCardNumber();
-      case 3:
-      case 4:
-        return this.consistsOfSameCardNumber() || this.isKaidan();
-      default:
-        return false;
-    }
-  }
-
-  private consistsOfSameCardNumber(): boolean {
-    // Returns true when the combination can be considered as "same card numbers pair".
-    // This function considers jokers.
-    if (this.isOnlyJoker()) {
-      return true;
-    }
-    const jokerCount = this.countWithCondition(Card.CardMark.JOKER, null);
-    // Find first non-joker card
-    let firstNumberedCard = this.cards[0];
-    for (let i = 0; i < this.cards.length; i++) {
-      if (!this.cards[i].isJoker()) {
-        firstNumberedCard = this.cards[i];
-        break;
-      }
-    }
-    const num = firstNumberedCard.cardNumber;
-    let sameNumberCount = 0;
-    this.cards.forEach((v) => {
-      if (v.cardNumber === num) {
-        sameNumberCount++;
-      }
-    });
-    return this.count() === sameNumberCount + jokerCount;
-  }
-
-  private strengthsFromWeakest() {
-    const strs: number[] = this.cards.map((cd: Card.Card) => {
-      return Calculation.convertCardNumberIntoStrength(cd.cardNumber);
-    });
-    // sort: ascending
-    strs.sort((a: number, b: number) => {
-      return a - b;
-    });
-    return strs;
-  }
-}
-
-export function createNullDiscardPair(): DiscardPair {
-  return new DiscardPairImple([]);
-}
-
-// DO NOT USE EXCEPT TESTING PURPOSES.
-export function CreateDiscardPairForTest(...cards: Card.Card[]): DiscardPair {
-  return new DiscardPairImple(cards);
-}
+import * as cardSelection from "./cardSelection";
 
 // It should be discardPile, but DiscardPile is close to DiscardPair in string distance...
 export interface DiscardStack {
-  readonly discardPairs: DiscardPair[];
-  push: (discardPair: DiscardPair) => void;
-  last: () => DiscardPair;
-  secondToLast: () => DiscardPair;
+  readonly cardSelectionPairs: cardSelection.CardSelectionPair[];
+  push: (cardSelectionPair: cardSelection.CardSelectionPair) => void;
+  last: () => cardSelection.CardSelectionPair;
+  secondToLast: () => cardSelection.CardSelectionPair;
   clear: () => void;
 }
 
 export class DiscardStackImple implements DiscardStack {
-  readonly discardPairs: DiscardPair[];
+  readonly cardSelectionPairs: cardSelection.CardSelectionPair[];
   constructor() {
-    this.discardPairs = [];
+    this.cardSelectionPairs = [];
     this.clear();
   }
-  public push(discardPair: DiscardPair): void {
-    this.discardPairs.push(discardPair);
+  public push(cardSelectionPair: cardSelection.CardSelectionPair): void {
+    this.cardSelectionPairs.push(cardSelectionPair);
   }
-  public last(): DiscardPair {
-    return this.discardPairs.length === 0
-      ? createNullDiscardPair()
-      : this.discardPairs[this.discardPairs.length - 1];
+  public last(): cardSelection.CardSelectionPair {
+    return this.cardSelectionPairs.length === 0
+      ? cardSelection.createNullCardSelectionPair()
+      : this.cardSelectionPairs[this.cardSelectionPairs.length - 1];
   }
-  public secondToLast(): DiscardPair {
-    return this.discardPairs.length >= 2
-      ? this.discardPairs[this.discardPairs.length - 2]
-      : createNullDiscardPair();
+  public secondToLast(): cardSelection.CardSelectionPair {
+    return this.cardSelectionPairs.length >= 2
+      ? this.cardSelectionPairs[this.cardSelectionPairs.length - 2]
+      : cardSelection.createNullCardSelectionPair();
   }
   public clear(): void {
-    this.discardPairs.splice(0);
+    this.cardSelectionPairs.splice(0);
   }
 }
 
 export function createDiscardStack(): DiscardStack {
   return new DiscardStackImple();
 }
-
-// card selectable result
-export const SelectabilityCheckResult = {
-  SELECTABLE: 0,
-  ALREADY_SELECTED: 1,
-  NOT_SELECTABLE: 2,
-} as const;
-export type SelectabilityCheckResult = typeof SelectabilityCheckResult[keyof typeof SelectabilityCheckResult];
-
-// card select result
-export const CardSelectResult = {
-  SUCCESS: 0,
-  ALREADY_SELECTED: 1,
-  NOT_SELECTABLE: 2,
-} as const;
-export type CardSelectResult = typeof CardSelectResult[keyof typeof CardSelectResult];
-
-// card deselect result
-export const CardDeselectResult = {
-  SUCCESS: 0,
-  ALREADY_DESELECTED: 1,
-  NOT_DESELECTABLE: 2,
-} as const;
-export type CardDeselectResult = typeof CardDeselectResult[keyof typeof CardDeselectResult];
 
 type SearchDirection = "stronger" | "weaker";
 
@@ -293,25 +72,28 @@ export class DiscardPlanner {
     return this.selected[index];
   }
 
-  public checkSelectability(index: number): SelectabilityCheckResult {
+  public checkSelectability(
+    index: number
+  ): cardSelection.SelectabilityCheckResult {
     // out of range?
     if (index < 0 || index >= this.hand.count()) {
-      return SelectabilityCheckResult.NOT_SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // already selected?
     if (this.selected[index]) {
-      return SelectabilityCheckResult.ALREADY_SELECTED;
+      return cardSelection.SelectabilityCheckResult.ALREADY_SELECTED;
     }
 
     // A few common special cases
     // After negating a joker with 3 of spades, no cards can be played further.
     if (this.isSpecial3OfSpades()) {
-      return SelectabilityCheckResult.NOT_SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     const cnt = this.countSelectedCards();
-    let ret: SelectabilityCheckResult = SelectabilityCheckResult.SELECTABLE;
+    let ret: cardSelection.SelectabilityCheckResult =
+      cardSelection.SelectabilityCheckResult.SELECTABLE;
     if (cnt == 0) {
       ret = this.checkSingle(index);
     } else {
@@ -327,8 +109,10 @@ export class DiscardPlanner {
     }).length;
   }
 
-  public createDiscardPair(): DiscardPair {
-    return new DiscardPairImple(this.enumerateSelectedCards());
+  public createCardSelectionPair(): cardSelection.CardSelectionPair {
+    return new cardSelection.CardSelectionPairImple(
+      this.enumerateSelectedCards()
+    );
   }
 
   private countSelectedJokers() {
@@ -348,28 +132,28 @@ export class DiscardPlanner {
     return cards.length == cards2.length;
   }
 
-  public select(index: number): CardSelectResult {
+  public select(index: number): cardSelection.CardSelectResult {
     if (index < 0 || index >= this.hand.count()) {
-      return CardSelectResult.NOT_SELECTABLE;
+      return cardSelection.CardSelectResult.NOT_SELECTABLE;
     }
     if (this.selected[index]) {
-      return CardSelectResult.ALREADY_SELECTED;
+      return cardSelection.CardSelectResult.ALREADY_SELECTED;
     }
 
     this.selected[index] = true;
-    return CardSelectResult.SUCCESS;
+    return cardSelection.CardSelectResult.SUCCESS;
   }
 
-  public deselect(index: number): CardDeselectResult {
+  public deselect(index: number): cardSelection.CardDeselectResult {
     if (index < 0 || index >= this.hand.count()) {
-      return CardDeselectResult.NOT_DESELECTABLE;
+      return cardSelection.CardDeselectResult.NOT_DESELECTABLE;
     }
     if (!this.selected[index]) {
-      return CardDeselectResult.ALREADY_DESELECTED;
+      return cardSelection.CardDeselectResult.ALREADY_DESELECTED;
     }
 
     this.selected[index] = false;
-    return CardDeselectResult.SUCCESS;
+    return cardSelection.CardDeselectResult.SUCCESS;
   }
 
   public enumerateSelectedCards(): Card.Card[] {
@@ -390,18 +174,18 @@ export class DiscardPlanner {
     );
   }
 
-  private checkSingle(index: number): SelectabilityCheckResult {
+  private checkSingle(index: number): cardSelection.SelectabilityCheckResult {
     const selectingCard = this.hand.cards[index];
     const ldp = this.discardStack.last();
     if (ldp.isNull()) {
-      return SelectabilityCheckResult.SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
 
     // If selecting a joker and the last discard pair consists of one card only, it can be selected unless the last discard pair is also a joker.
     if (selectingCard.isJoker() && ldp.count() == 1) {
       return ldp.cards[0].isJoker()
-        ? SelectabilityCheckResult.NOT_SELECTABLE
-        : SelectabilityCheckResult.SELECTABLE;
+        ? cardSelection.SelectabilityCheckResult.NOT_SELECTABLE
+        : cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
 
     // Single joker can be overriden by a 3 of spades
@@ -410,7 +194,7 @@ export class DiscardPlanner {
       selectingCard.mark == Card.CardMark.SPADES &&
       selectingCard.cardNumber == 3
     ) {
-      return SelectabilityCheckResult.SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
 
     // check strength
@@ -420,7 +204,7 @@ export class DiscardPlanner {
       this.strengthInverted
     );
     if (!strongEnough) {
-      return SelectabilityCheckResult.NOT_SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // we have to disallow selecting this card when the last discard consists of more than 2 pairs and the possible conbinations are not present in the hand.
@@ -430,7 +214,7 @@ export class DiscardPlanner {
     const lastDiscardPairCount = ldp.count();
     // if we are selecting joker and we have enough jokers for wildcarding everything, that's OK.
     if (selectingCard.isJoker() && jokers >= lastDiscardPairCount) {
-      return SelectabilityCheckResult.SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
 
     if (ldp.isSequencial()) {
@@ -453,7 +237,7 @@ export class DiscardPlanner {
           } // if
         } // for
         if (!found) {
-          return SelectabilityCheckResult.NOT_SELECTABLE;
+          return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
         } // if
       } else {
         // we're selecting a numbered card. So we must have sequencial cards which include the selecting card.
@@ -479,8 +263,8 @@ export class DiscardPlanner {
         }
 
         return found
-          ? SelectabilityCheckResult.SELECTABLE
-          : SelectabilityCheckResult.NOT_SELECTABLE;
+          ? cardSelection.SelectabilityCheckResult.SELECTABLE
+          : cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       }
     } else {
       // The last discard pair is not a kaidan.
@@ -502,7 +286,7 @@ export class DiscardPlanner {
           } // if
         } // for
         if (!found) {
-          return SelectabilityCheckResult.NOT_SELECTABLE;
+          return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
         }
       } else {
         // since we are selecting a numbered card, the subsequent cards must be the same number.
@@ -512,12 +296,12 @@ export class DiscardPlanner {
             this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) <
           ldp.count()
         ) {
-          return SelectabilityCheckResult.NOT_SELECTABLE;
+          return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
         } // if
       } // joker or number
     } // not a kaidan
 
-    return SelectabilityCheckResult.SELECTABLE;
+    return cardSelection.SelectabilityCheckResult.SELECTABLE;
   }
 
   private isKaidanPossibleFromSpecifiedCardNumber(
@@ -549,12 +333,12 @@ export class DiscardPlanner {
     const selectedCount = this.countSelectedCards();
     // Number of cards must not exceed the last discard pair
     if (lastDiscardCount == selectedCount) {
-      return SelectabilityCheckResult.NOT_SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
     }
 
     // Jokers can wildcard everything.
     if (selectingCard.isJoker()) {
-      return SelectabilityCheckResult.SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
 
     const ldp = this.discardStack.last();
@@ -563,7 +347,7 @@ export class DiscardPlanner {
       this.consistsOfSameNumberedCards() &&
       this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
     ) {
-      return SelectabilityCheckResult.SELECTABLE;
+      return cardSelection.SelectabilityCheckResult.SELECTABLE;
     }
     if (ldp.isSequencial() || ldp.isNull()) {
       if (this.onlyJokersSelected()) {
@@ -604,8 +388,8 @@ export class DiscardPlanner {
           cn = stronger;
         }
         return found
-          ? SelectabilityCheckResult.SELECTABLE
-          : SelectabilityCheckResult.NOT_SELECTABLE;
+          ? cardSelection.SelectabilityCheckResult.SELECTABLE
+          : cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       } else {
         // we have at least 1 numbered card in the previous selection
         const wc = this.findWeakestSelectedCard();
@@ -637,8 +421,8 @@ export class DiscardPlanner {
         return this.isConnectedByKaidan(wc, selectingCard) &&
           this.countSequencialCardsFrom(wc.mark, wc.cardNumber, dir) >= 3 &&
           distanceOK
-          ? SelectabilityCheckResult.SELECTABLE
-          : SelectabilityCheckResult.NOT_SELECTABLE;
+          ? cardSelection.SelectabilityCheckResult.SELECTABLE
+          : cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       }
     } else {
       // when the last discard pair is not a kaidan, the selecting card must be of the same number from the previously selected cards.
@@ -655,15 +439,15 @@ export class DiscardPlanner {
             this.hand.countCardsWithSpecifiedNumber(selectingCard.cardNumber) >=
             ldp.count();
         return ok
-          ? SelectabilityCheckResult.SELECTABLE
-          : SelectabilityCheckResult.NOT_SELECTABLE;
+          ? cardSelection.SelectabilityCheckResult.SELECTABLE
+          : cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       }
       // numbered cards are previously selected, so simply check if the currently selecting one's card number matches.
       return this.isSameNumberFromPreviouslySelected(selectingCard.cardNumber)
-        ? SelectabilityCheckResult.SELECTABLE
-        : SelectabilityCheckResult.NOT_SELECTABLE;
+        ? cardSelection.SelectabilityCheckResult.SELECTABLE
+        : cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
     }
-    return SelectabilityCheckResult.NOT_SELECTABLE;
+    return cardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
   }
 
   private consistsOfSameNumberedCards() {
@@ -837,7 +621,9 @@ export class DiscardPairEnumerator {
     this.selectedCards = [];
   }
 
-  public enumerate(...selectedCards: Card.Card[]): DiscardPair[] {
+  public enumerate(
+    ...selectedCards: Card.Card[]
+  ): cardSelection.CardSelectionPair[] {
     this.selectedCards = selectedCards;
     // Obviously blank if no cards are selected
     if (this.selectedCards.length == 0) {
@@ -848,7 +634,7 @@ export class DiscardPairEnumerator {
     const jokers = this.countJokers();
     if (jokers == 0) {
       return this.prune(
-        [new DiscardPairImple(this.selectedCards)],
+        [new cardSelection.CardSelectionPairImple(this.selectedCards)],
         this.discardStack
       );
     }
@@ -856,7 +642,7 @@ export class DiscardPairEnumerator {
     // When the selection only consists of jokers, they cannot be used as wildcards, so simply return as a bunch of jokers.
     if (jokers == this.selectedCards.length) {
       return this.prune(
-        [new DiscardPairImple(this.selectedCards)],
+        [new cardSelection.CardSelectionPairImple(this.selectedCards)],
         this.discardStack
       );
     }
@@ -873,7 +659,7 @@ export class DiscardPairEnumerator {
       for (let i = 0; i < this.countJokers(); i++) {
         cds.push(wc.copy().flagAsWildcard());
       }
-      return [new DiscardPairImple(cds)];
+      return [new cardSelection.CardSelectionPairImple(cds)];
     }
     // There may be multiple solutions, so we need to check and enumerate each of them.
     const range = this.calcKaidanRange();
@@ -888,7 +674,7 @@ export class DiscardPairEnumerator {
       if (jokers == 0) {
         // all jokers have been used
         // fillMissingKaidanCards already changed this.selectedCards and replaced jokers to wildcards.
-        return [new DiscardPairImple(this.selectedCards)];
+        return [new cardSelection.CardSelectionPairImple(this.selectedCards)];
       }
     }
     // Since the combination is a kaidan, jokers cannot be used as wildcards of same number.
@@ -947,7 +733,7 @@ export class DiscardPairEnumerator {
     // For wildcards, use one of the marks in the current selection.
     const cds = this.filterJokers();
     const mark = cds[0].mark;
-    const dps: DiscardPair[] = [];
+    const dps: cardSelection.CardSelectionPair[] = [];
     for (let i = 0; i < coms.length; i++) {
       const wcds = coms[i].weakerCardNumbers.map((v) => {
         const c = Card.createCard(mark, v);
@@ -959,7 +745,9 @@ export class DiscardPairEnumerator {
         c.flagAsWildcard();
         return c;
       });
-      dps.push(new DiscardPairImple(wcds.concat(cds).concat(scds)));
+      dps.push(
+        new cardSelection.CardSelectionPairImple(wcds.concat(cds).concat(scds))
+      );
     }
 
     // If the selection has 1 numbered card, jokers are also usable as that number, so we add the combination here.
@@ -970,7 +758,7 @@ export class DiscardPairEnumerator {
         c.flagAsWildcard();
         cps.push(c);
       }
-      dps.push(new DiscardPairImple(cds.concat(cps)));
+      dps.push(new cardSelection.CardSelectionPairImple(cds.concat(cps)));
     }
 
     return dps;
@@ -1039,7 +827,10 @@ export class DiscardPairEnumerator {
     });
   }
 
-  private prune(pairs: DiscardPair[], discardStack: DiscardStack) {
+  private prune(
+    pairs: cardSelection.CardSelectionPair[],
+    discardStack: DiscardStack
+  ) {
     // Prunes discard pairs that are not playable after the given last pair.
     // Filter invalid ones first
     pairs = pairs.filter((p) => {
@@ -1052,7 +843,10 @@ export class DiscardPairEnumerator {
         });
   }
 
-  private IsPlayable(pair: DiscardPair, discardStack: DiscardStack) {
+  private IsPlayable(
+    pair: cardSelection.CardSelectionPair,
+    discardStack: DiscardStack
+  ) {
     const lastPair = discardStack.last();
     if (pair.count() != lastPair.count()) {
       return false;
