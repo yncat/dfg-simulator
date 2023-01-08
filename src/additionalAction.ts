@@ -26,14 +26,18 @@ class AdditionalActionBase implements AdditionalAction {
 }
 
 export class Transfer7 extends AdditionalActionBase {
-  constructor(playerIdentifier: string) {
+  singleCardSelector: SingleCardSelector;
+  constructor(playerIdentifier: string, cards: Card.Card[]) {
     super("transfer7", playerIdentifier);
+    this.singleCardSelector = new SingleCardSelector(...cards);
   }
 }
 
 export class Discard10 extends AdditionalActionBase {
-  constructor(playerIdentifier: string) {
+  singleCardSelector: SingleCardSelector;
+  constructor(playerIdentifier: string, cards: Card.Card[]) {
     super("discard10", playerIdentifier);
+    this.singleCardSelector = new SingleCardSelector(...cards);
   }
 }
 
