@@ -76,6 +76,13 @@ export class SingleCardSelector {
     return CardSelection.SelectabilityCheckResult.SELECTABLE;
   }
 
+  public enumerateCards(): Card.Card[] {
+    // copy array, but do not copy cards themselves
+    return this.cards.map((v) => {
+      return v;
+    });
+  }
+
   private enumerateSelectedCards(): Card.Card[] {
     return this.cards.filter((v, i) => {
       return this.selected[i];

@@ -81,6 +81,17 @@ describe("AdditionalAction", () => {
       });
     });
 
+    describe("enumerateCards", () => {
+      it("can enumerate all cards in this selector", () => {
+        const c1 = Card.createCard(Card.CardMark.CLUBS, 1);
+        const c2 = Card.createCard(Card.CardMark.CLUBS, 2);
+        const c3 = Card.createCard(Card.CardMark.CLUBS, 3);
+        const scs = new AdditionalAction.SingleCardSelector(c1, c2, c3);
+        const got = scs.enumerateCards();
+        expect(got).toStrictEqual([c1, c2, c3]);
+      });
+    });
+
     describe("select", () => {
       it("returns NOT_SELECTABLE for boundaries", () => {
         const scs = createSingleCardSelector();
