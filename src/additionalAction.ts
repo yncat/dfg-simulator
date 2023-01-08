@@ -31,6 +31,32 @@ export class Transfer7 extends AdditionalActionBase {
     super("transfer7", playerIdentifier);
     this.singleCardSelector = new SingleCardSelector(...cards);
   }
+
+  public enumerateCards(): Card.Card[] {
+    return this.singleCardSelector.enumerateCards();
+  }
+
+  public checkCardSelectability(
+    index: number
+  ): CardSelection.SelectabilityCheckResult {
+    return this.singleCardSelector.checkSelectability(index);
+  }
+
+  public isCardSelected(index: number): boolean {
+    return this.singleCardSelector.isSelected(index);
+  }
+
+  public selectCard(index: number): CardSelection.CardSelectResult {
+    return this.singleCardSelector.select(index);
+  }
+
+  public deselectCard(index: number): CardSelection.CardDeselectResult {
+    return this.singleCardSelector.deselect(index);
+  }
+
+  public createCardSelectionPair(): CardSelection.CardSelectionPair {
+    return this.singleCardSelector.createCardSelectionPair();
+  }
 }
 
 export class Discard10 extends AdditionalActionBase {
@@ -38,6 +64,32 @@ export class Discard10 extends AdditionalActionBase {
   constructor(playerIdentifier: string, cards: Card.Card[]) {
     super("discard10", playerIdentifier);
     this.singleCardSelector = new SingleCardSelector(...cards);
+  }
+
+  public enumerateCards(): Card.Card[] {
+    return this.singleCardSelector.enumerateCards();
+  }
+
+  public checkCardSelectability(
+    index: number
+  ): CardSelection.SelectabilityCheckResult {
+    return this.singleCardSelector.checkSelectability(index);
+  }
+
+  public isCardSelected(index: number): boolean {
+    return this.singleCardSelector.isSelected(index);
+  }
+
+  public selectCard(index: number): CardSelection.CardSelectResult {
+    return this.singleCardSelector.select(index);
+  }
+
+  public deselectCard(index: number): CardSelection.CardDeselectResult {
+    return this.singleCardSelector.deselect(index);
+  }
+
+  public createCardSelectionPair(): CardSelection.CardSelectionPair {
+    return this.singleCardSelector.createCardSelectionPair();
   }
 }
 
