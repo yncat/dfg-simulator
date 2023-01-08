@@ -2094,7 +2094,7 @@ describe("AdditionalActionControl", () => {
 
     describe("unwrap", () => {
       it("returns unwrapped additional action type", () => {
-        const obj = new AdditionalAction.Transfer7("test");
+        const obj = new AdditionalAction.Transfer7("test", []);
         const a = new Game.AdditionalActionControl(true, "transfer7", obj);
         const unwrapped = a.unwrap<AdditionalAction.Transfer7>(
           AdditionalAction.Transfer7
@@ -2103,7 +2103,7 @@ describe("AdditionalActionControl", () => {
       });
 
       it("throws an error when tried to unwrap with an invalid type", () => {
-        const obj = new AdditionalAction.Transfer7("test");
+        const obj = new AdditionalAction.Transfer7("test", []);
         const a = new Game.AdditionalActionControl(true, "transfer7", obj);
         expect(() => {
           a.unwrap<AdditionalAction.Discard10>(AdditionalAction.Discard10);
