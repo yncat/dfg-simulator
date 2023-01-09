@@ -1,6 +1,6 @@
 import { RankType } from "./rank";
-import { DiscardPair } from "./discard";
 import type { Result } from "./result";
+import { CardSelectionPair } from "./cardSelection";
 
 type NagareCallback = () => void;
 type AgariCallback = (identifier: string) => void;
@@ -11,7 +11,7 @@ type KakumeiCallback = (identifier: string) => void;
 type StrengthInversionCallback = (strengthInverted: boolean) => void;
 type DiscardCallback = (
   identifier: string,
-  discardPair: DiscardPair,
+  discardPair: CardSelectionPair,
   remainingHandCount: number
 ) => void;
 type PassCallback = (identifier: string, remainingHandCount: number) => void;
@@ -32,6 +32,8 @@ type CardsProvidedCallback = (
 ) => void;
 type ReverseCallback = () => void;
 type SkipCallback = (identifier: string) => void;
+type transferCallback = (identifier: string, targetIdentifier:string, transferred: CardSelectionPair) => void;
+type exileCallback = (identifier: string, exiled: CardSelectionPair) => void;
 
 export interface EventReceiver {
   onNagare: NagareCallback;
@@ -50,4 +52,6 @@ export interface EventReceiver {
   onCardsProvided: CardsProvidedCallback;
   onReverse: ReverseCallback;
   onSkip: SkipCallback;
+  onTransfer: transferCallback;
+  onExile: exileCallback;
 }
