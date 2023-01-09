@@ -1,7 +1,7 @@
 /*
 Game manager
 */
-import * as additionalAction from "./additionalAction";
+import * as AdditionalAction from "./additionalAction";
 import * as CardSelection from "./cardSelection";
 import * as Player from "./player";
 import * as Hand from "./hand";
@@ -27,7 +27,10 @@ export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (
     activePlayerControl: ActivePlayerControl
-  ) => AdditionalActionControl;
+  ) => AdditionalActionControl[];
+  finishAdditionalActionControl: (
+    additionalActionControl: AdditionalActionControl
+  ) => void;
   enumeratePlayerIdentifiers: () => string[];
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
@@ -180,7 +183,7 @@ class GameImple implements Game {
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
   private inJBack: boolean;
-
+  private lastAdditionalActions: AdditionalActionControl[];
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
     this.players = params.players;
@@ -198,6 +201,7 @@ class GameImple implements Game {
     this.removedCardsMap = params.removedCardsMap;
     this.gameEnded = false;
     this.inJBack = false;
+    this.lastAdditionalActions = [];
     this.makeStartInfo();
   }
 
@@ -222,7 +226,7 @@ class GameImple implements Game {
 
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
-  ): AdditionalActionControl {
+  ): AdditionalActionControl[] {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
@@ -246,6 +250,10 @@ class GameImple implements Game {
     this.processKakumei(activePlayerControl);
     this.processReverse(activePlayerControl);
     this.processSkip(activePlayerControl);
+    // additional actions
+    let aacs: AdditionalActionControl[] = [];
+    aacs = aacs.concat(this.processTransfer7(activePlayerControl));
+
     this.processInevitableNagare(activePlayerControl);
     this.processGameEndCheck();
     // When we need another turn for this player, we should have incremented activePlayerActionCount.
@@ -253,8 +261,61 @@ class GameImple implements Game {
       this.processTurnAdvancement();
     }
 
-    return new AdditionalActionControl(false, null, null);
+    return aacs;
   }
+
+  public finishAdditionalActionControl(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    switch (additionalActionControl.getType()) {
+      case "transfer7":
+        this.processTransfer7action(additionalActionControl);
+        break;
+      default:
+        throw new GameError("not implemented");
+    }
+    additionalActionControl.finish();
+  }
+
+  private processTransfer7action(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    const action = additionalActionControl.unwrap<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    const csp = action.createCardSelectionPair();
+    const card = csp.cards[0];
+    const player = this.players[this.activePlayerIndex];
+    const nextPlayer = this.players[this.getNextPlayerIndex()];
+    player.hand.take(card);
+    nextPlayer.hand.give(card);
+    this.eventReceiver.onTransfer(player.identifier,nextPlayer.identifier,csp);
+  }
+
+  private getNextPlayerIndex(): number {
+    let idx = this.activePlayerIndex;
+    while (true) {
+      // Must use this.players.length since we have to check for kicked players in some cases.
+      idx = this.reversed ? idx - 1 : idx + 1;
+      if (idx == this.players.length) {
+        idx = 0;
+      }
+      if (idx === -1) {
+        idx = this.players.length - 1;
+      }
+      if (this.players[idx].isKicked()) {
+        continue;
+      }
+      if (
+        this.players[this.activePlayerIndex].rank.getRankType() ==
+        Rank.RankType.UNDETERMINED
+      ) {
+        break;
+      }
+    }
+    return idx;
+  }
+
 
   public enumeratePlayerIdentifiers(): string[] {
     const notKickedPlayers = this.enumerateNotKickedPlayers();
@@ -574,6 +635,34 @@ class GameImple implements Game {
     return true;
   }
 
+  private processTransfer7(
+    activePlayerControl: ActivePlayerControl
+  ): AdditionalActionControl[] {
+    if (!this.ruleConfig.transfer7) {
+      return [];
+    }
+    if (activePlayerControl.hasPassed()) {
+      return [];
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 7);
+    if (count === 0) {
+      return [];
+    }
+
+    if (activePlayerControl.countHand() === 0) {
+      // no card to transfer
+      return [];
+    }
+
+    const action = new AdditionalAction.Transfer7(
+      activePlayerControl.playerIdentifier,
+      activePlayerControl.enumerateHand()
+    );
+    const aac = new AdditionalActionControl("transfer7", action);
+    return [aac];
+  }
+
   private processTurnAdvancement() {
     // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
     if (this.gameEnded) {
@@ -861,48 +950,38 @@ export class RemovedCardEntry {
 }
 
 export class AdditionalActionControl {
-  private required: boolean;
-  private type: additionalAction.SupportedAdditionalActionTypes | null;
-  private additionalAction: additionalAction.AdditionalAction | null;
+  private finished: boolean;
+  private type: AdditionalAction.SupportedAdditionalActionTypes;
+  private additionalAction: AdditionalAction.AdditionalAction;
   constructor(
-    required: boolean,
-    type: additionalAction.SupportedAdditionalActionTypes | null,
-    additionalAction: additionalAction.AdditionalAction | null
+    type: AdditionalAction.SupportedAdditionalActionTypes,
+    additionalAction: AdditionalAction.AdditionalAction
   ) {
-    this.required = required;
+    this.finished=false;
     this.type = type;
     this.additionalAction = additionalAction;
   }
 
-  public isAdditionalActionRequired(): boolean {
-    return this.required;
+  public isFinished(): boolean {
+    return this.finished;
   }
 
-  public getType(): additionalAction.SupportedAdditionalActionTypes {
-    if (!this.required) {
-      throw new GameError("additional action is not required");
-    }
-    if (this.type === null) {
-      throw new GameError(
-        "additional action is required, but action type is not set"
-      );
-    }
+  public getType(): AdditionalAction.SupportedAdditionalActionTypes {
     return this.type;
   }
 
+  public finish():void{
+    if(this.finished){
+      throw new GameError("additional action is already finished")
+    }
+    this.finished=true;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public unwrap<T extends additionalAction.SupportedAdditionalActions>(
+  public unwrap<T extends AdditionalAction.SupportedAdditionalActions>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeArg: new (...args: any) => T
   ): T {
-    if (!this.required) {
-      throw new GameError("additional action is not required");
-    }
-    if (this.additionalAction === null) {
-      throw new GameError(
-        "additional action is required, but the action itself is not set"
-      );
-    }
     if (this.additionalAction instanceof typeArg != true) {
       throw new GameError(
         "tried to unwrap additional action with an incorrect type argument"

@@ -2061,41 +2061,37 @@ describe("removedCardEntry", () => {
 
 describe("AdditionalActionControl", () => {
   describe("isFinished", () => {
-    it("Returns false when action is not required", () => {
-      const a = new Game.AdditionalActionControl(false, null, null);
-      expect(a.isAdditionalActionRequired()).toBeFalsy();
+    it("Returns false when action is not finished", () => {
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      expect(a.isFinished()).toBeFalsy();
     });
 
-    it("Returns true when action is required", () => {
-      const a = new Game.AdditionalActionControl(true, null, null);
-      expect(a.isAdditionalActionRequired()).toBeTruthy();
+    it("Returns true when action is finished", () => {
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      a["finished"] = true;
+      expect(a.isFinished()).toBeTruthy();
     });
   });
 
   describe("getType", () => {
     it("returns additional action type", () => {
-      const a = new Game.AdditionalActionControl(true, "exile10", null);
-      expect(a.getType()).toBe("exile10");
-    });
-
-    it("throws an error when action is not required", () => {
-      const a = new Game.AdditionalActionControl(false, null, null);
-      expect(() => {
-        a.getType();
-      }).toThrow("additional action is not required");
-    });
-
-    it("throws an error when action is required but the actual type is not set", () => {
-      const a = new Game.AdditionalActionControl(true, null, null);
-      expect(() => {
-        a.getType();
-      }).toThrow("additional action is required, but action type is not set");
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      expect(a.getType()).toBe("transfer7");
     });
 
     describe("unwrap", () => {
       it("returns unwrapped additional action type", () => {
-        const obj = new AdditionalAction.Transfer7("test", []);
-        const a = new Game.AdditionalActionControl(true, "transfer7", obj);
+        const obj = new AdditionalAction.Transfer7("a", []);
+        const a = new Game.AdditionalActionControl("transfer7", obj);
         const unwrapped = a.unwrap<AdditionalAction.Transfer7>(
           AdditionalAction.Transfer7
         );
@@ -2104,27 +2100,11 @@ describe("AdditionalActionControl", () => {
 
       it("throws an error when tried to unwrap with an invalid type", () => {
         const obj = new AdditionalAction.Transfer7("test", []);
-        const a = new Game.AdditionalActionControl(true, "transfer7", obj);
+        const a = new Game.AdditionalActionControl("transfer7", obj);
         expect(() => {
           a.unwrap<AdditionalAction.Exile10>(AdditionalAction.Exile10);
         }).toThrow(
           "tried to unwrap additional action with an incorrect type argument"
-        );
-      });
-
-      it("throws an error when action is not required", () => {
-        const a = new Game.AdditionalActionControl(false, null, null);
-        expect(() => {
-          a.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
-        }).toThrow("additional action is not required");
-      });
-
-      it("throws an error when action is required but the action itself is not set", () => {
-        const a = new Game.AdditionalActionControl(true, "transfer7", null);
-        expect(() => {
-          a.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
-        }).toThrow(
-          "additional action is required, but the action itself is not set"
         );
       });
     });
