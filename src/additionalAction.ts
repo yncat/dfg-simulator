@@ -5,8 +5,8 @@ Additional action related classes
 import * as Card from "./card";
 import * as CardSelection from "./cardSelection";
 // Add a new value on the lines below respectively, if you want to add a new additional action.
-export type SupportedAdditionalActions = Transfer7 | Discard10;
-export type SupportedAdditionalActionTypes = "transfer7" | "discard10";
+export type SupportedAdditionalActions = Transfer7 | Exile10;
+export type SupportedAdditionalActionTypes = "transfer7" | "exile10";
 
 export interface AdditionalAction {
   readonly additionalActionType: SupportedAdditionalActionTypes;
@@ -59,10 +59,10 @@ export class Transfer7 extends AdditionalActionBase {
   }
 }
 
-export class Discard10 extends AdditionalActionBase {
+export class Exile10 extends AdditionalActionBase {
   singleCardSelector: SingleCardSelector;
   constructor(playerIdentifier: string, cards: Card.Card[]) {
-    super("discard10", playerIdentifier);
+    super("exile10", playerIdentifier);
     this.singleCardSelector = new SingleCardSelector(...cards);
   }
 

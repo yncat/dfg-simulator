@@ -2074,8 +2074,8 @@ describe("AdditionalActionControl", () => {
 
   describe("getType", () => {
     it("returns additional action type", () => {
-      const a = new Game.AdditionalActionControl(true, "discard10", null);
-      expect(a.getType()).toBe("discard10");
+      const a = new Game.AdditionalActionControl(true, "exile10", null);
+      expect(a.getType()).toBe("exile10");
     });
 
     it("throws an error when action is not required", () => {
@@ -2106,7 +2106,7 @@ describe("AdditionalActionControl", () => {
         const obj = new AdditionalAction.Transfer7("test", []);
         const a = new Game.AdditionalActionControl(true, "transfer7", obj);
         expect(() => {
-          a.unwrap<AdditionalAction.Discard10>(AdditionalAction.Discard10);
+          a.unwrap<AdditionalAction.Exile10>(AdditionalAction.Exile10);
         }).toThrow(
           "tried to unwrap additional action with an incorrect type argument"
         );
