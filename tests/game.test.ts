@@ -1400,6 +1400,32 @@ describe("Game.finishActivePlayerControl", () => {
     expect(aac.length).toBe(0);
   });
 
+  it("do not trigger Transfer7 when player has only one card", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(0);
+    expect(er.onAgari).lastCalledWith("a");
+  });
+
   it("does not trigger 5 skip when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
