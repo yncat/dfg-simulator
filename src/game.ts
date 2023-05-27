@@ -278,7 +278,9 @@ class GameImple implements Game {
     additionalActionControl.finish();
 
     // process turn advancement when all additional actions are finished.
-    const unfinished = this.lastAdditionalActions.filter((aac) => !aac.isFinished());
+    const unfinished = this.lastAdditionalActions.filter(
+      (aac) => !aac.isFinished()
+    );
     if (unfinished.length == 0) {
       this.processTurnAdvancement();
     }
@@ -296,8 +298,12 @@ class GameImple implements Game {
     const nextPlayer = this.players[this.getNextPlayerIndex()];
     player.hand.take(card);
     nextPlayer.hand.give(card);
-    this.eventReceiver.onTransfer(player.identifier,nextPlayer.identifier,csp);
-    if(player.hand.count()===0){
+    this.eventReceiver.onTransfer(
+      player.identifier,
+      nextPlayer.identifier,
+      csp
+    );
+    if (player.hand.count() === 0) {
       this.processLegalAgari(player.identifier);
     }
   }
@@ -325,7 +331,6 @@ class GameImple implements Game {
     }
     return idx;
   }
-
 
   public enumeratePlayerIdentifiers(): string[] {
     const notKickedPlayers = this.enumerateNotKickedPlayers();
@@ -720,7 +725,7 @@ class GameImple implements Game {
     }
   }
 
-  private processLegalAgari(identifier:string) {
+  private processLegalAgari(identifier: string) {
     // Originally it took activePlayerControl, but it now takes identifier. This is because this function is shared with processTransfer7Action, which no longer has activePlayerControl.
     this.eventReceiver.onAgari(identifier);
     this.agariPlayerIdentifiers.push(identifier);
@@ -728,11 +733,7 @@ class GameImple implements Game {
     const pos = this.agariPlayerIdentifiers.length;
     const p = this.findPlayerByIdentifier(identifier);
     const ret = p.rank.determine(count, pos);
-    this.eventReceiver.onPlayerRankChanged(
-      identifier,
-      ret.before,
-      ret.after
-    );
+    this.eventReceiver.onPlayerRankChanged(identifier, ret.before, ret.after);
   }
 
   private processForbiddenAgari(activePlayerControl: ActivePlayerControl) {
@@ -968,7 +969,7 @@ export class AdditionalActionControl {
     type: AdditionalAction.SupportedAdditionalActionTypes,
     additionalAction: AdditionalAction.AdditionalAction
   ) {
-    this.finished=false;
+    this.finished = false;
     this.type = type;
     this.additionalAction = additionalAction;
   }
@@ -981,11 +982,11 @@ export class AdditionalActionControl {
     return this.type;
   }
 
-  public finish():void{
-    if(this.finished){
-      throw new GameError("additional action is already finished")
+  public finish(): void {
+    if (this.finished) {
+      throw new GameError("additional action is already finished");
     }
-    this.finished=true;
+    this.finished = true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

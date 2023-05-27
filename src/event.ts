@@ -32,7 +32,11 @@ type CardsProvidedCallback = (
 ) => void;
 type ReverseCallback = () => void;
 type SkipCallback = (identifier: string) => void;
-type transferCallback = (identifier: string, targetIdentifier:string, transferred: CardSelectionPair) => void;
+type transferCallback = (
+  identifier: string,
+  targetIdentifier: string,
+  transferred: CardSelectionPair
+) => void;
 type exileCallback = (identifier: string, exiled: CardSelectionPair) => void;
 
 export interface EventReceiver {

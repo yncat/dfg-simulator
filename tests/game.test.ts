@@ -1265,11 +1265,17 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac[0];
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
     expect(t7action.enumerateCards()).toStrictEqual([c2, c3]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c2));
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
     expect(p1.hand.cards).toStrictEqual([c3]);
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1307,11 +1313,17 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac[0];
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
     expect(t7action.enumerateCards()).toStrictEqual([c4, c5]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c4));
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c4)
+    );
     expect(p1.hand.cards).toStrictEqual([c5]);
     expect(p2.hand.cards).toStrictEqual([c1, c4]);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1344,11 +1356,17 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac[0];
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
     expect(t7action.enumerateCards()).toStrictEqual([c2]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c2));
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
     expect(er.onAgari).lastCalledWith("a");
     expect(p1.hand.cards).toStrictEqual([]);
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
