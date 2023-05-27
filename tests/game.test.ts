@@ -1237,6 +1237,45 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onSkip.mock.calls[1][0]).toBe("c");
   });
 
+  it("triggers Transfer7", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(1);
+    const action = aac[0];
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    expect(t7action.enumerateCards()).toStrictEqual([c2, c3]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c2));
+    expect(p1.hand.cards).toStrictEqual([c3]);
+    expect(p2.hand.cards).toStrictEqual([c1, c2]);
+  });
+
+
+
   it("does not trigger 5 skip when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);

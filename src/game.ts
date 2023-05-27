@@ -257,7 +257,8 @@ class GameImple implements Game {
     this.processInevitableNagare(activePlayerControl);
     this.processGameEndCheck();
     // When we need another turn for this player, we should have incremented activePlayerActionCount.
-    if (this.activePlayerActionCount === prevActionCount) {
+    // Also, when additional actions exist, we should not increment activePlayerActionCount.
+    if (this.activePlayerActionCount === prevActionCount && aacs.length === 0) {
       this.processTurnAdvancement();
     }
 
@@ -275,6 +276,12 @@ class GameImple implements Game {
         throw new GameError("not implemented");
     }
     additionalActionControl.finish();
+
+    // process turn advancement when all additional actions are finished.
+    const unfinished = this.lastAdditionalActions.filter((aac) => !aac.isFinished());
+    if (unfinished.length == 0) {
+      this.processTurnAdvancement();
+    }
   }
 
   private processTransfer7action(
