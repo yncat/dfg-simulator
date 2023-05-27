@@ -297,6 +297,9 @@ class GameImple implements Game {
     player.hand.take(card);
     nextPlayer.hand.give(card);
     this.eventReceiver.onTransfer(player.identifier,nextPlayer.identifier,csp);
+    if(player.hand.count()===0){
+      this.processLegalAgari(player.identifier);
+    }
   }
 
   private getNextPlayerIndex(): number {
@@ -713,19 +716,20 @@ class GameImple implements Game {
         this.processForbiddenAgari(activePlayerControl);
         return;
       }
-      this.processLegalAgari(activePlayerControl);
+      this.processLegalAgari(activePlayerControl.playerIdentifier);
     }
   }
 
-  private processLegalAgari(activePlayerControl: ActivePlayerControl) {
-    this.eventReceiver.onAgari(activePlayerControl.playerIdentifier);
-    this.agariPlayerIdentifiers.push(activePlayerControl.playerIdentifier);
+  private processLegalAgari(identifier:string) {
+    // Originally it took activePlayerControl, but it now takes identifier. This is because this function is shared with processTransfer7Action, which no longer has activePlayerControl.
+    this.eventReceiver.onAgari(identifier);
+    this.agariPlayerIdentifiers.push(identifier);
     const count = this.countNotKickedPlayers();
     const pos = this.agariPlayerIdentifiers.length;
-    const p = this.findPlayerByIdentifier(activePlayerControl.playerIdentifier);
+    const p = this.findPlayerByIdentifier(identifier);
     const ret = p.rank.determine(count, pos);
     this.eventReceiver.onPlayerRankChanged(
-      activePlayerControl.playerIdentifier,
+      identifier,
       ret.before,
       ret.after
     );

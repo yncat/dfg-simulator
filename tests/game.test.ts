@@ -759,7 +759,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 
-  it("triggers JBack for kaidan including 11", () => {
+  it("triggers JBack for a kaidan including 11", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 11);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 12);
     const c3 = Card.createCard(Card.CardMark.DIAMONDS, 13);
@@ -1272,9 +1272,115 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c2));
     expect(p1.hand.cards).toStrictEqual([c3]);
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
+    expect(g["activePlayerIndex"]).toBe(1);
   });
 
+  it("triggers Transfer7 for a kaidan including 7", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4, c5);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(1);
+    const action = aac[0];
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    expect(t7action.enumerateCards()).toStrictEqual([c4, c5]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c4));
+    expect(p1.hand.cards).toStrictEqual([c5]);
+    expect(p2.hand.cards).toStrictEqual([c1, c4]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
 
+  it("triggers Transfer7 and agari event when the player's hand gets empty", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(1);
+    const action = aac[0];
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(AdditionalAction.Transfer7);
+    expect(t7action.enumerateCards()).toStrictEqual([c2]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith("a", "b", CardSelection.CreateCardSelectionPairForTest(c2));
+    expect(er.onAgari).lastCalledWith("a");
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(p2.hand.cards).toStrictEqual([c1, c2]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("do not trigger Transfer7 when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = false;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(0);
+  });
 
   it("does not trigger 5 skip when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
