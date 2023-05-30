@@ -1426,6 +1426,143 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onAgari).lastCalledWith("a");
   });
 
+  it("triggers Exile10", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(1);
+    const action = aac[0];
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.unwrap<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c2, c3]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(p1.hand.cards).toStrictEqual([c3]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("triggers Exile10 and agari event when the player's hand gets empty", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(1);
+    const action = aac[0];
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.unwrap<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c2]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(er.onAgari).lastCalledWith("a");
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("do not trigger Exile10 when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = false;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(0);
+  });
+
+  it("do not trigger Exile10 when player has only one card", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    const aac = g.finishActivePlayerControl(ctrl);
+    expect(aac.length).toBe(0);
+    expect(er.onAgari).lastCalledWith("a");
+  });
+
   it("does not trigger 5 skip when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);

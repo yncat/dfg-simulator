@@ -12,7 +12,7 @@ export type RuleConfig = {
   reverse: boolean;
   skip: SkipConfig;
   transfer7: boolean;
-  discard10: boolean;
+  exile10: boolean;
 };
 
 export function createDefaultRuleConfig(): RuleConfig {
@@ -23,6 +23,6 @@ export function createDefaultRuleConfig(): RuleConfig {
     reverse: false,
     skip: SkipConfig.OFF,
     transfer7: false,
-    discard10: false,
+    exile10: false,
   };
 }

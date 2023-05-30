@@ -253,6 +253,7 @@ class GameImple implements Game {
     // additional actions
     let aacs: AdditionalActionControl[] = [];
     aacs = aacs.concat(this.processTransfer7(activePlayerControl));
+    aacs = aacs.concat(this.processExile10(activePlayerControl));
 
     this.processInevitableNagare(activePlayerControl);
     this.processGameEndCheck();
@@ -271,6 +272,9 @@ class GameImple implements Game {
     switch (additionalActionControl.getType()) {
       case "transfer7":
         this.processTransfer7action(additionalActionControl);
+        break;
+      case "exile10":
+        this.processExile10action(additionalActionControl);
         break;
       default:
         throw new GameError("not implemented");
@@ -303,6 +307,23 @@ class GameImple implements Game {
       nextPlayer.identifier,
       csp
     );
+    if (player.hand.count() === 0) {
+      this.processLegalAgari(player.identifier);
+    }
+  }
+
+  private processExile10action(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    const action = additionalActionControl.unwrap<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    const csp = action.createCardSelectionPair();
+    const card = csp.cards[0];
+    const player = this.players[this.activePlayerIndex];
+    player.hand.take(card);
+    this.updateRemovedCards([card]);
+    this.eventReceiver.onExile(player.identifier, csp);
     if (player.hand.count() === 0) {
       this.processLegalAgari(player.identifier);
     }
@@ -675,6 +696,34 @@ class GameImple implements Game {
       activePlayerControl.enumerateHand()
     );
     const aac = new AdditionalActionControl("transfer7", action);
+    return [aac];
+  }
+
+  private processExile10(
+    activePlayerControl: ActivePlayerControl
+  ): AdditionalActionControl[] {
+    if (!this.ruleConfig.exile10) {
+      return [];
+    }
+    if (activePlayerControl.hasPassed()) {
+      return [];
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 10);
+    if (count === 0) {
+      return [];
+    }
+
+    if (activePlayerControl.countHand() === 0) {
+      // no card to exile
+      return [];
+    }
+
+    const action = new AdditionalAction.Exile10(
+      activePlayerControl.playerIdentifier,
+      activePlayerControl.enumerateHand()
+    );
+    const aac = new AdditionalActionControl("exile10", action);
     return [aac];
   }
 
