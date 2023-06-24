@@ -25,9 +25,8 @@ export class GameCreationError extends Error {}
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
-  finishActivePlayerControl: (
-    activePlayerControl: ActivePlayerControl
-  ) => AdditionalActionControl[];
+  finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
+  startAdditionalActionControl: () => AdditionalActionControl | null;
   finishAdditionalActionControl: (
     additionalActionControl: AdditionalActionControl
   ) => void;
@@ -183,7 +182,7 @@ class GameImple implements Game {
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
   private inJBack: boolean;
-  private lastAdditionalActions: AdditionalActionControl[];
+  private lastAdditionalActions: AdditionalActionCreator[];
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
     this.players = params.players;
@@ -226,7 +225,7 @@ class GameImple implements Game {
 
   public finishActivePlayerControl(
     activePlayerControl: ActivePlayerControl
-  ): AdditionalActionControl[] {
+  ): void {
     if (activePlayerControl.controlIdentifier != this.calcControlIdentifier()) {
       throw new GameError("the given activePlayerControl is no longer valid");
     }
@@ -251,9 +250,10 @@ class GameImple implements Game {
     this.processReverse(activePlayerControl);
     this.processSkip(activePlayerControl);
     // additional actions
-    let aacs: AdditionalActionControl[] = [];
+    let aacs: AdditionalActionCreator[] = [];
     aacs = aacs.concat(this.processTransfer7(activePlayerControl));
     aacs = aacs.concat(this.processExile10(activePlayerControl));
+    this.lastAdditionalActions = aacs;
 
     this.processInevitableNagare(activePlayerControl);
     this.processGameEndCheck();
@@ -263,7 +263,15 @@ class GameImple implements Game {
       this.processTurnAdvancement();
     }
 
-    return aacs;
+    return;
+  }
+
+  public startAdditionalActionControl(): AdditionalActionControl | null {
+    if (this.lastAdditionalActions.length === 0) {
+      return null;
+    }
+    const c = this.lastAdditionalActions.shift() as AdditionalActionCreator;
+    return c.create();
   }
 
   public finishAdditionalActionControl(
@@ -282,10 +290,7 @@ class GameImple implements Game {
     additionalActionControl.finish();
 
     // process turn advancement when all additional actions are finished.
-    const unfinished = this.lastAdditionalActions.filter(
-      (aac) => !aac.isFinished()
-    );
-    if (unfinished.length == 0) {
+    if (this.lastAdditionalActions.length == 0) {
       this.processTurnAdvancement();
     }
   }
@@ -673,7 +678,7 @@ class GameImple implements Game {
 
   private processTransfer7(
     activePlayerControl: ActivePlayerControl
-  ): AdditionalActionControl[] {
+  ): AdditionalActionCreator[] {
     if (!this.ruleConfig.transfer7) {
       return [];
     }
@@ -691,17 +696,16 @@ class GameImple implements Game {
       return [];
     }
 
-    const action = new AdditionalAction.Transfer7(
-      activePlayerControl.playerIdentifier,
-      activePlayerControl.enumerateHand()
+    const c = new AdditionalActionCreator(
+      "transfer7",
+      this.players[this.activePlayerIndex]
     );
-    const aac = new AdditionalActionControl("transfer7", action);
-    return [aac];
+    return [c];
   }
 
   private processExile10(
     activePlayerControl: ActivePlayerControl
-  ): AdditionalActionControl[] {
+  ): AdditionalActionCreator[] {
     if (!this.ruleConfig.exile10) {
       return [];
     }
@@ -719,12 +723,11 @@ class GameImple implements Game {
       return [];
     }
 
-    const action = new AdditionalAction.Exile10(
-      activePlayerControl.playerIdentifier,
-      activePlayerControl.enumerateHand()
+    const c = new AdditionalActionCreator(
+      "exile10",
+      this.players[this.activePlayerIndex]
     );
-    const aac = new AdditionalActionControl("exile10", action);
-    return [aac];
+    return [c];
   }
 
   private processTurnAdvancement() {
@@ -1007,6 +1010,54 @@ export class RemovedCardEntry {
     this.mark = mark;
     this.cardNumber = cardNumber;
     this.count = count;
+  }
+}
+
+class AdditionalActionCreator {
+  // Each additional action must be evaluated right before the action is triggered. For example, when two additional actions occur in the same turn, the second additional action must reflect the latest hand after the first action is finished. This class is for lazy-evaluating actions.
+  private additionalActionType: AdditionalAction.SupportedAdditionalActionTypes;
+  private additionalActionControl: AdditionalActionControl | null;
+  private player: Player.Player;
+
+  constructor(
+    additionalActionType: AdditionalAction.SupportedAdditionalActionTypes,
+    player: Player.Player
+  ) {
+    this.additionalActionType = additionalActionType;
+    this.player = player;
+    this.additionalActionControl = null;
+  }
+
+  public create(): AdditionalActionControl {
+    switch (this.additionalActionType) {
+      case "transfer7":
+        return this.createTransfer7();
+        break;
+      case "exile10":
+        return this.createExile10();
+      default:
+        throw new GameError("Tried to create unsupported additional action");
+    }
+  }
+
+  private createTransfer7() {
+    const action = new AdditionalAction.Transfer7(
+      this.player.identifier,
+      this.player.hand.cards
+    );
+    const aac = new AdditionalActionControl("transfer7", action);
+    this.additionalActionControl = aac;
+    return aac;
+  }
+
+  private createExile10() {
+    const action = new AdditionalAction.Exile10(
+      this.player.identifier,
+      this.player.hand.cards
+    );
+    const aac = new AdditionalActionControl("exile10", action);
+    this.additionalActionControl = aac;
+    return aac;
   }
 }
 

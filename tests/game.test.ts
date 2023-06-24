@@ -1260,9 +1260,10 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(1);
-    const action = aac[0];
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
     const t7action = action.unwrap<AdditionalAction.Transfer7>(
@@ -1308,9 +1309,10 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(2);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(1);
-    const action = aac[0];
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
     const t7action = action.unwrap<AdditionalAction.Transfer7>(
@@ -1351,9 +1353,10 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(1);
-    const action = aac[0];
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
     const t7action = action.unwrap<AdditionalAction.Transfer7>(
@@ -1396,8 +1399,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(0);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
   });
 
   it("do not trigger Transfer7 when player has only one card", () => {
@@ -1421,8 +1425,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(0);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
     expect(er.onAgari).lastCalledWith("a");
   });
 
@@ -1449,9 +1454,10 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(1);
-    const action = aac[0];
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("exile10");
     const e10action = action.unwrap<AdditionalAction.Exile10>(
@@ -1490,9 +1496,10 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(1);
-    const action = aac[0];
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("exile10");
     const e10action = action.unwrap<AdditionalAction.Exile10>(
@@ -1533,8 +1540,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(0);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
   });
 
   it("do not trigger Exile10 when player has only one card", () => {
@@ -1558,8 +1566,9 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
-    const aac = g.finishActivePlayerControl(ctrl);
-    expect(aac.length).toBe(0);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
     expect(er.onAgari).lastCalledWith("a");
   });
 
