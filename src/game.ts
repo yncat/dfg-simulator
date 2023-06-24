@@ -1,6 +1,8 @@
 /*
 Game manager
 */
+import * as AdditionalAction from "./additionalAction";
+import * as CardSelection from "./cardSelection";
 import * as Player from "./player";
 import * as Hand from "./hand";
 import * as Card from "./card";
@@ -24,12 +26,16 @@ export class GameCreationError extends Error {}
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
   finishActivePlayerControl: (activePlayerControl: ActivePlayerControl) => void;
+  startAdditionalActionControl: () => AdditionalActionControl | null;
+  finishAdditionalActionControl: (
+    additionalActionControl: AdditionalActionControl
+  ) => void;
   enumeratePlayerIdentifiers: () => string[];
   isEnded: () => boolean;
   findPlayerByIdentifier: (identifier: string) => Player.Player;
   kickPlayerByIdentifier(identifier: string): void;
   outputResult: () => Result.Result;
-  outputDiscardStack: () => Array<Discard.DiscardPair>;
+  outputDiscardStack: () => Array<CardSelection.CardSelectionPair>;
   outputRemovedCards: () => RemovedCardEntry[];
   outputRuleConfig: () => Rule.RuleConfig;
 }
@@ -176,7 +182,7 @@ class GameImple implements Game {
   private eventReceiver: Event.EventReceiver;
   private ruleConfig: Rule.RuleConfig;
   private inJBack: boolean;
-
+  private lastAdditionalActions: AdditionalActionCreator[];
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
     this.players = params.players;
@@ -194,6 +200,7 @@ class GameImple implements Game {
     this.removedCardsMap = params.removedCardsMap;
     this.gameEnded = false;
     this.inJBack = false;
+    this.lastAdditionalActions = [];
     this.makeStartInfo();
   }
 
@@ -242,12 +249,113 @@ class GameImple implements Game {
     this.processKakumei(activePlayerControl);
     this.processReverse(activePlayerControl);
     this.processSkip(activePlayerControl);
+    // additional actions
+    let aacs: AdditionalActionCreator[] = [];
+    aacs = aacs.concat(this.processTransfer7(activePlayerControl));
+    aacs = aacs.concat(this.processExile10(activePlayerControl));
+    this.lastAdditionalActions = aacs;
+
     this.processInevitableNagare(activePlayerControl);
     this.processGameEndCheck();
     // When we need another turn for this player, we should have incremented activePlayerActionCount.
-    if (this.activePlayerActionCount === prevActionCount) {
+    // Also, when additional actions exist, we should not increment activePlayerActionCount.
+    if (this.activePlayerActionCount === prevActionCount && aacs.length === 0) {
       this.processTurnAdvancement();
     }
+
+    return;
+  }
+
+  public startAdditionalActionControl(): AdditionalActionControl | null {
+    if (this.lastAdditionalActions.length === 0) {
+      return null;
+    }
+    const c = this.lastAdditionalActions.shift() as AdditionalActionCreator;
+    return c.create();
+  }
+
+  public finishAdditionalActionControl(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    switch (additionalActionControl.getType()) {
+      case "transfer7":
+        this.processTransfer7action(additionalActionControl);
+        break;
+      case "exile10":
+        this.processExile10action(additionalActionControl);
+        break;
+      default:
+        throw new GameError("not implemented");
+    }
+    additionalActionControl.finish();
+
+    // process turn advancement when all additional actions are finished.
+    if (this.lastAdditionalActions.length == 0) {
+      this.processTurnAdvancement();
+    }
+  }
+
+  private processTransfer7action(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    const action = additionalActionControl.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    const csp = action.createCardSelectionPair();
+    const card = csp.cards[0];
+    const player = this.players[this.activePlayerIndex];
+    const nextPlayer = this.players[this.getNextPlayerIndex()];
+    player.hand.take(card);
+    nextPlayer.hand.give(card);
+    this.eventReceiver.onTransfer(
+      player.identifier,
+      nextPlayer.identifier,
+      csp
+    );
+    if (player.hand.count() === 0) {
+      this.processLegalAgari(player.identifier);
+    }
+  }
+
+  private processExile10action(
+    additionalActionControl: AdditionalActionControl
+  ): void {
+    const action = additionalActionControl.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    const csp = action.createCardSelectionPair();
+    const card = csp.cards[0];
+    const player = this.players[this.activePlayerIndex];
+    player.hand.take(card);
+    this.updateRemovedCards([card]);
+    this.eventReceiver.onExile(player.identifier, csp);
+    if (player.hand.count() === 0) {
+      this.processLegalAgari(player.identifier);
+    }
+  }
+
+  private getNextPlayerIndex(): number {
+    let idx = this.activePlayerIndex;
+    while (true) {
+      // Must use this.players.length since we have to check for kicked players in some cases.
+      idx = this.reversed ? idx - 1 : idx + 1;
+      if (idx == this.players.length) {
+        idx = 0;
+      }
+      if (idx === -1) {
+        idx = this.players.length - 1;
+      }
+      if (this.players[idx].isKicked()) {
+        continue;
+      }
+      if (
+        this.players[this.activePlayerIndex].rank.getRankType() ==
+        Rank.RankType.UNDETERMINED
+      ) {
+        break;
+      }
+    }
+    return idx;
   }
 
   public enumeratePlayerIdentifiers(): string[] {
@@ -294,9 +402,9 @@ class GameImple implements Game {
     }
   }
 
-  public outputDiscardStack(): Array<Discard.DiscardPair> {
-    // Copy from the current discard stack. Does not need to copy DiscardPair because they're all immutable.
-    return this.discardStack.discardPairs.map((v) => {
+  public outputDiscardStack(): Array<CardSelection.CardSelectionPair> {
+    // Copy from the current discard stack. Does not need to copy CardSelectionPair because they're all immutable.
+    return this.discardStack.cardSelectionPairs.map((v) => {
       return v;
     });
   }
@@ -400,7 +508,7 @@ class GameImple implements Game {
       );
       return;
     }
-    // We won't check the validity of the given discard pair here. It should be done in discardPlanner and DiscardPairEnumerator.
+    // We won't check the validity of the given discard pair here. It should be done in discardPlanner and CardSelectionPairEnumerator.
     const dp = activePlayerControl.getDiscard();
     this.discardStack.push(dp);
     this.lastDiscarderIdentifier = this.players[
@@ -568,6 +676,60 @@ class GameImple implements Game {
     return true;
   }
 
+  private processTransfer7(
+    activePlayerControl: ActivePlayerControl
+  ): AdditionalActionCreator[] {
+    if (!this.ruleConfig.transfer7) {
+      return [];
+    }
+    if (activePlayerControl.hasPassed()) {
+      return [];
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 7);
+    if (count === 0) {
+      return [];
+    }
+
+    if (activePlayerControl.countHand() === 0) {
+      // no card to transfer
+      return [];
+    }
+
+    const c = new AdditionalActionCreator(
+      "transfer7",
+      this.players[this.activePlayerIndex]
+    );
+    return [c];
+  }
+
+  private processExile10(
+    activePlayerControl: ActivePlayerControl
+  ): AdditionalActionCreator[] {
+    if (!this.ruleConfig.exile10) {
+      return [];
+    }
+    if (activePlayerControl.hasPassed()) {
+      return [];
+    }
+    const dp = activePlayerControl.getDiscard();
+    const count = dp.countWithCondition(null, 10);
+    if (count === 0) {
+      return [];
+    }
+
+    if (activePlayerControl.countHand() === 0) {
+      // no card to exile
+      return [];
+    }
+
+    const c = new AdditionalActionCreator(
+      "exile10",
+      this.players[this.activePlayerIndex]
+    );
+    return [c];
+  }
+
   private processTurnAdvancement() {
     // Do nothing when the game is already ended. Without this, the runtime causes heap out of memory by infinitely pushing nagare events.
     if (this.gameEnded) {
@@ -611,22 +773,19 @@ class GameImple implements Game {
         this.processForbiddenAgari(activePlayerControl);
         return;
       }
-      this.processLegalAgari(activePlayerControl);
+      this.processLegalAgari(activePlayerControl.playerIdentifier);
     }
   }
 
-  private processLegalAgari(activePlayerControl: ActivePlayerControl) {
-    this.eventReceiver.onAgari(activePlayerControl.playerIdentifier);
-    this.agariPlayerIdentifiers.push(activePlayerControl.playerIdentifier);
+  private processLegalAgari(identifier: string) {
+    // Originally it took activePlayerControl, but it now takes identifier. This is because this function is shared with processTransfer7Action, which no longer has activePlayerControl.
+    this.eventReceiver.onAgari(identifier);
+    this.agariPlayerIdentifiers.push(identifier);
     const count = this.countNotKickedPlayers();
     const pos = this.agariPlayerIdentifiers.length;
-    const p = this.findPlayerByIdentifier(activePlayerControl.playerIdentifier);
+    const p = this.findPlayerByIdentifier(identifier);
     const ret = p.rank.determine(count, pos);
-    this.eventReceiver.onPlayerRankChanged(
-      activePlayerControl.playerIdentifier,
-      ret.before,
-      ret.after
-    );
+    this.eventReceiver.onPlayerRankChanged(identifier, ret.before, ret.after);
   }
 
   private processForbiddenAgari(activePlayerControl: ActivePlayerControl) {
@@ -712,16 +871,20 @@ export interface ActivePlayerControl {
   readonly playerIdentifier: string;
   enumerateHand: () => Card.Card[];
   countHand: () => number;
-  checkCardSelectability: (index: number) => Discard.SelectabilityCheckResult;
+  checkCardSelectability: (
+    index: number
+  ) => CardSelection.SelectabilityCheckResult;
   isCardSelected: (index: number) => boolean;
-  selectCard: (index: number) => Discard.CardSelectResult;
-  deselectCard: (index: number) => Discard.CardDeselectResult;
+  selectCard: (index: number) => CardSelection.CardSelectResult;
+  deselectCard: (index: number) => CardSelection.CardDeselectResult;
   countSelectedCards: () => number;
-  enumerateDiscardPairs: () => Discard.DiscardPair[];
+  enumerateCardSelectionPairs: () => CardSelection.CardSelectionPair[];
   pass: () => void;
   hasPassed: () => boolean;
-  discard: (discardPair: Discard.DiscardPair) => DiscardResult;
-  getDiscard: () => Discard.DiscardPair;
+  discard: (
+    cardSelectionPair: CardSelection.CardSelectionPair
+  ) => DiscardResult;
+  getDiscard: () => CardSelection.CardSelectionPair;
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
@@ -750,7 +913,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
   private readonly discardPlanner: Discard.DiscardPlanner;
   private readonly discardPairEnumerator: Discard.DiscardPairEnumerator;
   private passed: boolean;
-  private discardPair: Discard.DiscardPair | null;
+  private cardSelectionPair: CardSelection.CardSelectionPair | null;
   constructor(
     controlIdentifier: string,
     playerIdentifier: string,
@@ -764,7 +927,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     this.discardPlanner = discardPlanner;
     this.discardPairEnumerator = discardPairEnumerator;
     this.passed = false;
-    this.discardPair = null;
+    this.cardSelectionPair = null;
   }
 
   public enumerateHand(): Card.Card[] {
@@ -777,7 +940,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public checkCardSelectability(
     index: number
-  ): Discard.SelectabilityCheckResult {
+  ): CardSelection.SelectabilityCheckResult {
     return this.discardPlanner.checkSelectability(index);
   }
 
@@ -785,11 +948,11 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPlanner.isSelected(index);
   }
 
-  public selectCard(index: number): Discard.CardSelectResult {
+  public selectCard(index: number): CardSelection.CardSelectResult {
     return this.discardPlanner.select(index);
   }
 
-  public deselectCard(index: number): Discard.CardDeselectResult {
+  public deselectCard(index: number): CardSelection.CardDeselectResult {
     return this.discardPlanner.deselect(index);
   }
 
@@ -797,7 +960,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
     return this.discardPlanner.countSelectedCards();
   }
 
-  public enumerateDiscardPairs(): Discard.DiscardPair[] {
+  public enumerateCardSelectionPairs(): CardSelection.CardSelectionPair[] {
     return this.discardPairEnumerator.enumerate(
       ...this.discardPlanner.enumerateSelectedCards()
     );
@@ -805,28 +968,28 @@ class ActivePlayerControlImple implements ActivePlayerControl {
 
   public pass(): void {
     this.passed = true;
-    this.discardPair = null;
+    this.cardSelectionPair = null;
   }
 
   public hasPassed(): boolean {
     return this.passed;
   }
 
-  public discard(dp: Discard.DiscardPair): DiscardResult {
-    const matched = this.enumerateDiscardPairs().filter((v) => {
+  public discard(dp: CardSelection.CardSelectionPair): DiscardResult {
+    const matched = this.enumerateCardSelectionPairs().filter((v) => {
       return v.isSameCard(dp);
     });
     if (matched.length == 0) {
       return DiscardResult.NOT_FOUND;
     }
 
-    this.discardPair = dp;
+    this.cardSelectionPair = dp;
     this.passed = false;
     return DiscardResult.SUCCESS;
   }
 
-  public getDiscard(): Discard.DiscardPair {
-    if (this.discardPair === null) {
+  public getDiscard(): CardSelection.CardSelectionPair {
+    if (this.cardSelectionPair === null) {
       if (this.hasPassed()) {
         throw new ActivePlayerControlError("cannot get discard when passed");
       } else {
@@ -835,7 +998,7 @@ class ActivePlayerControlImple implements ActivePlayerControl {
         );
       }
     }
-    return this.discardPair;
+    return this.cardSelectionPair;
   }
 }
 
@@ -847,5 +1010,95 @@ export class RemovedCardEntry {
     this.mark = mark;
     this.cardNumber = cardNumber;
     this.count = count;
+  }
+}
+
+class AdditionalActionCreator {
+  // Each additional action must be evaluated right before the action is triggered. For example, when two additional actions occur in the same turn, the second additional action must reflect the latest hand after the first action is finished. This class is for lazy-evaluating actions.
+  private additionalActionType: AdditionalAction.SupportedAdditionalActionTypes;
+  private additionalActionControl: AdditionalActionControl | null;
+  private player: Player.Player;
+
+  constructor(
+    additionalActionType: AdditionalAction.SupportedAdditionalActionTypes,
+    player: Player.Player
+  ) {
+    this.additionalActionType = additionalActionType;
+    this.player = player;
+    this.additionalActionControl = null;
+  }
+
+  public create(): AdditionalActionControl {
+    switch (this.additionalActionType) {
+      case "transfer7":
+        return this.createTransfer7();
+        break;
+      case "exile10":
+        return this.createExile10();
+      default:
+        throw new GameError("Tried to create unsupported additional action");
+    }
+  }
+
+  private createTransfer7() {
+    const action = new AdditionalAction.Transfer7(
+      this.player.identifier,
+      this.player.hand.cards
+    );
+    const aac = new AdditionalActionControl("transfer7", action);
+    this.additionalActionControl = aac;
+    return aac;
+  }
+
+  private createExile10() {
+    const action = new AdditionalAction.Exile10(
+      this.player.identifier,
+      this.player.hand.cards
+    );
+    const aac = new AdditionalActionControl("exile10", action);
+    this.additionalActionControl = aac;
+    return aac;
+  }
+}
+
+export class AdditionalActionControl {
+  private finished: boolean;
+  private type: AdditionalAction.SupportedAdditionalActionTypes;
+  private additionalAction: AdditionalAction.AdditionalAction;
+  constructor(
+    type: AdditionalAction.SupportedAdditionalActionTypes,
+    additionalAction: AdditionalAction.AdditionalAction
+  ) {
+    this.finished = false;
+    this.type = type;
+    this.additionalAction = additionalAction;
+  }
+
+  public isFinished(): boolean {
+    return this.finished;
+  }
+
+  public getType(): AdditionalAction.SupportedAdditionalActionTypes {
+    return this.type;
+  }
+
+  public finish(): void {
+    if (this.finished) {
+      throw new GameError("additional action is already finished");
+    }
+    this.finished = true;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public cast<T extends AdditionalAction.SupportedAdditionalActions>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    typeArg: new (...args: any) => T
+  ): T {
+    if (this.additionalAction instanceof typeArg != true) {
+      throw new GameError(
+        "tried to cast additional action with an incorrect type argument"
+      );
+    }
+    return this.additionalAction as T;
   }
 }

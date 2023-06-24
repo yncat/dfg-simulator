@@ -1,13 +1,14 @@
+export { SupportedAdditionalActions, SupportedAdditionalActionTypes, Transfer7, Exile10 } from "./additionalAction";
 export { Card, CardMark, CardNumber, createCard } from "./card";
-export { Deck, createDeck } from "./deck";
-export { EventReceiver } from "./event";
 export {
-  DiscardPair,
+  CardSelectionPair,
   SelectabilityCheckResult,
   CardSelectResult,
   CardDeselectResult,
-  createDiscardStack,
-} from "./discard";
+} from "./cardSelection";
+export { Deck, createDeck } from "./deck";
+export { EventReceiver } from "./event";
+export { createDiscardStack } from "./discard";
 export {
   Game,
   createGame,

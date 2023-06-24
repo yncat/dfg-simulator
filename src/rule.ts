@@ -11,6 +11,8 @@ export type RuleConfig = {
   kakumei: boolean;
   reverse: boolean;
   skip: SkipConfig;
+  transfer7: boolean;
+  exile10: boolean;
 };
 
 export function createDefaultRuleConfig(): RuleConfig {
@@ -20,5 +22,7 @@ export function createDefaultRuleConfig(): RuleConfig {
     kakumei: false,
     reverse: false,
     skip: SkipConfig.OFF,
+    transfer7: false,
+    exile10: false,
   };
 }

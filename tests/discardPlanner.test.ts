@@ -1,13 +1,14 @@
 import * as Card from "../src/card";
+import * as CardSelection from "../src/cardSelection";
 import * as Discard from "../src/discard";
 import * as Hand from "../src/hand";
 
 function createDiscardStackFixture(
   ...cards: Card.Card[]
 ): Discard.DiscardStack {
-  const dp = Discard.CreateDiscardPairForTest(...cards);
+  const csp = CardSelection.CreateCardSelectionPairForTest(...cards);
   const ds = Discard.createDiscardStack();
-  ds.push(dp);
+  ds.push(csp);
   return ds;
 }
 
@@ -27,10 +28,10 @@ describe("checkSelectability", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     expect(p.checkSelectability(-1)).toBe(
-      Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
     );
     expect(p.checkSelectability(1)).toBe(
-      Discard.SelectabilityCheckResult.NOT_SELECTABLE
+      CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
     );
   });
 
@@ -41,7 +42,7 @@ describe("checkSelectability", () => {
       const ds = Discard.createDiscardStack();
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
 
@@ -51,7 +52,7 @@ describe("checkSelectability", () => {
       const d = createDiscardStackFixture(Card.createCard(Card.CardMark.JOKER));
       const p = new Discard.DiscardPlanner(h, d, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
 
@@ -61,19 +62,21 @@ describe("checkSelectability", () => {
       h.give(Card.createCard(Card.CardMark.JOKER));
       const ds = Discard.createDiscardStack();
       ds.push(
-        Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER))
+        CardSelection.CreateCardSelectionPairForTest(
+          Card.createCard(Card.CardMark.JOKER)
+        )
       );
       ds.push(
-        Discard.CreateDiscardPairForTest(
+        CardSelection.CreateCardSelectionPairForTest(
           Card.createCard(Card.CardMark.SPADES, 3)
         )
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -85,7 +88,7 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
 
@@ -97,7 +100,7 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
 
@@ -109,7 +112,7 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -121,7 +124,7 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -138,7 +141,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -154,7 +157,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -170,7 +173,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, d, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -183,7 +186,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -199,7 +202,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -215,7 +218,7 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -230,10 +233,10 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -251,13 +254,13 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -275,13 +278,13 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -299,13 +302,13 @@ describe("checkSelectability", () => {
         );
         const p = new Discard.DiscardPlanner(h, ds, false);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
     });
@@ -321,7 +324,7 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -338,7 +341,7 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -356,10 +359,10 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -378,10 +381,10 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(2);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -401,7 +404,7 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(3);
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -420,10 +423,10 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -443,7 +446,7 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(3)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -463,7 +466,7 @@ describe("checkSelectability", () => {
         p.select(0);
         p.select(1);
         expect(p.checkSelectability(2)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -477,7 +480,7 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
       });
 
@@ -516,15 +519,15 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(3)).toBe(
-          Discard.SelectabilityCheckResult.NOT_SELECTABLE
+          CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
         );
         p.deselect(0);
         p.select(2);
         expect(p.checkSelectability(0)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
       });
 
@@ -538,11 +541,11 @@ describe("checkSelectability", () => {
         const p = new Discard.DiscardPlanner(h, ds, false);
         p.select(0);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.SELECTABLE
+          CardSelection.SelectabilityCheckResult.SELECTABLE
         );
         p.select(1);
         expect(p.checkSelectability(1)).toBe(
-          Discard.SelectabilityCheckResult.ALREADY_SELECTED
+          CardSelection.SelectabilityCheckResult.ALREADY_SELECTED
         );
       });
     });
@@ -554,11 +557,13 @@ describe("checkSelectability", () => {
       h.give(Card.createCard(Card.CardMark.SPADES, 4));
       const ds = Discard.createDiscardStack();
       ds.push(
-        Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER))
+        CardSelection.CreateCardSelectionPairForTest(
+          Card.createCard(Card.CardMark.JOKER)
+        )
       );
       const p = new Discard.DiscardPlanner(h, ds, true);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -573,17 +578,17 @@ describe("checkSelectability", () => {
       const ds = Discard.createDiscardStack();
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.select(3);
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
 
@@ -598,7 +603,7 @@ describe("checkSelectability", () => {
       );
       const ds = Discard.createDiscardStack();
       ds.push(
-        Discard.CreateDiscardPairForTest(
+        CardSelection.CreateCardSelectionPairForTest(
           Card.createCard(Card.CardMark.SPADES, 7),
           Card.createCard(Card.CardMark.SPADES, 8),
           Card.createCard(Card.CardMark.SPADES, 9)
@@ -606,23 +611,23 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(4)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.select(1);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -637,7 +642,7 @@ describe("checkSelectability", () => {
       );
       const ds = Discard.createDiscardStack();
       ds.push(
-        Discard.CreateDiscardPairForTest(
+        CardSelection.CreateCardSelectionPairForTest(
           Card.createCard(Card.CardMark.SPADES, 7),
           Card.createCard(Card.CardMark.SPADES, 8),
           Card.createCard(Card.CardMark.SPADES, 9)
@@ -645,26 +650,26 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(4)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.select(1);
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(4)).toBe(
-        Discard.SelectabilityCheckResult.NOT_SELECTABLE
+        CardSelection.SelectabilityCheckResult.NOT_SELECTABLE
       );
     });
 
@@ -679,7 +684,7 @@ describe("checkSelectability", () => {
       );
       const ds = Discard.createDiscardStack();
       ds.push(
-        Discard.CreateDiscardPairForTest(
+        CardSelection.CreateCardSelectionPairForTest(
           Card.createCard(Card.CardMark.SPADES, 7),
           Card.createCard(Card.CardMark.SPADES, 8),
           Card.createCard(Card.CardMark.SPADES, 9)
@@ -687,39 +692,39 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, false);
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(4)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.select(1);
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.deselect(1);
       p.select(2);
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(3)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       p.deselect(2);
       p.select(3);
       expect(p.checkSelectability(1)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
       expect(p.checkSelectability(2)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
   });
@@ -734,7 +739,7 @@ describe("checkSelectability", () => {
       );
       const p = new Discard.DiscardPlanner(h, ds, true);
       expect(p.checkSelectability(0)).toBe(
-        Discard.SelectabilityCheckResult.SELECTABLE
+        CardSelection.SelectabilityCheckResult.SELECTABLE
       );
     });
   });
@@ -774,7 +779,7 @@ describe("select", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(p.select(0)).toBe(CardSelection.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when the card is already selected", () => {
@@ -782,8 +787,8 @@ describe("select", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
-    expect(p.select(0)).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
+    expect(p.select(0)).toBe(CardSelection.CardSelectResult.SUCCESS);
+    expect(p.select(0)).toBe(CardSelection.CardSelectResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when the index is out of range", () => {
@@ -791,8 +796,8 @@ describe("select", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.select(-1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
-    expect(p.select(1)).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
+    expect(p.select(-1)).toBe(CardSelection.CardSelectResult.NOT_SELECTABLE);
+    expect(p.select(1)).toBe(CardSelection.CardSelectResult.NOT_SELECTABLE);
   });
 });
 
@@ -802,8 +807,8 @@ describe("deselect", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
-    expect(p.deselect(0)).toBe(Discard.CardDeselectResult.SUCCESS);
+    expect(p.select(0)).toBe(CardSelection.CardSelectResult.SUCCESS);
+    expect(p.deselect(0)).toBe(CardSelection.CardDeselectResult.SUCCESS);
   });
 
   it("returns ALREADY_DESELECTED when the card is not selected", () => {
@@ -811,7 +816,9 @@ describe("deselect", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.deselect(0)).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
+    expect(p.deselect(0)).toBe(
+      CardSelection.CardDeselectResult.ALREADY_DESELECTED
+    );
   });
 
   it("returns NOT_DESELECTABLE when the index is out of range", () => {
@@ -819,8 +826,12 @@ describe("deselect", () => {
     const ds = Discard.createDiscardStack();
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
-    expect(p.deselect(-1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
-    expect(p.deselect(1)).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
+    expect(p.deselect(-1)).toBe(
+      CardSelection.CardDeselectResult.NOT_DESELECTABLE
+    );
+    expect(p.deselect(1)).toBe(
+      CardSelection.CardDeselectResult.NOT_DESELECTABLE
+    );
   });
 });
 
@@ -831,7 +842,7 @@ describe("CountSelectedCards", () => {
     const p = new Discard.DiscardPlanner(h, ds, false);
     h.give(Card.createCard(Card.CardMark.SPADES, 3));
     expect(p.countSelectedCards()).toBe(0);
-    expect(p.select(0)).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(p.select(0)).toBe(CardSelection.CardSelectResult.SUCCESS);
     expect(p.countSelectedCards()).toBe(1);
   });
 });
@@ -931,10 +942,14 @@ describe("isSpecial3OfSpades", () => {
   it("returns true when the last discard is 3 of spades and the second to last discard pair is a joker", () => {
     const ds1 = Discard.createDiscardStack();
     ds1.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.JOKER)
+      )
     );
     ds1.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.SPADES, 3))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.SPADES, 3)
+      )
     );
     const h1 = Hand.createHand();
     const p1 = new Discard.DiscardPlanner(h1, ds1, false);

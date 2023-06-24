@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
+import * as AdditionalAction from "../src/additionalAction";
 import * as Card from "../src/card";
+import * as CardSelection from "../src/cardSelection";
 import * as Discard from "../src/discard";
 import * as Game from "../src/game";
 import * as Hand from "../src/hand";
@@ -111,7 +113,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(() => {
@@ -147,14 +149,14 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(r.onDiscard).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([c2]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
@@ -174,7 +176,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -202,7 +204,7 @@ describe("Game.finishActivePlayerControl", () => {
     g["inJBack"] = true;
     let ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -228,7 +230,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -242,7 +244,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onPlayerRankChanged.mock.calls[0][2]).toBe(Rank.RankType.DAIFUGO);
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -268,7 +270,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -283,7 +285,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onSkip).toHaveBeenCalledWith("b");
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(2);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -309,7 +311,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -324,7 +326,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onReverse).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(2);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
@@ -345,7 +347,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     expect(dps[0].cards).toStrictEqual([c1]);
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
@@ -361,7 +363,7 @@ describe("Game.finishActivePlayerControl", () => {
     );
     expect(g["lastDiscarderIdentifier"]).toBe(p1.identifier);
     expect(p1.hand.cards).toStrictEqual([]);
-    const ndp = Discard.CreateDiscardPairForTest(c1);
+    const ndp = CardSelection.CreateCardSelectionPairForTest(c1);
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
     expect(p1.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
@@ -382,7 +384,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(r.onDiscard).toHaveBeenCalled();
@@ -416,7 +418,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(r.onDiscard).toHaveBeenCalled();
@@ -453,7 +455,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(r.onPass).toHaveBeenCalled();
     expect(g["lastDiscarderIdentifier"]).toBe("");
     expect(p1.hand.cards).toStrictEqual([c1, c2]);
-    const ndp = Discard.createNullDiscardPair();
+    const ndp = CardSelection.createNullCardSelectionPair();
     expect(g["discardStack"].last()).toStrictEqual(ndp);
     expect(g["activePlayerIndex"]).toBe(1);
   });
@@ -555,7 +557,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -592,7 +594,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     ctrl.selectCard(1);
     ctrl.selectCard(2);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -620,7 +622,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -650,7 +652,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -686,7 +688,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -719,7 +721,7 @@ describe("Game.finishActivePlayerControl", () => {
     g["inJBack"] = true;
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -748,7 +750,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -757,7 +759,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onStrengthInversion.mock.calls[0][0]).toBeTruthy();
   });
 
-  it("triggers JBack for kaidan including 11", () => {
+  it("triggers JBack for a kaidan including 11", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 11);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 12);
     const c3 = Card.createCard(Card.CardMark.DIAMONDS, 13);
@@ -780,7 +782,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(0);
     ctrl.selectCard(1);
     ctrl.selectCard(2);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -817,7 +819,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onYagiri).toHaveBeenCalled();
@@ -841,7 +843,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeFalsy();
@@ -871,7 +873,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeTruthy();
@@ -899,7 +901,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["strengthInverted"]).toBeFalsy();
@@ -933,7 +935,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onJBack).toHaveBeenCalled();
@@ -954,7 +956,9 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const ds = Discard.createDiscardStack();
     ds.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.JOKER, 0)
+      )
     );
     const params = createGameInitParams({
       players: [p1, p2, p3],
@@ -964,7 +968,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -998,7 +1002,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1033,7 +1037,7 @@ describe("Game.finishActivePlayerControl", () => {
     ctrl.selectCard(1);
     ctrl.selectCard(2);
     ctrl.selectCard(3);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1052,7 +1056,9 @@ describe("Game.finishActivePlayerControl", () => {
     const er = createMockEventReceiver();
     const ds = Discard.createDiscardStack();
     ds.push(
-      Discard.CreateDiscardPairForTest(Card.createCard(Card.CardMark.JOKER, 0))
+      CardSelection.CreateCardSelectionPairForTest(
+        Card.createCard(Card.CardMark.JOKER, 0)
+      )
     );
     const params = createGameInitParams({
       players: [p1, p2, p3],
@@ -1062,7 +1068,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(er.onNagare).toHaveBeenCalled();
@@ -1134,7 +1140,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(2);
@@ -1162,7 +1168,7 @@ describe("Game.finishActivePlayerControl", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1191,7 +1197,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(2);
@@ -1221,7 +1227,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(0);
@@ -1229,6 +1235,412 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onSkip).toHaveBeenCalledTimes(2);
     expect(er.onSkip.mock.calls[0][0]).toBe("b");
     expect(er.onSkip.mock.calls[1][0]).toBe("c");
+  });
+
+  it("triggers Transfer7", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c2, c3]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(p1.hand.cards).toStrictEqual([c3]);
+    expect(p2.hand.cards).toStrictEqual([c1, c2]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("triggers Transfer7 for a kaidan including 7", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4, c5);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c4, c5]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c4)
+    );
+    expect(p1.hand.cards).toStrictEqual([c5]);
+    expect(p2.hand.cards).toStrictEqual([c1, c4]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("triggers Transfer7 and agari event when the player's hand gets empty", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c2]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(er.onAgari).lastCalledWith("a");
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(p2.hand.cards).toStrictEqual([c1, c2]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("do not trigger Transfer7 when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = false;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
+  });
+
+  it("do not trigger Transfer7 when player has only one card", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
+    expect(er.onAgari).lastCalledWith("a");
+  });
+
+  it("triggers Exile10", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c2, c3]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(p1.hand.cards).toStrictEqual([c3]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("triggers Exile10 and agari event when the player's hand gets empty", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c2]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(er.onAgari).lastCalledWith("a");
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
+  it("do not trigger Exile10 when disabled by rule config", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = false;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
+  });
+
+  it("do not trigger Exile10 when player has only one card", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).toBeNull();
+    expect(er.onAgari).lastCalledWith("a");
+  });
+
+  it("triggers Transfer7 and Exile10 in the same turn", () => {
+    // To discard 7 and 10 at the same time, we must make a kaidan.
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const c6 = Card.createCard(Card.CardMark.DIAMONDS, 12);
+    const c7 = Card.createCard(Card.CardMark.DIAMONDS, 13);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4, c5, c6, c7);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac1 = g.startAdditionalActionControl();
+    expect(aac1).not.toBeNull();
+    let action = aac1 as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c5, c6, c7]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c5)
+    );
+    expect(p1.hand.cards).toStrictEqual([c6, c7]);
+    expect(p2.hand.cards).toStrictEqual([c1, c5]);
+    expect(g["activePlayerIndex"]).toBe(0);
+    const aac2 = g.startAdditionalActionControl();
+    expect(aac2).not.toBeNull();
+    action = aac2 as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c6, c7]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c6)
+    );
+    expect(p1.hand.cards).toStrictEqual([c7]);
+    expect(g["activePlayerIndex"]).toBe(1);
   });
 
   it("does not trigger 5 skip when disabled by rule config", () => {
@@ -1253,7 +1665,7 @@ describe("Game.finishActivePlayerControl", () => {
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
     ctrl.selectCard(1);
-    const dp = ctrl.enumerateDiscardPairs();
+    const dp = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dp[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1284,7 +1696,7 @@ describe("gameImple.isEnded", () => {
     const g = Game.createGameForTest(params);
     const ctrl = g.startActivePlayerControl();
     ctrl.selectCard(0);
-    const dps = ctrl.enumerateDiscardPairs();
+    const dps = ctrl.enumerateCardSelectionPairs();
     ctrl.discard(dps[0]);
     g.finishActivePlayerControl(ctrl);
     expect(g.isEnded()).toBeTruthy();
@@ -1602,9 +2014,9 @@ describe("gameImple.outputDiscardStack", () => {
     const d4 = Card.createCard(Card.CardMark.DIAMONDS, 4);
     const d5 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const joker = Card.createCard(Card.CardMark.JOKER);
-    const dp1 = Discard.CreateDiscardPairForTest(d4, d4);
-    const dp2 = Discard.CreateDiscardPairForTest(d5, d5);
-    const dp3 = Discard.CreateDiscardPairForTest(joker, joker);
+    const dp1 = CardSelection.CreateCardSelectionPairForTest(d4, d4);
+    const dp2 = CardSelection.CreateCardSelectionPairForTest(d5, d5);
+    const dp3 = CardSelection.CreateCardSelectionPairForTest(joker, joker);
     ds.push(dp1);
     ds.push(dp2);
     const params = createGameInitParams({
@@ -1727,11 +2139,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.SELECTABLE;
+        return CardSelection.SelectabilityCheckResult.SELECTABLE;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.SELECTABLE);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.SELECTABLE);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -1749,11 +2161,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.ALREADY_SELECTED;
+        return CardSelection.SelectabilityCheckResult.ALREADY_SELECTED;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.ALREADY_SELECTED);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -1771,11 +2183,11 @@ describe("ActivePlayerControlImple.checkCardSelectability", () => {
     const checkSelectability = jest
       .spyOn(dp, "checkSelectability")
       .mockImplementation((index) => {
-        return Discard.SelectabilityCheckResult.NOT_SELECTABLE;
+        return CardSelection.SelectabilityCheckResult.NOT_SELECTABLE;
       });
     const ret = ctrl.checkCardSelectability(0);
     expect(checkSelectability).toHaveBeenCalled();
-    expect(ret).toBe(Discard.SelectabilityCheckResult.NOT_SELECTABLE);
+    expect(ret).toBe(CardSelection.SelectabilityCheckResult.NOT_SELECTABLE);
   });
 });
 
@@ -1817,11 +2229,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.SUCCESS;
+      return CardSelection.CardSelectResult.SUCCESS;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.SUCCESS);
+    expect(ret).toBe(CardSelection.CardSelectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_SELECTED", () => {
@@ -1837,11 +2249,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.ALREADY_SELECTED;
+      return CardSelection.CardSelectResult.ALREADY_SELECTED;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.ALREADY_SELECTED);
+    expect(ret).toBe(CardSelection.CardSelectResult.ALREADY_SELECTED);
   });
 
   it("returns NOT_SELECTABLE when DiscardPlanner returned NOT_SELECTABLE", () => {
@@ -1857,11 +2269,11 @@ describe("ActivePlayerControlImple.selectCard", () => {
       dpe
     );
     const select = jest.spyOn(dp, "select").mockImplementation((index) => {
-      return Discard.CardSelectResult.NOT_SELECTABLE;
+      return CardSelection.CardSelectResult.NOT_SELECTABLE;
     });
     const ret = ctrl.selectCard(0);
     expect(select).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardSelectResult.NOT_SELECTABLE);
+    expect(ret).toBe(CardSelection.CardSelectResult.NOT_SELECTABLE);
   });
 });
 
@@ -1879,11 +2291,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.SUCCESS;
+      return CardSelection.CardDeselectResult.SUCCESS;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.SUCCESS);
+    expect(ret).toBe(CardSelection.CardDeselectResult.SUCCESS);
   });
 
   it("returns ALREADY_SELECTED when DiscardPlanner returned ALREADY_DESELECTED", () => {
@@ -1899,11 +2311,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.ALREADY_DESELECTED;
+      return CardSelection.CardDeselectResult.ALREADY_DESELECTED;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.ALREADY_DESELECTED);
+    expect(ret).toBe(CardSelection.CardDeselectResult.ALREADY_DESELECTED);
   });
 
   it("returns NOT_DESELECTABLE when DiscardPlanner returned NOT_DESELECTABLE", () => {
@@ -1919,11 +2331,11 @@ describe("ActivePlayerControlImple.deselectCard", () => {
       dpe
     );
     const deselect = jest.spyOn(dp, "deselect").mockImplementation((index) => {
-      return Discard.CardDeselectResult.NOT_DESELECTABLE;
+      return CardSelection.CardDeselectResult.NOT_DESELECTABLE;
     });
     const ret = ctrl.deselectCard(0);
     expect(deselect).toHaveBeenCalled();
-    expect(ret).toBe(Discard.CardDeselectResult.NOT_DESELECTABLE);
+    expect(ret).toBe(CardSelection.CardDeselectResult.NOT_DESELECTABLE);
   });
 });
 
@@ -1951,7 +2363,7 @@ describe("ActivePlayerControlImple.countSelectedCards", () => {
   });
 });
 
-describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
+describe("ActivePlayerControlImple.enumerateCardSelectionPairs", () => {
   it("returns what DiscardPairEnumerator returned", () => {
     const h = Hand.createHand();
     const ds = Discard.createDiscardStack();
@@ -1965,11 +2377,11 @@ describe("ActivePlayerControlImple.enumerateDiscardPairs", () => {
       dpe
     );
     const c = Card.createCard(Card.CardMark.SPADES, 3);
-    const want = [Discard.CreateDiscardPairForTest(c, c)];
+    const want = [CardSelection.CreateCardSelectionPairForTest(c, c)];
     const enumerate = jest.spyOn(dpe, "enumerate").mockImplementation(() => {
       return want;
     });
-    const ret = ctrl.enumerateDiscardPairs();
+    const ret = ctrl.enumerateCardSelectionPairs();
     expect(enumerate).toHaveBeenCalled();
     expect(ret).toStrictEqual(want);
   });
@@ -2004,7 +2416,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
-        return [Discard.CreateDiscardPairForTest(c1, c1)];
+        return [CardSelection.CreateCardSelectionPairForTest(c1, c1)];
       });
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
@@ -2013,7 +2425,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
       dp,
       dpe
     );
-    const dsc = Discard.CreateDiscardPairForTest(c1, c1);
+    const dsc = CardSelection.CreateCardSelectionPairForTest(c1, c1);
     const ret = ctrl.discard(dsc);
     expect(ret).toBe(Game.DiscardResult.SUCCESS);
     expect(ctrl.getDiscard()).toStrictEqual(dsc);
@@ -2029,7 +2441,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
     const enumerate = jest
       .spyOn(dpe, "enumerate")
       .mockImplementation((...args: Card.Card[]) => {
-        return [Discard.CreateDiscardPairForTest(c1, c1)];
+        return [CardSelection.CreateCardSelectionPairForTest(c1, c1)];
       });
     const ctrl = Game.createActivePlayerControlForTest(
       "t1p0a0",
@@ -2038,7 +2450,7 @@ describe("ActivePlayerControl.discard and ActivePlayerControl.getDiscard", () =>
       dp,
       dpe
     );
-    const dsc = Discard.CreateDiscardPairForTest(c2, c2);
+    const dsc = CardSelection.CreateCardSelectionPairForTest(c2, c2);
     const ret = ctrl.discard(dsc);
     expect(ret).toBe(Game.DiscardResult.NOT_FOUND);
   });
@@ -2050,5 +2462,57 @@ describe("removedCardEntry", () => {
     expect(e.mark).toBe(Card.CardMark.CLUBS);
     expect(e.cardNumber).toBe(9);
     expect(e.count).toBe(3);
+  });
+});
+
+describe("AdditionalActionControl", () => {
+  describe("isFinished", () => {
+    it("Returns false when action is not finished", () => {
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      expect(a.isFinished()).toBeFalsy();
+    });
+
+    it("Returns true when action is finished", () => {
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      a["finished"] = true;
+      expect(a.isFinished()).toBeTruthy();
+    });
+  });
+
+  describe("getType", () => {
+    it("returns additional action type", () => {
+      const a = new Game.AdditionalActionControl(
+        "transfer7",
+        new AdditionalAction.Transfer7("a", [])
+      );
+      expect(a.getType()).toBe("transfer7");
+    });
+
+    describe("cast", () => {
+      it("returns castped additional action type", () => {
+        const obj = new AdditionalAction.Transfer7("a", []);
+        const a = new Game.AdditionalActionControl("transfer7", obj);
+        const castped = a.cast<AdditionalAction.Transfer7>(
+          AdditionalAction.Transfer7
+        );
+        expect(castped).toBe<AdditionalAction.Transfer7>(obj);
+      });
+
+      it("throws an error when tried to cast with an invalid type", () => {
+        const obj = new AdditionalAction.Transfer7("test", []);
+        const a = new Game.AdditionalActionControl("transfer7", obj);
+        expect(() => {
+          a.cast<AdditionalAction.Exile10>(AdditionalAction.Exile10);
+        }).toThrow(
+          "tried to cast additional action with an incorrect type argument"
+        );
+      });
+    });
   });
 });
