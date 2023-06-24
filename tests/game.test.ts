@@ -1266,7 +1266,7 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+    const t7action = action.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
     expect(t7action.enumerateCards()).toStrictEqual([c2, c3]);
@@ -1315,7 +1315,7 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+    const t7action = action.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
     expect(t7action.enumerateCards()).toStrictEqual([c4, c5]);
@@ -1359,7 +1359,7 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+    const t7action = action.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
     expect(t7action.enumerateCards()).toStrictEqual([c2]);
@@ -1460,7 +1460,7 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("exile10");
-    const e10action = action.unwrap<AdditionalAction.Exile10>(
+    const e10action = action.cast<AdditionalAction.Exile10>(
       AdditionalAction.Exile10
     );
     expect(e10action.enumerateCards()).toStrictEqual([c2, c3]);
@@ -1502,7 +1502,7 @@ describe("Game.finishActivePlayerControl", () => {
     const action = aac as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("exile10");
-    const e10action = action.unwrap<AdditionalAction.Exile10>(
+    const e10action = action.cast<AdditionalAction.Exile10>(
       AdditionalAction.Exile10
     );
     expect(e10action.enumerateCards()).toStrictEqual([c2]);
@@ -1610,7 +1610,7 @@ describe("Game.finishActivePlayerControl", () => {
     let action = aac1 as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("transfer7");
-    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+    const t7action = action.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
     expect(t7action.enumerateCards()).toStrictEqual([c5, c6, c7]);
@@ -1629,7 +1629,7 @@ describe("Game.finishActivePlayerControl", () => {
     action = aac2 as Game.AdditionalActionControl;
     expect(action.isFinished()).toBeFalsy();
     expect(action.getType()).toBe("exile10");
-    const e10action = action.unwrap<AdditionalAction.Exile10>(
+    const e10action = action.cast<AdditionalAction.Exile10>(
       AdditionalAction.Exile10
     );
     expect(e10action.enumerateCards()).toStrictEqual([c6, c7]);
@@ -2494,23 +2494,23 @@ describe("AdditionalActionControl", () => {
       expect(a.getType()).toBe("transfer7");
     });
 
-    describe("unwrap", () => {
-      it("returns unwrapped additional action type", () => {
+    describe("cast", () => {
+      it("returns castped additional action type", () => {
         const obj = new AdditionalAction.Transfer7("a", []);
         const a = new Game.AdditionalActionControl("transfer7", obj);
-        const unwrapped = a.unwrap<AdditionalAction.Transfer7>(
+        const castped = a.cast<AdditionalAction.Transfer7>(
           AdditionalAction.Transfer7
         );
-        expect(unwrapped).toBe<AdditionalAction.Transfer7>(obj);
+        expect(castped).toBe<AdditionalAction.Transfer7>(obj);
       });
 
-      it("throws an error when tried to unwrap with an invalid type", () => {
+      it("throws an error when tried to cast with an invalid type", () => {
         const obj = new AdditionalAction.Transfer7("test", []);
         const a = new Game.AdditionalActionControl("transfer7", obj);
         expect(() => {
-          a.unwrap<AdditionalAction.Exile10>(AdditionalAction.Exile10);
+          a.cast<AdditionalAction.Exile10>(AdditionalAction.Exile10);
         }).toThrow(
-          "tried to unwrap additional action with an incorrect type argument"
+          "tried to cast additional action with an incorrect type argument"
         );
       });
     });

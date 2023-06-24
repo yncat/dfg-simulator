@@ -298,7 +298,7 @@ class GameImple implements Game {
   private processTransfer7action(
     additionalActionControl: AdditionalActionControl
   ): void {
-    const action = additionalActionControl.unwrap<AdditionalAction.Transfer7>(
+    const action = additionalActionControl.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
     const csp = action.createCardSelectionPair();
@@ -320,7 +320,7 @@ class GameImple implements Game {
   private processExile10action(
     additionalActionControl: AdditionalActionControl
   ): void {
-    const action = additionalActionControl.unwrap<AdditionalAction.Exile10>(
+    const action = additionalActionControl.cast<AdditionalAction.Exile10>(
       AdditionalAction.Exile10
     );
     const csp = action.createCardSelectionPair();
@@ -1090,13 +1090,13 @@ export class AdditionalActionControl {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public unwrap<T extends AdditionalAction.SupportedAdditionalActions>(
+  public cast<T extends AdditionalAction.SupportedAdditionalActions>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeArg: new (...args: any) => T
   ): T {
     if (this.additionalAction instanceof typeArg != true) {
       throw new GameError(
-        "tried to unwrap additional action with an incorrect type argument"
+        "tried to cast additional action with an incorrect type argument"
       );
     }
     return this.additionalAction as T;
