@@ -1572,6 +1572,77 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onAgari).lastCalledWith("a");
   });
 
+  it("triggers Transfer7 and Exile10 in the same turn", () => {
+    // To discard 7 and 10 at the same time, we must make a kaidan.
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const c6 = Card.createCard(Card.CardMark.DIAMONDS, 12);
+    const c7 = Card.createCard(Card.CardMark.DIAMONDS, 13);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4, c5, c6, c7);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac1 = g.startAdditionalActionControl();
+    expect(aac1).not.toBeNull();
+    let action = aac1 as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.unwrap<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c5, c6, c7]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c5)
+    );
+    expect(p1.hand.cards).toStrictEqual([c6, c7]);
+    expect(p2.hand.cards).toStrictEqual([c1, c5]);
+    expect(g["activePlayerIndex"]).toBe(0);
+    const aac2 = g.startAdditionalActionControl();
+    expect(aac2).not.toBeNull();
+    action = aac2 as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.unwrap<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c6, c7]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c6)
+    );
+    expect(p1.hand.cards).toStrictEqual([c7]);
+    expect(g["activePlayerIndex"]).toBe(1);
+  });
+
   it("does not trigger 5 skip when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 5);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 5);
