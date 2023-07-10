@@ -17,6 +17,7 @@ export {
   DiscardResult,
   PlayerRank,
   ActivePlayerControl,
+  AdditionalActionControl,
   RemovedCardEntry,
   GameInitParams,
   createGameCustom,
