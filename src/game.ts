@@ -20,8 +20,8 @@ export type PlayerRank = {
   rank: Rank.RankType;
 };
 
-export class GameError extends Error {}
-export class GameCreationError extends Error {}
+export class GameError extends Error { }
+export class GameCreationError extends Error { }
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
@@ -904,7 +904,7 @@ export function createActivePlayerControlForTest(
   );
 }
 
-export class ActivePlayerControlError extends Error {}
+export class ActivePlayerControlError extends Error { }
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;
@@ -1062,6 +1062,7 @@ class AdditionalActionCreator {
 }
 
 export class AdditionalActionControl {
+  public readonly playerIdentifier: string;
   private finished: boolean;
   private type: AdditionalAction.SupportedAdditionalActionTypes;
   private additionalAction: AdditionalAction.AdditionalAction;
@@ -1069,6 +1070,7 @@ export class AdditionalActionControl {
     type: AdditionalAction.SupportedAdditionalActionTypes,
     additionalAction: AdditionalAction.AdditionalAction
   ) {
+    this.playerIdentifier = additionalAction.playerIdentifier;
     this.finished = false;
     this.type = type;
     this.additionalAction = additionalAction;
