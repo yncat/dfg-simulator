@@ -1376,6 +1376,49 @@ describe("Game.finishActivePlayerControl", () => {
     expect(g["activePlayerIndex"]).toBe(1);
   });
 
+  it("triggers Transfer7 and game end event when the player's hand gets empty and the game ends", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(t7action.enumerateCards()).toStrictEqual([c2]);
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onTransfer).lastCalledWith(
+      "a",
+      "b",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onGameEnd).toBeCalled();
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(p2.hand.cards).toStrictEqual([c1, c2]);
+  });
+
   it("do not trigger Transfer7 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
@@ -1516,6 +1559,48 @@ describe("Game.finishActivePlayerControl", () => {
     expect(p1.hand.cards).toStrictEqual([]);
     expect(g["activePlayerIndex"]).toBe(1);
   });
+
+  it("triggers Exile10 and game end event when the player's hand gets empty and the game ends", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    expect(aac).not.toBeNull();
+    const action = aac as Game.AdditionalActionControl;
+    expect(action.isFinished()).toBeFalsy();
+    expect(action.getType()).toBe("exile10");
+    const e10action = action.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(e10action.enumerateCards()).toStrictEqual([c2]);
+    e10action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(er.onExile).lastCalledWith(
+      "a",
+      CardSelection.CreateCardSelectionPairForTest(c2)
+    );
+    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onGameEnd).toBeCalled();
+    expect(p1.hand.cards).toStrictEqual([]);
+  });
+
 
   it("do not trigger Exile10 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);

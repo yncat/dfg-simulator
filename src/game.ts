@@ -316,6 +316,7 @@ class GameImple implements Game {
     if (player.hand.count() === 0) {
       this.processLegalAgari(player.identifier);
     }
+    this.processGameEndCheck();
   }
 
   private processExile10action(
@@ -333,6 +334,7 @@ class GameImple implements Game {
     if (player.hand.count() === 0) {
       this.processLegalAgari(player.identifier);
     }
+    this.processGameEndCheck();
   }
 
   private getNextPlayerIndex(): number {
