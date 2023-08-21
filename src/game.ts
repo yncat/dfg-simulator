@@ -307,6 +307,7 @@ class GameImple implements Game {
     const nextPlayer = this.players[this.getNextPlayerIndex()];
     player.hand.take(card);
     nextPlayer.hand.give(card);
+    nextPlayer.hand.sort();
     this.eventReceiver.onTransfer(
       player.identifier,
       nextPlayer.identifier,
