@@ -110,7 +110,7 @@ export class DiscardPlanner {
   }
 
   public createCardSelectionPair(): cardSelection.CardSelectionPair {
-    return new cardSelection.CardSelectionPairImple(
+    return new cardSelection.CardSelectionPair(
       this.enumerateSelectedCards()
     );
   }
@@ -634,7 +634,7 @@ export class DiscardPairEnumerator {
     const jokers = this.countJokers();
     if (jokers == 0) {
       return this.prune(
-        [new cardSelection.CardSelectionPairImple(this.selectedCards)],
+        [new cardSelection.CardSelectionPair(this.selectedCards)],
         this.discardStack
       );
     }
@@ -642,7 +642,7 @@ export class DiscardPairEnumerator {
     // When the selection only consists of jokers, they cannot be used as wildcards, so simply return as a bunch of jokers.
     if (jokers == this.selectedCards.length) {
       return this.prune(
-        [new cardSelection.CardSelectionPairImple(this.selectedCards)],
+        [new cardSelection.CardSelectionPair(this.selectedCards)],
         this.discardStack
       );
     }
@@ -659,7 +659,7 @@ export class DiscardPairEnumerator {
       for (let i = 0; i < this.countJokers(); i++) {
         cds.push(wc.copy().flagAsWildcard());
       }
-      return [new cardSelection.CardSelectionPairImple(cds)];
+      return [new cardSelection.CardSelectionPair(cds)];
     }
     // There may be multiple solutions, so we need to check and enumerate each of them.
     const range = this.calcKaidanRange();
@@ -674,7 +674,7 @@ export class DiscardPairEnumerator {
       if (jokers == 0) {
         // all jokers have been used
         // fillMissingKaidanCards already changed this.selectedCards and replaced jokers to wildcards.
-        return [new cardSelection.CardSelectionPairImple(this.selectedCards)];
+        return [new cardSelection.CardSelectionPair(this.selectedCards)];
       }
     }
     // Since the combination is a kaidan, jokers cannot be used as wildcards of same number.
@@ -746,7 +746,7 @@ export class DiscardPairEnumerator {
         return c;
       });
       dps.push(
-        new cardSelection.CardSelectionPairImple(wcds.concat(cds).concat(scds))
+        new cardSelection.CardSelectionPair(wcds.concat(cds).concat(scds))
       );
     }
 
@@ -758,7 +758,7 @@ export class DiscardPairEnumerator {
         c.flagAsWildcard();
         cps.push(c);
       }
-      dps.push(new cardSelection.CardSelectionPairImple(cds.concat(cps)));
+      dps.push(new cardSelection.CardSelectionPair(cds.concat(cps)));
     }
 
     return dps;

@@ -768,6 +768,9 @@ class GameImple implements Game {
         break;
       }
     }
+
+    // AdditionalActionの途中でキックされてターンが進んでも大丈夫なように、ここでAdditionalActionをクリアする。
+    this.lastAdditionalActions = [];
   }
 
   private processAgariCheck(activePlayerControl: ActivePlayerControl) {

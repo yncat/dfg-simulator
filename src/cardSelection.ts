@@ -4,24 +4,7 @@ type / object definitions of card selection related stuff.
 import * as Card from "./card";
 import * as Calculation from "./calculation";
 
-export interface CardSelectionPair {
-  cards: Card.Card[];
-  count: () => number;
-  countWithCondition: (
-    mark: Card.CardMark | null,
-    cardNumber: number | null
-  ) => number;
-  calcCardNumber: (strengthInverted: boolean) => number;
-  calcStrength: () => number;
-  isNull: () => boolean;
-  isSequencial: () => boolean;
-  isKaidan: () => boolean;
-  isSameCard: (discardPair: CardSelectionPair) => boolean;
-  isOnlyJoker: () => boolean;
-  isValid: () => boolean;
-}
-
-export class CardSelectionPairImple implements CardSelectionPair {
+export class CardSelectionPair implements CardSelectionPair {
   cards: Card.Card[];
   constructor(cards: Card.Card[]) {
     this.cards = cards;
@@ -194,14 +177,14 @@ export class CardSelectionPairImple implements CardSelectionPair {
 }
 
 export function createNullCardSelectionPair(): CardSelectionPair {
-  return new CardSelectionPairImple([]);
+  return new CardSelectionPair([]);
 }
 
 // DO NOT USE EXCEPT TESTING PURPOSES.
 export function CreateCardSelectionPairForTest(
   ...cards: Card.Card[]
 ): CardSelectionPair {
-  return new CardSelectionPairImple(cards);
+  return new CardSelectionPair(cards);
 }
 
 // card selectable result

@@ -142,7 +142,7 @@ export class SingleCardSelector {
   }
 
   public createCardSelectionPair(): CardSelection.CardSelectionPair {
-    return new CardSelection.CardSelectionPairImple(
+    return new CardSelection.CardSelectionPair(
       this.enumerateSelectedCards()
     );
   }
