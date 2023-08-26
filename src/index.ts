@@ -1,4 +1,9 @@
-export { SupportedAdditionalActions, SupportedAdditionalActionTypes, Transfer7, Exile10 } from "./additionalAction";
+export {
+  SupportedAdditionalActions,
+  SupportedAdditionalActionTypes,
+  Transfer7,
+  Exile10,
+} from "./additionalAction";
 export { Card, CardMark, CardNumber, createCard } from "./card";
 export {
   CardSelectionPair,

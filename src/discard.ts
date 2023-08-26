@@ -110,9 +110,7 @@ export class DiscardPlanner {
   }
 
   public createCardSelectionPair(): cardSelection.CardSelectionPair {
-    return new cardSelection.CardSelectionPair(
-      this.enumerateSelectedCards()
-    );
+    return new cardSelection.CardSelectionPair(this.enumerateSelectedCards());
   }
 
   private countSelectedJokers() {

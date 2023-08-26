@@ -20,8 +20,8 @@ export type PlayerRank = {
   rank: Rank.RankType;
 };
 
-export class GameError extends Error { }
-export class GameCreationError extends Error { }
+export class GameError extends Error {}
+export class GameCreationError extends Error {}
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
@@ -910,7 +910,7 @@ export function createActivePlayerControlForTest(
   );
 }
 
-export class ActivePlayerControlError extends Error { }
+export class ActivePlayerControlError extends Error {}
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;

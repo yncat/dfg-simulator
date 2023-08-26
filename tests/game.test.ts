@@ -1601,7 +1601,6 @@ describe("Game.finishActivePlayerControl", () => {
     expect(p1.hand.cards).toStrictEqual([]);
   });
 
-
   it("do not trigger Exile10 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
