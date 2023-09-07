@@ -1445,7 +1445,7 @@ describe("Game.finishActivePlayerControl", () => {
     const t7action = action.cast<AdditionalAction.Transfer7>(
       AdditionalAction.Transfer7
     );
-    expect(()=>{
+    expect(() => {
       g.finishAdditionalActionControl(action);
     }).toThrowError("tried to process transfer7 action with no card selected");
   });
@@ -1658,11 +1658,10 @@ describe("Game.finishActivePlayerControl", () => {
     const e10action = action.cast<AdditionalAction.Exile10>(
       AdditionalAction.Exile10
     );
-    expect(()=>{
+    expect(() => {
       g.finishAdditionalActionControl(action);
     }).toThrowError("tried to process exile10 action with no card selected");
   });
-
 
   it("do not trigger Exile10 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
