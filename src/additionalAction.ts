@@ -54,7 +54,7 @@ export class Transfer7 extends AdditionalActionBase {
     return this.singleCardSelector.deselect(index);
   }
 
-  public createCardSelectionPair(): CardSelection.CardSelectionPair {
+  public createCardSelectionPair(): CardSelection.CardSelectionPair | null {
     return this.singleCardSelector.createCardSelectionPair();
   }
 }
@@ -88,7 +88,7 @@ export class Exile10 extends AdditionalActionBase {
     return this.singleCardSelector.deselect(index);
   }
 
-  public createCardSelectionPair(): CardSelection.CardSelectionPair {
+  public createCardSelectionPair(): CardSelection.CardSelectionPair | null {
     return this.singleCardSelector.createCardSelectionPair();
   }
 }
@@ -141,8 +141,12 @@ export class SingleCardSelector {
     });
   }
 
-  public createCardSelectionPair(): CardSelection.CardSelectionPair {
-    return new CardSelection.CardSelectionPair(this.enumerateSelectedCards());
+  public createCardSelectionPair(): CardSelection.CardSelectionPair | null {
+    const selectedCards = this.enumerateSelectedCards();
+    if (selectedCards.length === 0) {
+      return null;
+    }
+    return new CardSelection.CardSelectionPair(selectedCards);
   }
 
   public select(index: number): CardSelection.CardSelectResult {

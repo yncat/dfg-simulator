@@ -302,6 +302,9 @@ class GameImple implements Game {
       AdditionalAction.Transfer7
     );
     const csp = action.createCardSelectionPair();
+    if(csp === null) {
+      throw new GameError("tried to process transfer7 action with no card selected");
+    }
     const card = csp.cards[0];
     const player = this.players[this.activePlayerIndex];
     const nextPlayer = this.players[this.getNextPlayerIndex()];
@@ -326,6 +329,9 @@ class GameImple implements Game {
       AdditionalAction.Exile10
     );
     const csp = action.createCardSelectionPair();
+    if(csp === null) {
+      throw new GameError("tried to process exile10 action with no card selected");
+    }
     const card = csp.cards[0];
     const player = this.players[this.activePlayerIndex];
     player.hand.take(card);

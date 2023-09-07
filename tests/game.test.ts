@@ -1419,6 +1419,37 @@ describe("Game.finishActivePlayerControl", () => {
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
   });
 
+  it("throws an error when trying to process transfer7 with no cards selected", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    const params = createGameInitParams({
+      players: [p1, p2],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    const action = aac as Game.AdditionalActionControl;
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    expect(()=>{
+      g.finishAdditionalActionControl(action);
+    }).toThrowError("tried to process transfer7 action with no card selected");
+  });
+
   it("do not trigger Transfer7 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
     const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
@@ -1600,6 +1631,38 @@ describe("Game.finishActivePlayerControl", () => {
     expect(er.onGameEnd).toBeCalled();
     expect(p1.hand.cards).toStrictEqual([]);
   });
+
+  it("throws an error when trying to process eile10 with no cards selected", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(c1);
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac = g.startAdditionalActionControl();
+    const action = aac as Game.AdditionalActionControl;
+    const e10action = action.cast<AdditionalAction.Exile10>(
+      AdditionalAction.Exile10
+    );
+    expect(()=>{
+      g.finishAdditionalActionControl(action);
+    }).toThrowError("tried to process exile10 action with no card selected");
+  });
+
 
   it("do not trigger Exile10 when disabled by rule config", () => {
     const c1 = Card.createCard(Card.CardMark.DIAMONDS, 10);

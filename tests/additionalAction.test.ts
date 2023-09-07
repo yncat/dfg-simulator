@@ -156,10 +156,18 @@ describe("AdditionalAction", () => {
       it("returns card selection pair based on selected card", () => {
         const scs = createSingleCardSelector();
         scs["selected"][0] = true;
-        const csp = scs.createCardSelectionPair();
+        const _csp = scs.createCardSelectionPair();
+        expect(_csp).not.toBeNull();
+        const csp = _csp as CardSelection.CardSelectionPair;
         const c = csp.cards[0];
         expect(c.mark).toBe(Card.CardMark.CLUBS);
         expect(c.cardNumber).toBe(1);
+      });
+
+      it("returns null if no card is selected", () => {
+        const scs = createSingleCardSelector();
+        const _csp = scs.createCardSelectionPair();
+        expect(_csp).toBeNull();
       });
     });
   });
