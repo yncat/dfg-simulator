@@ -27,6 +27,8 @@ https://github.com/yncat/dfg-example
 - Kakumei / Kaidan Kakumei
 - Reverse (5)
 - Skip (9())
+- Transfer a card to the next player by a 7
+- Exile a card by a 10
 - Joker as wildcards
 - 3 of spades against a joker
 
