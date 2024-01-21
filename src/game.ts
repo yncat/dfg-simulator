@@ -55,6 +55,7 @@ export type GameInitParams = {
   eventReceiver: Event.EventReceiver;
   ruleConfig: Rule.RuleConfig;
   removedCardsMap: RemovedCardsMap;
+  lastGameResult: Result.Result | null;
 };
 
 export function createGameCustom(gameInitParams: GameInitParams): Game {
@@ -68,7 +69,8 @@ export function createGameForTest(gameInitParams: GameInitParams): GameImple {
 export function createGame(
   playerIdentifiers: string[],
   eventReceiver: Event.EventReceiver,
-  ruleConfig: Rule.RuleConfig
+  ruleConfig: Rule.RuleConfig,
+  lastGameResult: Result.Result | null = null
 ): Game {
   const players = playerIdentifiers.map((v) => {
     return Player.createPlayer(v);
@@ -101,7 +103,9 @@ export function createGame(
     eventReceiver: eventReceiver,
     ruleConfig: ruleConfig,
     removedCardsMap: removedCardsMap,
+    lastGameResult: lastGameResult,
   };
+
 
   const g = new GameImple(params);
   return g;
@@ -183,6 +187,7 @@ class GameImple implements Game {
   private ruleConfig: Rule.RuleConfig;
   private inJBack: boolean;
   private lastAdditionalActions: AdditionalActionCreator[];
+  private lastGameResult: Result.Result | null;
   constructor(params: GameInitParams) {
     // The constructor trusts all parameters and doesn't perform any checks. This allows simulating in-progress games or a certain predefined situations. Callers must make sure that the parameters are valid or are what they want to simulate.
     this.players = params.players;
@@ -201,6 +206,7 @@ class GameImple implements Game {
     this.gameEnded = false;
     this.inJBack = false;
     this.lastAdditionalActions = [];
+    this.lastGameResult = params.lastGameResult;
     this.makeStartInfo();
   }
 
