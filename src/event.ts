@@ -38,6 +38,7 @@ type transferCallback = (
   transferred: CardSelectionPair
 ) => void;
 type exileCallback = (identifier: string, exiled: CardSelectionPair) => void;
+type miyakoochiCallback = (identifier: string) => void;
 
 export interface EventReceiver {
   onNagare: NagareCallback;
@@ -58,4 +59,5 @@ export interface EventReceiver {
   onSkip: SkipCallback;
   onTransfer: transferCallback;
   onExile: exileCallback;
+  onMiyakoochi: miyakoochiCallback;
 }

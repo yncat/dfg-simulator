@@ -13,6 +13,7 @@ export type RuleConfig = {
   skip: SkipConfig;
   transfer7: boolean;
   exile10: boolean;
+  miyakoochi: boolean;
 };
 
 export function createDefaultRuleConfig(): RuleConfig {
@@ -24,5 +25,6 @@ export function createDefaultRuleConfig(): RuleConfig {
     skip: SkipConfig.OFF,
     transfer7: false,
     exile10: false,
+    miyakoochi: false,
   };
 }
