@@ -53,6 +53,7 @@ function createGameInitParams(params: Partial<Game.GameInitParams>) {
       params.removedCardsMap === undefined
         ? new Map<Card.CardMark, Map<Card.CardNumber, number>>()
         : params.removedCardsMap,
+    lastGameResult: params.lastGameResult === undefined ? null : params.lastGameResult,
   };
 }
 
@@ -2105,7 +2106,7 @@ describe("Game.kickPlayerByIdentifier", () => {
     p1.rank.force(Rank.RankType.FUGO);
     p2.rank.force(Rank.RankType.DAIFUGO);
     const er = createMockEventReceiver();
-    const onGameEnd = jest.spyOn(er, "onGameEnd").mockImplementation(() => {});
+    const onGameEnd = jest.spyOn(er, "onGameEnd").mockImplementation(() => { });
     const params = createGameInitParams({
       players: [p1, p2, p3],
       agariPlayerIdentifiers: ["b", "a"],
