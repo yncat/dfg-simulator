@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/yncat/dfg-simulator#readme",
   "dependencies": {
-    "jest-mock-extended": "^1.0.16",
+    "jest-mock-extended": "^4.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },
