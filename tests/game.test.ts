@@ -8,6 +8,7 @@ import * as Hand from "../src/hand";
 import * as Player from "../src/player";
 import * as Rank from "../src/rank";
 import * as Event from "../src/event";
+import * as Result from "../src/result";
 import * as Rule from "../src/rule";
 
 /* eslint @typescript-eslint/no-unused-vars: 0 */
@@ -53,6 +54,8 @@ function createGameInitParams(params: Partial<Game.GameInitParams>) {
       params.removedCardsMap === undefined
         ? new Map<Card.CardMark, Map<Card.CardNumber, number>>()
         : params.removedCardsMap,
+    lastGameResult:
+      params.lastGameResult === undefined ? null : params.lastGameResult,
   };
 }
 
@@ -2660,5 +2663,313 @@ describe("AdditionalActionControl", () => {
         );
       });
     });
+  });
+});
+
+describe("miyakoochi", () => {
+  function createLastGameResult(
+    daifugoIdentifier: string,
+    otherIdentifiers: string[]
+  ): Result.Result {
+    const daifugo = Player.createPlayer(daifugoIdentifier);
+    daifugo.rank.force(Rank.RankType.DAIFUGO);
+    const others = otherIdentifiers.map((v) => {
+      const p = Player.createPlayer(v);
+      p.rank.force(Rank.RankType.HEIMIN);
+      return p;
+    });
+    return Result.createResult([daifugo, ...others]);
+  }
+
+  function createMiyakoochiRuleConfig(): Rule.RuleConfig {
+    const r = Rule.createDefaultRuleConfig();
+    r.miyakoochi = true;
+    return r;
+  }
+
+  function discardFirstCard(g: Game.Game) {
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    const dps = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dps[0]);
+    g.finishActivePlayerControl(ctrl);
+  }
+
+  function createPlayerWithCards(identifier: string, ...cards: Card.Card[]) {
+    const p = Player.createPlayer(identifier);
+    p.hand.give(...cards);
+    return p;
+  }
+
+  function createFiller(identifier: string) {
+    return createPlayerWithCards(
+      identifier,
+      Card.createCard(Card.CardMark.CLUBS, 5),
+      Card.createCard(Card.CardMark.CLUBS, 6)
+    );
+  }
+
+  it("makes the last daifugo fall when another player gets agari first", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pd = createFiller("d");
+    const pb = createFiller("b");
+    const pc = createFiller("c");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pd, pb, pc],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b", "c"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onAgari).toHaveBeenCalledWith("a");
+    expect(er.onMiyakoochi).toHaveBeenCalledTimes(1);
+    expect(er.onMiyakoochi).toHaveBeenCalledWith("d");
+    expect(er.onPlayerRankChanged).toHaveBeenCalledWith(
+      "d",
+      Rank.RankType.UNDETERMINED,
+      Rank.RankType.DAIHINMIN
+    );
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(g["agariPlayerIdentifiers"]).toStrictEqual(["a"]);
+    expect(g["penalizedPlayerIdentifiers"]).toStrictEqual([]);
+    expect(g.isEnded()).toBeFalsy();
+    expect(er.onGameEnd).not.toHaveBeenCalled();
+    // The fallen daifugo is skipped.
+    expect(g["activePlayerIndex"]).toBe(2);
+  });
+
+  it("does not make the last daifugo fall when the last daifugo gets agari first", () => {
+    const pd = createPlayerWithCards(
+      "d",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pa = createFiller("a");
+    const pb = createFiller("b");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pd, pa, pb],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.UNDETERMINED);
+    expect(pb.rank.getRankType()).toBe(Rank.RankType.UNDETERMINED);
+  });
+
+  it("does nothing when the miyakoochi rule is disabled", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pd = createFiller("d");
+    const pb = createFiller("b");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pd, pb],
+      eventReceiver: er,
+      lastGameResult: createLastGameResult("d", ["a", "b"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.UNDETERMINED);
+  });
+
+  it("does nothing when the last game result is not given", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pd = createFiller("d");
+    const pb = createFiller("b");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pd, pb],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.UNDETERMINED);
+  });
+
+  it("does nothing when the last daifugo does not participate in this game", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pb = createFiller("b");
+    const pc = createFiller("c");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pb, pc],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("x", ["a", "b", "c"]),
+    });
+    const g = Game.createGameForTest(params);
+    expect(() => {
+      discardFirstCard(g);
+    }).not.toThrow();
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+  });
+
+  it("does nothing when the last daifugo has been kicked", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pd = createFiller("d");
+    const pb = createFiller("b");
+    const pc = createFiller("c");
+    pd.markAsKicked();
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pd, pb, pc],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b", "c"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.UNDETERMINED);
+  });
+
+  it("gives the remaining player a proper rank when the game ends right after miyakoochi", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pb = createFiller("b");
+    const pd = createFiller("d");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pb, pd],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).toHaveBeenCalledWith("d");
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pb.rank.getRankType()).toBe(Rank.RankType.HEIMIN);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(g.isEnded()).toBeTruthy();
+    expect(er.onGameEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it("ends the game when no player remains undetermined after miyakoochi in a 2-player game", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pd = createFiller("d");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pd],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a"]),
+    });
+    const g = Game.createGameForTest(params);
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).toHaveBeenCalledWith("d");
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(g.isEnded()).toBeTruthy();
+    expect(er.onGameEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it("places forbidden agari players below the fallen daifugo", () => {
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pb = createPlayerWithCards("b", Card.createCard(Card.CardMark.JOKER));
+    const pc = createPlayerWithCards(
+      "c",
+      Card.createCard(Card.CardMark.SPADES, 3)
+    );
+    const pe = createFiller("e");
+    const pd = createFiller("d");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pa, pb, pc, pe, pd],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b", "c", "e"]),
+    });
+    const g = Game.createGameForTest(params);
+    // a gets agari and d falls.
+    discardFirstCard(g);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    // b does forbidden agari with a joker. d goes up by one.
+    discardFirstCard(g);
+    expect(er.onForbiddenAgari).toHaveBeenCalledWith("b");
+    expect(pb.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.HINMIN);
+    // c does forbidden agari with 3 of spades against the joker. d goes up by one again.
+    discardFirstCard(g);
+    expect(er.onForbiddenAgari).toHaveBeenCalledWith("c");
+    expect(pc.rank.getRankType()).toBe(Rank.RankType.HINMIN);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.HEIMIN);
+    // e is the only remaining player and takes the 2nd position.
+    expect(g.isEnded()).toBeTruthy();
+    expect(er.onGameEnd).toHaveBeenCalledTimes(1);
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pe.rank.getRankType()).toBe(Rank.RankType.FUGO);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.HEIMIN);
+    expect(pc.rank.getRankType()).toBe(Rank.RankType.HINMIN);
+    expect(pb.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+  });
+
+  it("does not treat the last daifugo who did forbidden agari as fallen", () => {
+    const pd = createPlayerWithCards("d", Card.createCard(Card.CardMark.JOKER));
+    const pa = createPlayerWithCards(
+      "a",
+      Card.createCard(Card.CardMark.DIAMONDS, 4)
+    );
+    const pb = createFiller("b");
+    const er = createMockEventReceiver();
+    const params = createGameInitParams({
+      players: [pd, pa, pb],
+      eventReceiver: er,
+      ruleConfig: createMiyakoochiRuleConfig(),
+      lastGameResult: createLastGameResult("d", ["a", "b"]),
+    });
+    const g = Game.createGameForTest(params);
+    // d does forbidden agari.
+    discardFirstCard(g);
+    expect(er.onForbiddenAgari).toHaveBeenCalledWith("d");
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
+    // Everyone passes, then a gets agari.
+    const ctrl = g.startActivePlayerControl();
+    expect(ctrl.playerIdentifier).toBe("a");
+    ctrl.pass();
+    g.finishActivePlayerControl(ctrl);
+    const ctrl2 = g.startActivePlayerControl();
+    ctrl2.pass();
+    g.finishActivePlayerControl(ctrl2);
+    expect(g.startActivePlayerControl().playerIdentifier).toBe("a");
+    discardFirstCard(g);
+    expect(er.onMiyakoochi).not.toHaveBeenCalled();
+    expect(g.isEnded()).toBeTruthy();
+    expect(pa.rank.getRankType()).toBe(Rank.RankType.DAIFUGO);
+    expect(pb.rank.getRankType()).toBe(Rank.RankType.HEIMIN);
+    expect(pd.rank.getRankType()).toBe(Rank.RankType.DAIHINMIN);
   });
 });
