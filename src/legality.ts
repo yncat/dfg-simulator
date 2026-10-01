@@ -1,9 +1,11 @@
 import { DiscardStack } from "./discard";
 import { CardMark } from "./card";
+import type { RuleConfig } from "./rule";
 
 export function isForbiddenAgari(
   discardStack: DiscardStack,
-  strengthInverted: boolean
+  strengthInverted: boolean,
+  ruleConfig:RuleConfig
 ): boolean {
   const discardPair = discardStack.last();
   const previousDiscardPair = discardStack.secondToLast();
@@ -28,7 +30,8 @@ export function isForbiddenAgari(
   }
 
   // A pair of 8.
-  if (discardPair.count() == discardPair.countWithCondition(null, 8)) {
+  // Only when yagiri is enabled.
+  if (ruleConfig.yagiri && discardPair.count() == discardPair.countWithCondition(null, 8)) {
     return true;
   }
 
