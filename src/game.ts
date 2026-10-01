@@ -38,6 +38,7 @@ export interface Game {
   outputDiscardStack: () => Array<CardSelection.CardSelectionPair>;
   outputRemovedCards: () => RemovedCardEntry[];
   outputRuleConfig: () => Rule.RuleConfig;
+  outputStrengthInverted: () => boolean;
 }
 
 type RemovedCardsMap = Map<Card.CardMark, Map<Card.CardNumber, number>>;
@@ -447,6 +448,10 @@ class GameImple implements Game {
 
   public outputRuleConfig(): Rule.RuleConfig {
     return { ...this.ruleConfig };
+  }
+
+  public outputStrengthInverted(): boolean {
+    return this.strengthInverted;
   }
 
   private enumerateNotKickedPlayers() {

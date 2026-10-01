@@ -2251,6 +2251,21 @@ describe("gameImple.outputRemovedCards", () => {
   });
 });
 
+describe("gameImple.outputStrengthInverted", () => {
+  it("returns whether the strength is inverted", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const g1 = Game.createGameForTest(
+      createGameInitParams({ players: [p1, p2] })
+    );
+    expect(g1.outputStrengthInverted()).toBeFalsy();
+    const g2 = Game.createGameForTest(
+      createGameInitParams({ players: [p1, p2], strengthInverted: true })
+    );
+    expect(g2.outputStrengthInverted()).toBeTruthy();
+  });
+});
+
 describe("gameImple.outputRuleConfig", () => {
   it("returns a copy of rule configuration", () => {
     const p1 = Player.createPlayer("a");
