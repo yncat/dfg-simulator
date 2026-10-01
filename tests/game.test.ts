@@ -1275,7 +1275,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(t7action.enumerateCards()).toStrictEqual([c2, c3]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith(
+    expect(er.onTransfer).toHaveBeenLastCalledWith(
       "a",
       "b",
       CardSelection.CreateCardSelectionPairForTest(c2)
@@ -1324,7 +1324,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(t7action.enumerateCards()).toStrictEqual([c4, c5]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith(
+    expect(er.onTransfer).toHaveBeenLastCalledWith(
       "a",
       "b",
       CardSelection.CreateCardSelectionPairForTest(c4)
@@ -1368,12 +1368,12 @@ describe("Game.finishActivePlayerControl", () => {
     expect(t7action.enumerateCards()).toStrictEqual([c2]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith(
+    expect(er.onTransfer).toHaveBeenLastCalledWith(
       "a",
       "b",
       CardSelection.CreateCardSelectionPairForTest(c2)
     );
-    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
     expect(p1.hand.cards).toStrictEqual([]);
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
     expect(g["activePlayerIndex"]).toBe(1);
@@ -1411,13 +1411,13 @@ describe("Game.finishActivePlayerControl", () => {
     expect(t7action.enumerateCards()).toStrictEqual([c2]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith(
+    expect(er.onTransfer).toHaveBeenLastCalledWith(
       "a",
       "b",
       CardSelection.CreateCardSelectionPairForTest(c2)
     );
-    expect(er.onAgari).lastCalledWith("a");
-    expect(er.onGameEnd).toBeCalled();
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
+    expect(er.onGameEnd).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([]);
     expect(p2.hand.cards).toStrictEqual([c1, c2]);
   });
@@ -1450,7 +1450,7 @@ describe("Game.finishActivePlayerControl", () => {
     );
     expect(() => {
       g.finishAdditionalActionControl(action);
-    }).toThrowError("tried to process transfer7 action with no card selected");
+    }).toThrow("tried to process transfer7 action with no card selected");
   });
 
   it("do not trigger Transfer7 when disabled by rule config", () => {
@@ -1505,7 +1505,7 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     const aac = g.startAdditionalActionControl();
     expect(aac).toBeNull();
-    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
   });
 
   it("triggers Exile10", () => {
@@ -1543,7 +1543,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(e10action.enumerateCards()).toStrictEqual([c2, c3]);
     e10action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onExile).lastCalledWith(
+    expect(er.onExile).toHaveBeenLastCalledWith(
       "a",
       CardSelection.CreateCardSelectionPairForTest(c2)
     );
@@ -1585,11 +1585,11 @@ describe("Game.finishActivePlayerControl", () => {
     expect(e10action.enumerateCards()).toStrictEqual([c2]);
     e10action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onExile).lastCalledWith(
+    expect(er.onExile).toHaveBeenLastCalledWith(
       "a",
       CardSelection.CreateCardSelectionPairForTest(c2)
     );
-    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
     expect(p1.hand.cards).toStrictEqual([]);
     expect(g["activePlayerIndex"]).toBe(1);
   });
@@ -1626,12 +1626,12 @@ describe("Game.finishActivePlayerControl", () => {
     expect(e10action.enumerateCards()).toStrictEqual([c2]);
     e10action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onExile).lastCalledWith(
+    expect(er.onExile).toHaveBeenLastCalledWith(
       "a",
       CardSelection.CreateCardSelectionPairForTest(c2)
     );
-    expect(er.onAgari).lastCalledWith("a");
-    expect(er.onGameEnd).toBeCalled();
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
+    expect(er.onGameEnd).toHaveBeenCalled();
     expect(p1.hand.cards).toStrictEqual([]);
   });
 
@@ -1663,7 +1663,7 @@ describe("Game.finishActivePlayerControl", () => {
     );
     expect(() => {
       g.finishAdditionalActionControl(action);
-    }).toThrowError("tried to process exile10 action with no card selected");
+    }).toThrow("tried to process exile10 action with no card selected");
   });
 
   it("do not trigger Exile10 when disabled by rule config", () => {
@@ -1718,7 +1718,54 @@ describe("Game.finishActivePlayerControl", () => {
     g.finishActivePlayerControl(ctrl);
     const aac = g.startAdditionalActionControl();
     expect(aac).toBeNull();
-    expect(er.onAgari).lastCalledWith("a");
+    expect(er.onAgari).toHaveBeenLastCalledWith("a");
+  });
+
+  it("skips Exile10 when Transfer7 in the same turn consumed the last card", () => {
+    const c1 = Card.createCard(Card.CardMark.DIAMONDS, 7);
+    const c2 = Card.createCard(Card.CardMark.DIAMONDS, 8);
+    const c3 = Card.createCard(Card.CardMark.DIAMONDS, 9);
+    const c4 = Card.createCard(Card.CardMark.DIAMONDS, 10);
+    const c5 = Card.createCard(Card.CardMark.DIAMONDS, 11);
+    const p1 = Player.createPlayer("a");
+    p1.hand.give(c1, c2, c3, c4, c5);
+    const p2 = Player.createPlayer("b");
+    p2.hand.give(Card.createCard(Card.CardMark.CLUBS, 3));
+    const p3 = Player.createPlayer("c");
+    p3.hand.give(Card.createCard(Card.CardMark.CLUBS, 4));
+    const er = createMockEventReceiver();
+    const r = Rule.createDefaultRuleConfig();
+    r.transfer7 = true;
+    r.exile10 = true;
+    const params = createGameInitParams({
+      players: [p1, p2, p3],
+      eventReceiver: er,
+      ruleConfig: r,
+    });
+    const g = Game.createGameForTest(params);
+    const ctrl = g.startActivePlayerControl();
+    ctrl.selectCard(0);
+    ctrl.selectCard(1);
+    ctrl.selectCard(2);
+    ctrl.selectCard(3);
+    const dp = ctrl.enumerateCardSelectionPairs();
+    ctrl.discard(dp[0]);
+    g.finishActivePlayerControl(ctrl);
+    const aac1 = g.startAdditionalActionControl();
+    expect(aac1).not.toBeNull();
+    const action = aac1 as Game.AdditionalActionControl;
+    expect(action.getType()).toBe("transfer7");
+    const t7action = action.cast<AdditionalAction.Transfer7>(
+      AdditionalAction.Transfer7
+    );
+    t7action.selectCard(0);
+    g.finishAdditionalActionControl(action);
+    expect(p1.hand.cards).toStrictEqual([]);
+    expect(er.onAgari).toHaveBeenCalledWith("a");
+    // exile10 can't be performed since the hand is empty.
+    expect(g.startAdditionalActionControl()).toBeNull();
+    expect(er.onExile).not.toHaveBeenCalled();
+    expect(g["activePlayerIndex"]).toBe(1);
   });
 
   it("triggers Transfer7 and Exile10 in the same turn", () => {
@@ -1765,7 +1812,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(t7action.enumerateCards()).toStrictEqual([c5, c6, c7]);
     t7action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onTransfer).lastCalledWith(
+    expect(er.onTransfer).toHaveBeenLastCalledWith(
       "a",
       "b",
       CardSelection.CreateCardSelectionPairForTest(c5)
@@ -1784,7 +1831,7 @@ describe("Game.finishActivePlayerControl", () => {
     expect(e10action.enumerateCards()).toStrictEqual([c6, c7]);
     e10action.selectCard(0);
     g.finishAdditionalActionControl(action);
-    expect(er.onExile).lastCalledWith(
+    expect(er.onExile).toHaveBeenLastCalledWith(
       "a",
       CardSelection.CreateCardSelectionPairForTest(c6)
     );
@@ -2201,6 +2248,21 @@ describe("gameImple.outputRemovedCards", () => {
     expect(es).toContainEqual(
       new Game.RemovedCardEntry(Card.CardMark.DIAMONDS, 5, 2)
     );
+  });
+});
+
+describe("gameImple.outputStrengthInverted", () => {
+  it("returns whether the strength is inverted", () => {
+    const p1 = Player.createPlayer("a");
+    const p2 = Player.createPlayer("b");
+    const g1 = Game.createGameForTest(
+      createGameInitParams({ players: [p1, p2] })
+    );
+    expect(g1.outputStrengthInverted()).toBeFalsy();
+    const g2 = Game.createGameForTest(
+      createGameInitParams({ players: [p1, p2], strengthInverted: true })
+    );
+    expect(g2.outputStrengthInverted()).toBeTruthy();
   });
 });
 

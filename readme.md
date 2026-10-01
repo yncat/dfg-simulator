@@ -33,6 +33,21 @@ https://github.com/yncat/dfg-example
 - 3 of spades against a joker
 - Miyakoochi (the last daifugo falls when another player gets agari first)
 
+## CPU players
+
+`src/cpu.ts` provides CPU players. Forward game events to a `CardTracker`, then on each turn:
+
+```ts
+const ctx = createDecisionContext(game, playerIdentifier, tracker, personality.memory);
+const move = decide(control, ctx, personality); // null means pass
+applyMove(control, move);
+game.finishActivePlayerControl(control);
+```
+
+- `Personalities` has presets: `NORMAL`, `ONI` (remembers every card), `SEKKACHI` (impatient), `KECHI` (stingy) and `HARAN` (loves kakumei). `decideRandom` is the easiest one.
+- `planHand` splits a hand into sets / kaidan / singles and evaluates it. It is the core of the CPU's decisions.
+- Use `chooseCardToGiveAway` for transfer7 / exile10.
+
 ## Documentation
 
 Not available yet!!!!!!!

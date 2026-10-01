@@ -38,6 +38,7 @@ export interface Game {
   outputDiscardStack: () => Array<CardSelection.CardSelectionPair>;
   outputRemovedCards: () => RemovedCardEntry[];
   outputRuleConfig: () => Rule.RuleConfig;
+  outputStrengthInverted: () => boolean;
 }
 
 type RemovedCardsMap = Map<Card.CardMark, Map<Card.CardNumber, number>>;
@@ -275,8 +276,16 @@ class GameImple implements Game {
     if (this.lastAdditionalActions.length === 0) {
       return null;
     }
-    const c = this.lastAdditionalActions.shift() as AdditionalActionCreator;
-    return c.create();
+    while (this.lastAdditionalActions.length > 0) {
+      const c = this.lastAdditionalActions.shift() as AdditionalActionCreator;
+      // A previous action in the same turn may have consumed the last card (e.g. a kaidan of 7 to 10 with one card left). Such actions can't be performed, so skip them.
+      if (c.isPerformable()) {
+        return c.create();
+      }
+    }
+    // All the remaining actions were skipped, so nobody calls finishAdditionalActionControl for them.
+    this.processTurnAdvancement();
+    return null;
   }
 
   public finishAdditionalActionControl(
@@ -439,6 +448,10 @@ class GameImple implements Game {
 
   public outputRuleConfig(): Rule.RuleConfig {
     return { ...this.ruleConfig };
+  }
+
+  public outputStrengthInverted(): boolean {
+    return this.strengthInverted;
   }
 
   private enumerateNotKickedPlayers() {
@@ -1143,6 +1156,10 @@ class AdditionalActionCreator {
     this.additionalActionType = additionalActionType;
     this.player = player;
     this.additionalActionControl = null;
+  }
+
+  public isPerformable(): boolean {
+    return this.player.hand.count() > 0;
   }
 
   public create(): AdditionalActionControl {
