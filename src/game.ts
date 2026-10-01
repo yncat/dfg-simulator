@@ -20,8 +20,8 @@ export type PlayerRank = {
   rank: Rank.RankType;
 };
 
-export class GameError extends Error { }
-export class GameCreationError extends Error { }
+export class GameError extends Error {}
+export class GameCreationError extends Error {}
 
 export interface Game {
   startActivePlayerControl: () => ActivePlayerControl;
@@ -105,7 +105,6 @@ export function createGame(
     removedCardsMap: removedCardsMap,
     lastGameResult: lastGameResult,
   };
-
 
   const g = new GameImple(params);
   return g;
@@ -791,7 +790,13 @@ class GameImple implements Game {
 
   private processAgariCheck(activePlayerControl: ActivePlayerControl) {
     if (activePlayerControl.countHand() == 0) {
-      if (Legality.isForbiddenAgari(this.discardStack, this.strengthInverted, this.ruleConfig)) {
+      if (
+        Legality.isForbiddenAgari(
+          this.discardStack,
+          this.strengthInverted,
+          this.ruleConfig
+        )
+      ) {
         this.processForbiddenAgari(activePlayerControl);
         return;
       }
@@ -812,19 +817,12 @@ class GameImple implements Game {
   }
 
   private processMiyakoochi() {
-    if (!this.ruleConfig.miyakoochi) {
+    const lastDaifugo = this.findLastDaifugo();
+    if (lastDaifugo === null) {
       return;
     }
-    if (!this.lastGameResult) {
-      return;
-    }
-    const lastDaifugoID = this.lastGameResult.getIdentifiersByRank(Rank.RankType.DAIFUGO);
-    if (lastDaifugoID.length === 0) {
-      return;
-    }
-    const lastDaifugo = this.findPlayerByIdentifier(lastDaifugoID[0]);
     if (lastDaifugo.rank.getRankType() !== Rank.RankType.UNDETERMINED) {
-      // The last daifugo already has a rank. This means the player successfully defended the rank or fell by miyakoochi.
+      // The last daifugo already has a rank. This means the player successfully defended the rank or has already fallen.
       return;
     }
 
@@ -856,52 +854,90 @@ class GameImple implements Game {
   }
 
   private adjustMiyakoochiPosition() {
-    if (!this.ruleConfig.miyakoochi) {
+    const fallen = this.findFallenLastDaifugo();
+    if (fallen === null) {
       return;
     }
-    if (!this.lastGameResult) {
-      return;
-    }
-    const lastDaifugoID = this.lastGameResult.getIdentifiersByRank(Rank.RankType.DAIFUGO);
-    if (lastDaifugoID.length === 0) {
-      return;
-    }
-    const lastDaifugo = this.findPlayerByIdentifier(lastDaifugoID[0]);
-    const lastDaifugoRank = lastDaifugo.rank.getRankType();
-    if (lastDaifugoRank === Rank.RankType.UNDETERMINED || lastDaifugoRank === Rank.RankType.DAIFUGO) {
-      // The last daifugo has not fallen or successfully defended the rank.
-      return;
-    }
-    // We need to raise the rank of the (fallen) last daifugo because players who did forbidden agari must take lower ranks.
+    // We need to raise the rank of the fallen last daifugo because players who did forbidden agari must take lower ranks.
+    // The player who just did forbidden agari has already been pushed to penalizedPlayerIdentifiers, so the fallen daifugo goes right above all penalized players.
     const count = this.countNotKickedPlayers();
-    const pos = count - this.penalizedPlayerIdentifiers.length - 1;
-    const ret = lastDaifugo.rank.determine(count, pos);
+    const pos = count - this.penalizedPlayerIdentifiers.length;
+    const ret = fallen.rank.determine(count, pos);
     this.eventReceiver.onPlayerRankChanged(
-      lastDaifugo.identifier,
+      fallen.identifier,
       ret.before,
       ret.after
     );
   }
 
+  private findLastDaifugo(): Player.Player | null {
+    // Returns the daifugo of the last game only when miyakoochi can be applied to the player in this game.
+    if (!this.ruleConfig.miyakoochi || this.lastGameResult === null) {
+      return null;
+    }
+    const lastDaifugoIDs = this.lastGameResult.getIdentifiersByRank(
+      Rank.RankType.DAIFUGO
+    );
+    if (lastDaifugoIDs.length === 0) {
+      return null;
+    }
+    // The last daifugo may not participate in this game.
+    const p = this.findPlayerOrNull(lastDaifugoIDs[0]);
+    if (p === null || p.isKicked()) {
+      return null;
+    }
+    return p;
+  }
+
+  private findFallenLastDaifugo(): Player.Player | null {
+    // The fallen daifugo has a rank but is neither in agariPlayerIdentifiers nor in penalizedPlayerIdentifiers.
+    const p = this.findLastDaifugo();
+    if (p === null) {
+      return null;
+    }
+    if (
+      p.rank.getRankType() === Rank.RankType.UNDETERMINED ||
+      this.agariPlayerIdentifiers.includes(p.identifier) ||
+      this.penalizedPlayerIdentifiers.includes(p.identifier)
+    ) {
+      return null;
+    }
+    return p;
+  }
+
+  private countBottomRankedPlayers(): number {
+    // Players who are placed from the bottom: penalized players and the fallen daifugo.
+    return (
+      this.penalizedPlayerIdentifiers.length +
+      (this.findFallenLastDaifugo() === null ? 0 : 1)
+    );
+  }
+
   private processGameEndCheck() {
+    if (this.gameEnded) {
+      return;
+    }
     const rm = this.players.filter((v) => {
       return (
         !v.isKicked() && v.rank.getRankType() == Rank.RankType.UNDETERMINED
       );
     });
-    if (rm.length == 1) {
-      const p = rm[0];
-      const count = this.countNotKickedPlayers();
-      const ret = p.rank.determine(
-        count,
-        count - this.penalizedPlayerIdentifiers.length
-      );
-      this.agariPlayerIdentifiers.push(p.identifier);
-      this.eventReceiver.onPlayerRankChanged(
-        p.identifier,
-        ret.before,
-        ret.after
-      );
+    // When the last daifugo falls by miyakoochi in a 2-player game, no player is left undetermined.
+    if (rm.length <= 1) {
+      if (rm.length === 1) {
+        const p = rm[0];
+        const count = this.countNotKickedPlayers();
+        const ret = p.rank.determine(
+          count,
+          count - this.countBottomRankedPlayers()
+        );
+        this.agariPlayerIdentifiers.push(p.identifier);
+        this.eventReceiver.onPlayerRankChanged(
+          p.identifier,
+          ret.before,
+          ret.after
+        );
+      }
       this.eventReceiver.onGameEnd(this.outputResult());
       // Cache the game ended state. this.processTurnAdvancement checks this value and skips the entire processing to avoid infinite loop and the subsequent heap out of memory.
       this.gameEnded = true;
@@ -985,7 +1021,7 @@ export function createActivePlayerControlForTest(
   );
 }
 
-export class ActivePlayerControlError extends Error { }
+export class ActivePlayerControlError extends Error {}
 
 class ActivePlayerControlImple implements ActivePlayerControl {
   public readonly playerIdentifier: string;

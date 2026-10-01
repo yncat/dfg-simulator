@@ -31,6 +31,7 @@ https://github.com/yncat/dfg-example
 - Exile a card by a 10
 - Joker as wildcards
 - 3 of spades against a joker
+- Miyakoochi (the last daifugo falls when another player gets agari first)
 
 ## Documentation
 
